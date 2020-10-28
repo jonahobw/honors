@@ -219,18 +219,22 @@ def get_model_prediction(model, input_batch):
 
 def get_class_prediction(prediction_output):
     # Tensor of shape 1000, with confidence scores over Imagenet's 1000 classes
-    #print(output[0])
+    # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
-    sm = torch.nn.functional.softmax(prediction_output[0], dim=0)
-    sm_list = sm.tolist()
-    return sm_list.index(max(sm_list))
+    # sm = torch.nn.functional.softmax(prediction_output[0], dim=0)
+    # sm_list = sm.tolist()
+    _, pred = torch.max(prediction_output, 1)
+    # return sm_list.index(max(sm_list))
+    return pred
 
 
 def train_model(model, dataloaders, num_epochs=25, lr = 0.001):
     # this code is adapted from the PyTorch tutorial
     # at https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
     criterion = nn.CrossEntropyLoss()
-    #device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        model.cuda()
     optimizer = optim.SGD(model.parameters(), lr, momentum=0.9)
 
     since = time.time()
@@ -256,11 +260,15 @@ def train_model(model, dataloaders, num_epochs=25, lr = 0.001):
 
             running_loss = 0.0
             running_corrects = 0
-
+            count = 0
             # Iterate over data.
             for inputs, labels in dataloaders[phase]:
-                #inputs = inputs.to(device)
-                #labels = labels.to(device)
+                inputs = inputs.to(device)
+                labels = labels.to(device)
+
+                count += 1
+                if (count % 100 == 0):
+                    print("New Batch" + str(count))
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -332,7 +340,8 @@ def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
 
 def create_and_train_model():
     model = make_resnet_model()
-    data = generate_reduced_training_dataloader()
+    # data = generate_reduced_training_dataloader()
+    data = generate_training_dataloaders()
     model, train_acc, val_acc, train_loss, val_loss = train_model(model, data)
     plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss)
     save_model(model)
