@@ -1,0 +1,256 @@
+Epoch 1/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 2.9254 Acc: 0.2038
+New Batch100
+Validation Loss: 2.5683 Acc: 0.2662
+
+Epoch 2/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 2.1846 Acc: 0.3807
+New Batch100
+Validation Loss: 2.1966 Acc: 0.4197
+
+Epoch 3/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 1.5115 Acc: 0.5498
+New Batch100
+Validation Loss: 1.6278 Acc: 0.5400
+
+Epoch 4/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 1.0625 Acc: 0.6849
+New Batch100
+Validation Loss: 0.9979 Acc: 0.7059
+
+Epoch 5/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.6701 Acc: 0.8166
+New Batch100
+Validation Loss: 0.8823 Acc: 0.7498
+
+Epoch 6/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.3992 Acc: 0.9043
+New Batch100
+Validation Loss: 1.3739 Acc: 0.7100
+
+Epoch 7/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.2470 Acc: 0.9485
+New Batch100
+Validation Loss: 0.2104 Acc: 0.9566
+
+Epoch 8/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.1548 Acc: 0.9731
+New Batch100
+Validation Loss: 0.1448 Acc: 0.9717
+
+Epoch 9/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.1020 Acc: 0.9842
+New Batch100
+Validation Loss: 0.4511 Acc: 0.9160
+
+Epoch 10/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0720 Acc: 0.9904
+New Batch100
+Validation Loss: 0.1277 Acc: 0.9688
+
+Epoch 11/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0544 Acc: 0.9935
+New Batch100
+Validation Loss: 0.0710 Acc: 0.9825
+
+Epoch 12/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0417 Acc: 0.9953
+New Batch100
+Validation Loss: 0.0519 Acc: 0.9890
+
+Epoch 13/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0300 Acc: 0.9975
+New Batch100
+Validation Loss: 0.1066 Acc: 0.9719
+
+Epoch 14/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0256 Acc: 0.9981
+New Batch100
+Validation Loss: 0.0358 Acc: 0.9922
+
+Epoch 15/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0205 Acc: 0.9989
+New Batch100
+Validation Loss: 0.1143 Acc: 0.9672
+
+Epoch 16/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0247 Acc: 0.9971
+New Batch100
+Validation Loss: 0.0286 Acc: 0.9940
+
+Epoch 17/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0160 Acc: 0.9990
+New Batch100
+Validation Loss: 0.0218 Acc: 0.9957
+
+Epoch 18/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0114 Acc: 0.9997
+New Batch100
+Validation Loss: 0.0236 Acc: 0.9955
+
+Epoch 19/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0118 Acc: 0.9994
+New Batch100
+Validation Loss: 0.0259 Acc: 0.9938
+
+Epoch 20/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0111 Acc: 0.9995
+New Batch100
+Validation Loss: 0.0234 Acc: 0.9950
+
+Epoch 21/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0087 Acc: 0.9996
+New Batch100
+Validation Loss: 0.0342 Acc: 0.9912
+
+Epoch 22/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0092 Acc: 0.9994
+New Batch100
+Validation Loss: 0.0427 Acc: 0.9883
+
+Epoch 23/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0118 Acc: 0.9987
+New Batch100
+Validation Loss: 0.0178 Acc: 0.9957
+
+Epoch 24/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0064 Acc: 0.9999
+New Batch100
+Validation Loss: 0.0288 Acc: 0.9920
+
+Epoch 25/25
+----------
+New Batch100
+New Batch200
+New Batch300
+New Batch400
+Train Loss: 0.0058 Acc: 0.9999
+New Batch100
+Validation Loss: 0.0140 Acc: 0.9963
+
+Training complete in 19m 60s
+Best Validation Acc: 0.996301
+
+
+Model saved as /home/jonah/neuralnets/GTSRB_resnet/pytorch_resnet_saved
+Test Accuracy: 5.96991%
