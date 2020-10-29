@@ -1,10 +1,9 @@
-from torchvision import datasets, transforms
 import os
-import torch
-import random
-import datetime
-import time
 
-a = os.listdir(os.path.join("small_test_dataset", "Test"))
-for i,x in enumerate(a):
-    print('Test/{}, i = {}'.format(x, i))
+classes = [0, 1]
+labels = []
+for sign in classes:
+    a = os.listdir(os.path.join(os.getcwd(), "small_test_dataset", "Test", str(sign)))
+    labels.extend([sign]*len(a))
+
+print(labels)

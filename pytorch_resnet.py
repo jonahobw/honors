@@ -114,7 +114,7 @@ def preprocess_image(filename):
     preprocess = transforms.Compose([
         transforms.Resize([INPUT_SIZE, INPUT_SIZE]),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ])
     input_tensor = preprocess(input_image)
     return input_tensor
@@ -214,17 +214,14 @@ def get_model_prediction(model, input_batch):
 
     with torch.no_grad():
         output = model(input_batch)
-    return output
 
-
-def get_class_prediction(prediction_output):
-    # Tensor of shape 1000, with confidence scores over Imagenet's 1000 classes
-    # print(output[0])
     # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
     # sm = torch.nn.functional.softmax(prediction_output[0], dim=0)
     # sm_list = sm.tolist()
-    _, pred = torch.max(prediction_output, 1)
     # return sm_list.index(max(sm_list))
+
+    _, pred = torch.max(output, 1)
+
     return pred
 
 
@@ -348,39 +345,13 @@ def create_and_train_model():
     return model
 
 
-def test_model(model, path = None):
-    '''
-    model.eval()
-    if path == None:
-        path = os.getcwd()
-    csv_path = os.path.join(path, "Test.csv")
-    y_test = pd.read_csv(csv_path)
-    labels = list(y_test["ClassId"].values)
-    imgs = y_test["Path"].values
-
-    predictions = []
-
-    for img in imgs:
-        #image = Image.open(os.path.join(path, img))
-        image = preprocess_image(os.path.join(path, img))
-        #image = create_batch(torch.tensor(image))
-        image = create_batch(image.clone().detach())
-        model_pred = get_model_prediction(model, image)
-        class_pred = get_class_prediction(model_pred)
-        predictions.append(class_pred)
-
-    #for i in range(len(imgs)):
-    #    print('Model prediction for image {} was {}, actual was {}'.format(imgs[i], predictions[i], labels[i]))
-
-    # Accuracy with the test data
-    test_accuracy = accuracy_score(labels, predictions)
-    print('Test Accuracy: {:.5f}%'.format(test_accuracy*100))
-    '''
-
-    #not using this code below for now, it has not been tested
+def test_model_using_dataloader(model, reduced = False, verbose = False):
     # code adapted from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
     model.eval()
-    test_data_loader = generate_reduced_testing_dataloaders()
+    if(reduced):
+        test_data_loader = generate_reduced_testing_dataloaders()
+    else:
+        test_data_loader = generate_testing_dataloaders()
 
     correct = 0
     total = 0
@@ -389,6 +360,8 @@ def test_model(model, path = None):
             images, labels = data
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
+            if (verbose):
+                print('Labels:    {}\nPredicted: {}'.format(labels, predicted))
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
@@ -396,23 +369,71 @@ def test_model(model, path = None):
     print('Total number of images tested: {}'.format(str(total)))
 
 
-def load_and_test_model():
+def test_model_manually(model, reduced = False, verbose = False, limit = None):
+    model.eval()
+    if (reduced):
+        path = os.path.join(os.getcwd(), "small_test_dataset")
+    else:
+        path = os.getcwd()
+
+    classes = os.listdir(os.path.join(path, "Test"))
+
+    imgs = []
+    labels = []
+
+    for sign in classes:
+        sign_directory = os.path.join(("Test"), str(sign))
+        test_data = os.listdir(os.path.join(path, sign_directory))
+        labels.extend([sign]*len(test_data))
+        imgs.extend(test_data)
+
+    if limit is not None:
+        labels = labels[:limit]
+        imgs = imgs[:limit]
+
+    predictions = []
+
+    for i, img in enumerate(imgs):
+        #image = Image.open(os.path.join(path, img))
+        image = preprocess_image(os.path.join(path, "Test", str(labels[i]), img))
+        #image = create_batch(torch.tensor(image))
+        image = create_batch(image.clone().detach())
+        class_pred = get_model_prediction(model, image)
+        predictions.append(str(class_pred.item()))
+
+    if (verbose):
+        for i in range(len(imgs)):
+            print('Model prediction for image {} was {}, actual was {}'.format(imgs[i], predictions[i], labels[i]))
+
+    # Accuracy with the test data
+    total = len(labels)
+    correct = 0
+    for i in range(total):
+        if (labels[i] == predictions[i]):
+            correct +=1
+
+    test_accuracy = correct/total
+    print('Test Accuracy: {:.5f}%'.format(test_accuracy*100))
+
+
+def load_and_test_model(reduced = False, verbose = False):
     print("Loading model ...")
     model = load_model(os.path.join(os.getcwd(), "pytorch_resnet_saved"))
     print("Successfully loaded model.")
-    test_model(model, os.getcwd())
+    #test_model_using_dataloader(model, reduced, verbose)
+    test_model_manually(model, reduced=reduced, verbose=verbose, limit=200)
 
 
-def train_and_test_model_from_scratch():
+def train_and_test_model_from_scratch(reduced = False):
     model = create_and_train_model()
     #test_model(model, os.path.join(os.getcwd(), "small_test_dataset"))
-    test_model(model, os.getcwd())
+    test_model_using_dataloader(model, reduced)
 
 
 if __name__ == '__main__':
     #train_and_test_model_from_scratch()
     #model = load_model("pytorch_resnet_saved")
     #summary(model, (3, 224, 224))
-    load_and_test_model()
+    load_and_test_model(reduced=False, verbose=True)
     #configure_testing_dataset()
     #configure_small_test_dataset_testing_dataset()
