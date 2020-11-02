@@ -6,6 +6,7 @@ Train.csv
 Train/
 Validation/
 temp.py
+Debug/
 
 # Default ignored files
 /shelf/
