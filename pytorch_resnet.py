@@ -393,7 +393,7 @@ def test_one_image(model, image, path = False):
 
 
 def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None):
-    # tests the model on all images in the subfolders of path
+    # tests the model on all images in the subfolders of path/Test
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
     # startlimit specifies the first image to test
@@ -403,6 +403,7 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
         path = os.path.join(os.getcwd(), path)
     else:
         path = os.getcwd()
+    path = os.path.join(path, "Test")
 
     classes = os.listdir(path)
 
