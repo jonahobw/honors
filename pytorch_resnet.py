@@ -455,4 +455,6 @@ def train_and_test_model_from_scratch(path = os.getcwd(), verbose = False):
 
 
 if __name__ == '__main__':
-    load_and_test_model(path = "Debug", verbose=True)
+    #load_and_test_model(path = "Debug", verbose=True)
+    for path in ["Test", "Train", "Validation"]:
+        format_folder_two_digits(os.path.join(os.getcwd(),path))
