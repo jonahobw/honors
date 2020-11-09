@@ -161,7 +161,9 @@ def create_batch(list_of_tensors):
     return input_batch
 
 
-def generate_training_dataloaders(path = os.getcwd()):
+def generate_training_dataloaders(path = None):
+    if (path == None):
+        path = os.getcwd()
     # creates and returns a dataloader used for neural network training
     data_transforms = {
         # can apply different transforms to training and validation data, this could be used to augment the
@@ -187,7 +189,9 @@ def generate_training_dataloaders(path = os.getcwd()):
     return dataloaders_dict
 
 
-def generate_testing_dataloaders(path = os.getcwd()):
+def generate_testing_dataloaders(path = None):
+    if (path == None):
+        path = os.getcwd()
     # generates a dataloader for testing a neural net
     # input path should be to root directory of the dataset
     # code adapted from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
@@ -333,7 +337,9 @@ def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
     plt.show()
 
 
-def create_and_train_model(path = os.getcwd()):
+def create_and_train_model(path = None):
+    if (path == None):
+        path = os.getcwd()
     # creates a model, trains it, plots the accuracy/loss, and saves the model
     model = make_resnet_model()
     # data = generate_reduced_training_dataloader()
@@ -344,7 +350,9 @@ def create_and_train_model(path = os.getcwd()):
     return model
 
 
-def test_model_using_dataloader(model, path = os.getcwd(), verbose = False):
+def test_model_using_dataloader(model, path = None, verbose = False):
+    if (path == None):
+        path = os.getcwd()
     # tests a model using data from a dataloader
     # code adapted from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
     model.eval()
@@ -357,10 +365,10 @@ def test_model_using_dataloader(model, path = os.getcwd(), verbose = False):
     total = 0
 
     with torch.no_grad():
-        for i, (images, labels) in enumerate(test_data_loader, 0):
+        for i, (inputs, labels) in enumerate(test_data_loader, 0):
             inputs = inputs.to(device)
             labels = labels.to(device)
-            outputs = model(images)
+            outputs = model(inputs)
             _, predicted = torch.max(outputs.data, 1)
             sample_fname, _ = test_data_loader.dataset.samples[i]
             if verbose:
@@ -450,10 +458,12 @@ def load_and_test_model(modelpath, path = None, verbose = False):
     model = load_model(os.path.join(os.getcwd(), modelpath))
     print("Successfully loaded model.")
     test_model_using_dataloader(model, path = path, verbose= verbose)
-    test_model_manually(model, path = path, verbose=verbose, limit=10, startlimit=None)
+    test_model_manually(model, path = path, verbose=verbose, startlimit=None)
 
 
-def train_and_test_model_from_scratch(path = os.getcwd(), verbose = False):
+def train_and_test_model_from_scratch(path = None, verbose = False):
+    if(path == None):
+        path = os.getcwd()
     # creates a model, trains it, shows the training data, saves the model, and tests the model
     model = create_and_train_model(path=path)
     test_model_using_dataloader(model, path = path, verbose = verbose)
