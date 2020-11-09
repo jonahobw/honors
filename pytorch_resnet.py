@@ -349,12 +349,17 @@ def test_model_using_dataloader(model, path = os.getcwd(), verbose = False):
     # code adapted from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
     model.eval()
     test_data_loader = generate_testing_dataloaders(path)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        model.cuda()
 
     correct = 0
     total = 0
 
     with torch.no_grad():
         for i, (images, labels) in enumerate(test_data_loader, 0):
+            inputs = inputs.to(device)
+            labels = labels.to(device)
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             sample_fname, _ = test_data_loader.dataset.samples[i]
@@ -456,5 +461,4 @@ def train_and_test_model_from_scratch(path = os.getcwd(), verbose = False):
 
 if __name__ == '__main__':
     #load_and_test_model(path = "Debug", verbose=True)
-    for path in ["Test", "Train", "Validation"]:
-        format_folder_two_digits(os.path.join(os.getcwd(),path))
+    train_and_test_model_from_scratch()
