@@ -189,9 +189,9 @@ def generate_training_dataloaders(path = None):
     return dataloaders_dict
 
 
-def generate_testing_dataloaders(path = None):
-    if (path == None):
-        path = os.getcwd()
+def generate_testing_dataloaders(test_path = None):
+    if (test_path == None):
+        test_path = os.path.join(os.getcwd(), "Test")
     # generates a dataloader for testing a neural net
     # input path should be to root directory of the dataset
     # code adapted from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
@@ -201,7 +201,7 @@ def generate_testing_dataloaders(path = None):
             transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         ])
 
-    test_dataset = datasets.ImageFolder(os.path.join(path, 'Test'), data_transform)
+    test_dataset = datasets.ImageFolder(test_path, data_transform)
     # Create testing dataloader
     dataloaders_dict = torch.utils.data.DataLoader(test_dataset, batch_size=BATCH_SIZE,
                                        shuffle=False, num_workers=4)
@@ -352,7 +352,7 @@ def create_and_train_model(path = None):
 
 def test_model_using_dataloader(model, path = None, verbose = False):
     if (path == None):
-        path = os.getcwd()
+        path = os.path.join(os.getcwd(), "Test")
     # tests a model using data from a dataloader
     # code adapted from https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html
     model.eval()
@@ -363,21 +363,24 @@ def test_model_using_dataloader(model, path = None, verbose = False):
 
     correct = 0
     total = 0
+    predictions = []
 
     with torch.no_grad():
-        for i, (inputs, labels) in enumerate(test_data_loader, 0):
+        for inputs, labels in test_data_loader:
             inputs = inputs.to(device)
             labels = labels.to(device)
             outputs = model(inputs)
             _, predicted = torch.max(outputs.data, 1)
-            sample_fname, _ = test_data_loader.dataset.samples[i]
-            if verbose:
-                print('Model prediction for image {} was {}, label was {}'
-                      .format(sample_fname, predicted.item(), labels))
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
-    print('Accuracy of the network on the test images: %d %%' % (100 * correct / total))
+            predictions += list(predicted)
+    if verbose:
+        for i in range(len(test_data_loader.dataset.samples)):
+            img_path, true_class = test_data_loader.dataset.samples[i]
+            img_file = os.path.split(img_path)[1]
+            print('Model prediction for image {} was {}, actual was {}'
+                  .format(img_file, predictions[i], true_class))
+    print('Test Accuracy: {:.7f}%'.format(100 * correct / total))
     print('Total number of images tested: {}'.format(str(total)))
 
 
@@ -393,17 +396,14 @@ def test_one_image(model, image, path = False):
 
 
 def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None):
-    # tests the model on all images in the subfolders of path/Test
+    # tests the model on all images in the subfolders of path
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
     # startlimit specifies the first image to test
 
     model.eval()
-    if (path is not None):
-        path = os.path.join(os.getcwd(), path)
-    else:
-        path = os.getcwd()
-    path = os.path.join(path, "Test")
+    if (path == None):
+        path = os.path.join(os.getcwd(), "Test")
 
     classes = os.listdir(path)
 
@@ -445,21 +445,22 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     total = len(labels)
     correct = 0
     for i in range(total):
-        if (labels[i] == predictions[i]):
+        if (int(labels[i]) == int(predictions[i])):
             correct +=1
 
     test_accuracy = correct/total
-    print('Test Accuracy: {:.5f}%'.format(test_accuracy*100))
+    print('Test Accuracy: {:.7f}%'.format(test_accuracy*100))
+    print("Number of images tested: {}".format(str(total)))
 
 
-def load_and_test_model(modelpath, path = None, verbose = False):
+def load_and_test_model(modelpath, test_path = None, verbose = False):
     # loads a model and tests it using a dataloader and manually
 
     print("Loading model " + modelpath + "...")
     model = load_model(os.path.join(os.getcwd(), modelpath))
     print("Successfully loaded model.")
-    test_model_using_dataloader(model, path = path, verbose= verbose)
-    test_model_manually(model, path = path, verbose=verbose, startlimit=None)
+    test_model_using_dataloader(model, path = test_path, verbose= verbose)
+    test_model_manually(model, path = test_path, verbose=verbose, startlimit=None)
 
 
 def train_and_test_model_from_scratch(path = None, verbose = False):
@@ -471,5 +472,5 @@ def train_and_test_model_from_scratch(path = None, verbose = False):
 
 
 if __name__ == '__main__':
-    load_and_test_model("pytorch_resnet_saved_11_9_20")
+    load_and_test_model("pytorch_resnet_saved_11_9_20", test_path=os.path.join(os.getcwd(), 'Debug'), verbose=True)
     #train_and_test_model_from_scratch()
