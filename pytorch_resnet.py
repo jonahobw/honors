@@ -15,7 +15,7 @@ import numpy as np
 from shutil import copyfile
 
 
-BATCH_SIZE = 1
+BATCH_SIZE = 64
 INPUT_SIZE = 224
 NUM_CLASSES = 43
 EPOCHS = 15
@@ -443,11 +443,11 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     print('Test Accuracy: {:.5f}%'.format(test_accuracy*100))
 
 
-def load_and_test_model(path = None, verbose = False):
+def load_and_test_model(modelpath, path = None, verbose = False):
     # loads a model and tests it using a dataloader and manually
 
-    print("Loading model ...")
-    model = load_model(os.path.join(os.getcwd(), "pytorch_resnet_saved"))
+    print("Loading model " + modelpath + "...")
+    model = load_model(os.path.join(os.getcwd(), modelpath))
     print("Successfully loaded model.")
     test_model_using_dataloader(model, path = path, verbose= verbose)
     test_model_manually(model, path = path, verbose=verbose, limit=10, startlimit=None)
@@ -460,5 +460,5 @@ def train_and_test_model_from_scratch(path = os.getcwd(), verbose = False):
 
 
 if __name__ == '__main__':
-    #load_and_test_model(path = "Debug", verbose=True)
-    train_and_test_model_from_scratch()
+    load_and_test_model("pytorch_resnet_saved_11_9_20")
+    #train_and_test_model_from_scratch()
