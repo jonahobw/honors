@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import os
 from PIL import Image
-from pytorch_resnet import load_model, test_one_image, get_model_prediction_probs
+from pytorch_resnet import load_model, test_one_image, format_two_digits, NUM_CLASSES
 from scipy.optimize import differential_evolution
+import random
 
 # most code in this file adapted from https://github.com/Hyperparticle/one-pixel-attack-keras/blob/master/1_one-pixel-attack-cifar10.ipynb
 
@@ -65,8 +66,8 @@ def attack_success(xs, img, target_class, model, targeted_attack=False, verbose=
 
     # If the prediction is what we want (misclassification or targeted classification), return True
     if verbose:
-        print('Model Confidence in class  {}:     {:4f}%'.format(target_class, target_class_confidence*100))
-        print('Model prediction was class {} with {:4f}% confidence'.format(predicted_class, predicted_class_confidence*100))
+        print('Model Confidence in true class {}:     {:4f}%'.format(target_class, target_class_confidence*100))
+        print('Model prediction was class     {} with {:4f}% confidence'.format(predicted_class, predicted_class_confidence*100))
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
         return True
@@ -81,7 +82,8 @@ def print_image(img, path = True, title = ""):
     plt.show()
 
 
-def attack(img_id, img_class, model, target=None, pixel_count=1, maxiter=75, popsize=400, verbose=False):
+def attack(img_id, img_class, model, target=None, pixel_count=1,
+           maxiter=75, popsize=400, verbose=False, show_image = False):
     # performs an attack on a model using possible perturbations on 1 input image
     # uses differential evolution to try to find an image that succeeds in fooling the network
     # parameters:
@@ -137,19 +139,97 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, maxiter=75, pop
     cdiff = prior_true_class_confidence - true_class_confidence
 
     # Show the best attempt at a solution (successful or not)
+    if show_image:
+        annotation = 'Model Confidence in true class  {}:     {:4f}%'.format(str(img_class),
+                                                                             true_class_confidence * 100)
+        annotation += '\nModel prediction was class   {} with {:4f}% confidence'.format(str(predicted_class),
+                                                                                        predicted_class_confidence * 100)
+        annotation += '\nAttack was {}'.format("successful" if success else "unsuccessful")
+        print_image(attack_image, path=False, title = annotation)
 
-    annotation = 'Model Confidence in class  {}:     {:4f}%'.format(str(img_class), true_class_confidence * 100)
-    annotation += '\nModel prediction was class {} with {:4f}% confidence'.format(str(predicted_class), predicted_class_confidence * 100)
-    annotation += '\nAttack was {}'.format("successful" if success else "unsuccessful")
+    return success
 
-    print_image(attack_image, path=False, title = annotation)
 
-    return [model, pixel_count, img_id, img_class, predicted_class, success, cdiff, prior_probs,
-            predicted_probs, attack_result.x]
+def retrieve_valid_test_images(model, image_folder, samples, targeted = None):
+    classes = os.listdir(image_folder)
 
-sign = 0
-image_file = os.listdir(os.path.join(os.getcwd(), "Test", str(sign)))[0]
-image_file_path = os.path.join(os.getcwd(), "Test", str(sign), image_file)
+    imgs = []
+    valid_imgs = []
 
-model = load_model("pytorch_resnet_saved")
-attack(image_file_path, sign, model, pixel_count=5, maxiter=15, popsize=50, verbose= True)
+    for sign in classes:
+        if(targeted is not None and int(targeted)==int(sign)):
+            continue
+        sign_directory = os.path.join(image_folder, str(sign))
+        test_data = os.listdir(sign_directory)
+        for i in range(len(test_data)):
+            file = test_data[i]
+            file_path = os.path.join(sign_directory, file)
+            # tuple of (image filename, label of image)
+            imgs.append((file_path, sign))
+    random.shuffle(imgs)
+
+    for i in range(len(imgs)):
+        image, true_class = imgs.pop()
+        im = Image.open(image)
+        preds = test_one_image(model, im)
+        class_pred = preds.index(max(preds))
+        if(int(class_pred)==int(true_class)):
+            valid_imgs.append((image, true_class))
+            samples -= 1
+        if(samples == 0):
+            break
+
+    if samples > 0:
+        print("Error, unable to find {} correctly classified images from {}".format(str(samples), image_folder))
+        return -1
+    else:
+        return valid_imgs
+
+
+def attack_all_untargeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), targeted=False,
+               maxiter=75, popsize=400, verbose=False, show_image = False):
+    if image_folder == None:
+        image_folder = os.path.join(os.getcwd(), "Test")
+
+    img_samples = retrieve_valid_test_images(model, image_folder, samples)
+
+    for pixel_count in pixels:
+        print("\n\nAttacking with {} pixels\n\n".format(pixel_count))
+        total_success = 0
+        for i, (img, label) in enumerate(img_samples):
+            if(i%100 ==0 and i != 0):
+                print("{} samples tested so far, attack succeeded for {}".format(str(i), str(total_success)))
+            success = attack(img, int(label), model, pixel_count=pixel_count,
+                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
+            if success:
+                total_success +=1
+        success_percent = 100*total_success/samples
+        print("Attack success for {}-pixel attack on {} "
+              "samples is {}%".format(str(pixel_count), str(samples), str(success_percent)))
+
+def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), targeted=False,
+               maxiter=75, popsize=400, verbose=False, show_image = False):
+    if image_folder == None:
+        image_folder = os.path.join(os.getcwd(), "Test")
+
+    test_images = []
+    for i in range(NUM_CLASSES):
+        test_images.append(retrieve_valid_test_images(model, image_folder, samples, targeted=i))
+
+    for pixel_count in pixels:
+        for i in range(NUM_CLASSES):
+            target_class = i
+            img_samples = test_images[i]
+        print("\n\nAttacking with {} pixels\n\n".format(pixel_count))
+        total_success = 0
+        for img, label in img_samples:
+            success = attack(img, int(label), model, pixel_count=pixel_count,
+                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
+            if success:
+                total_success +=1
+        success_percent = 100*total_success/samples
+        print("Attack success for {}-pixel attack on {} "
+              "samples is {}".format(str(pixel_count), str(samples), str(success_percent)))
+
+model = load_model("pytorch_resnet_saved_11_9_20")
+attack_all_untargeted(model)

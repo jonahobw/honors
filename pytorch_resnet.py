@@ -100,6 +100,15 @@ def format_folder_two_digits(path):
         if len(folder_name) != 2:
             os.rename(os.path.join(path, folder_name), os.path.join(path, '0' + folder_name))
 
+def format_two_digits(number):
+    # parameters:
+    # number (int, float, or string): number to be converted
+    #
+    # return values:
+    # two_digits (string): the input number converted to a string and padded
+    # with zeros on the front so that it is at least 2 digits long
+    return str(number).zfill(2)
+
 
 def configure_testing_dataset():
     # organizes a list of random test images into folders where each folder is a class of images
