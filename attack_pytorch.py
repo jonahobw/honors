@@ -226,7 +226,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
         items_to_remove = []
         for j, (img, label) in enumerate(img_samples):
             if(j%10 == 0 and j != 0):
-                print("{} samples tested so far".format(str(i)))
+                print("{} samples tested so far".format(str(j)))
             success = attack(img, int(label), model, pixel_count=pixel_count,
                              maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
             if success:
@@ -245,6 +245,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     time_elapsed = time.time() - since
     print('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     return results, pixels, samples, maxiter, popsize
+
 
 def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), targeted=False,
                maxiter=75, popsize=400, verbose=False, show_image = False):
@@ -292,6 +293,12 @@ def plot_untargeted(results, pixels, samples, maxiter, popsize):
     plt.legend()
     plt.show()
 
-model = load_model("pytorch_resnet_saved_11_9_20")
-r, pix, s, m, p = attack_all_untargeted(model)
-plot_untargeted(r, pix, s, m, p)
+
+def run_plot_untargeted():
+    model = load_model("pytorch_resnet_saved_11_9_20")
+    r, pix, s, m, p = attack_all_untargeted(model)
+    plot_untargeted(r, pix, s, m, p)
+
+#model = load_model("pytorch_resnet_saved_11_9_20")
+
+run_plot_untargeted()
