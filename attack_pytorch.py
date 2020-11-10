@@ -164,24 +164,15 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
     return success
 
 
-def retrieve_valid_test_images(model, image_folder, samples, targeted = None):
-    classes = os.listdir(image_folder)
+def get_correctly_classified_imgs(model, imgs, samples):
+    # This function takes an array of image files and returns a subset of that array of size <samples> where
+    # every image in the subset is correctly classified by the <model>
+    # parameters:
+    # model (neural network object): the model to use for classification
+    # imgs (list): array of tuples (image file name, image true class)
+    # samples (int): the number of images desired who classify correctly
 
-    imgs = []
     valid_imgs = []
-
-    for sign in classes:
-        if(targeted is not None and int(targeted)==int(sign)):
-            continue
-        sign_directory = os.path.join(image_folder, str(sign))
-        test_data = os.listdir(sign_directory)
-        for i in range(len(test_data)):
-            file = test_data[i]
-            file_path = os.path.join(sign_directory, file)
-            # tuple of (image filename, label of image)
-            imgs.append((file_path, sign))
-    random.shuffle(imgs)
-
     for i in range(len(imgs)):
         image, true_class = imgs.pop()
         im = Image.open(image)
@@ -199,8 +190,48 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None):
     else:
         return valid_imgs
 
+def retrieve_valid_test_images(model, image_folder, samples, targeted = None, exclusive = None):
+    # returns a set of images who classify correctly of size <samples>
+    #
+    # if <targeted> is not none, it should be an integer representing one of the classes, and
+    # the function will return a set of images (who classify correctly) of size <samples> where
+    # none of the images have true class of <targeted>
+    #
+    # if <exclusive> is not none, it should be an integer representing one of the classes, and
+    # the function returns a set of images (who classify correctly) of size <samples> where
+    # all of the images have true class of <exclusive>
 
-def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), targeted=False,
+    imgs = []
+
+    # <exclusive> case:
+    if (exclusive is not None):
+        sign_folder = os.path.join(image_folder, format_two_digits(exclusive))
+        test_data = os.listdir(sign_folder)
+        for i in range(len(test_data)):
+            file = test_data[i]
+            file_path = os.path.join(sign_folder, file)
+            # tuple of (image filename, label of image)
+            imgs.append((file_path, exclusive))
+        return get_correctly_classified_imgs(model, imgs, samples)
+
+    classes = os.listdir(image_folder)
+
+    for sign in classes:
+        if(targeted is not None and int(targeted)==int(sign)):
+            continue
+        sign_directory = os.path.join(image_folder, str(sign))
+        test_data = os.listdir(sign_directory)
+        for i in range(len(test_data)):
+            file = test_data[i]
+            file_path = os.path.join(sign_directory, file)
+            # tuple of (image filename, label of image)
+            imgs.append((file_path, sign))
+    random.shuffle(imgs)
+    return get_correctly_classified_imgs(model, imgs, samples)
+
+
+
+def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5),
                maxiter=25, popsize=200, verbose=False, show_image = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
@@ -247,10 +278,19 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     return results, pixels, samples, maxiter, popsize
 
 
-def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), targeted=False,
+def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), num_classes = NUM_CLASSES,
                maxiter=75, popsize=400, verbose=False, show_image = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
+
+    print("-----Attacking Parameters:-----")
+    print("Test folder:     {}".format(image_folder))
+    print("Samples:         {}".format(str(samples)))
+    print("Pixels:          {}".format(pixels))
+    print("Max iterations:  {}".format(str(maxiter)))
+    print("Population size: {}\n\n".format(str(popsize)))
+
+    since = time.time()
 
     test_images = []
     for i in range(NUM_CLASSES):
@@ -259,11 +299,11 @@ def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5
     # 2d array where 1st dimension is pixel count and 2nd is target class
     results = []
     for i in range(len(pixels)):
-        results.append([0]*NUM_CLASSES)
+        results.append([0]*num_classes)
 
     for i, pixel_count in enumerate(pixels):
         print("\n\nAttacking with {} pixels\n\n".format(pixel_count))
-        for j in range(NUM_CLASSES):
+        for j in range(num_classes):
             total_success = 0
             target_class = j
             img_samples = test_images[j]
@@ -275,10 +315,63 @@ def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5
             success_percent = 100 * total_success / samples
             results[i][j] = success_percent
             print("Attack success for {}-pixel attack with target {} on {} "
-              "samples is {}".format(str(pixel_count), str(target_class), str(samples), str(success_percent)))
+              "samples is {}\n".format(str(pixel_count), str(target_class), str(samples), str(success_percent)))
 
+    print("\nResults:")
     print(results)
-    return results
+    time_elapsed = time.time() - since
+    print('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    return results, pixels, samples, maxiter, popsize
+
+
+def attack_targeted(model, target_class, true_class, image_folder = None, samples=500, pixels=(1, 3, 5),
+                    maxiter=75, popsize=400, verbose=False, show_image = False):
+    if image_folder == None:
+        image_folder = os.path.join(os.getcwd(), "Test")
+
+    print("-----Attacking Parameters:-----")
+    print("Test folder:     {}".format(image_folder))
+    print("Samples:         {}".format(str(samples)))
+    print("Pixels:          {}".format(pixels))
+    print("Max iterations:  {}".format(str(maxiter)))
+    print("Target class:    {}".format(str(target_class)))
+    print("True class:      {}".format(str(true_class)))
+    print("Population size: {}\n\n".format(str(popsize)))
+
+    since = time.time()
+
+    img_samples = retrieve_valid_test_images(model, image_folder, samples, exclusive=true_class)
+
+    # 1d array where index corresponds to pixel count, and the value of an element is the success of
+    # a targeted attack from <true_class> to <target_class> with that pixel count
+    results = [0] * len(pixels)
+
+    total_success = 0
+
+    for i, pixel_count in enumerate(pixels):
+        print("\n\nAttacking with {} pixels\n".format(pixel_count))
+        items_to_remove = []
+        for j, (img, label) in enumerate(img_samples):
+            if(j%10 == 0 and j != 0):
+                print("{} samples tested so far".format(str(j)))
+            success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
+                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
+            if success:
+                total_success +=1
+                items_to_remove.append(img_samples[j])
+        for item in items_to_remove:
+            img_samples.remove(item)
+        success_percent = 100*total_success/samples
+        results[i] = success_percent
+        print("Attack success for {}-pixel attack on {} "
+              "samples is {:4f}%".format(str(pixel_count), str(samples), success_percent))
+        print("{} images were successfully perturbed to trick the model".format(str(total_success)))
+
+    print("Results vector:")
+    print(results)
+    time_elapsed = time.time() - since
+    print('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    return results, pixels, samples, maxiter, popsize, target_class, true_class
 
 
 def plot_untargeted(results, pixels, samples, maxiter, popsize):
@@ -294,11 +387,32 @@ def plot_untargeted(results, pixels, samples, maxiter, popsize):
     plt.show()
 
 
+def plot_targeted(results, pixels, samples, maxiter, popsize, target_class, true_class):
+    plt.figure(0)
+    plt.plot(pixels, results)
+    title = 'Targeted Attack Success by Number of Pixels, {} samples'.format(str(samples))
+    title += "\nFrom true class {} to target class {}".format(str(true_class), str(target_class))
+    title += "\nMax iterations = {}, Population Size = {}".format(str(maxiter), str(popsize))
+    plt.title(title)
+    plt.xlabel('Number of Pixels changed')
+    plt.xticks(range(max(pixels) + 1))
+    plt.ylabel('Attack Success (%)')
+    plt.legend()
+    plt.show()
+
+
 def run_plot_untargeted():
     model = load_model("pytorch_resnet_saved_11_9_20")
-    r, pix, s, m, p = attack_all_untargeted(model)
+    r, pix, s, m, p = attack_all_untargeted(model, samples=3, pixels=(1,3), maxiter=3, popsize=20, verbose=True)
     plot_untargeted(r, pix, s, m, p)
 
-#model = load_model("pytorch_resnet_saved_11_9_20")
+def run_plot_targeted(target_class, true_class):
+    model = load_model("pytorch_resnet_saved_11_9_20")
+    res, pix, sam, mxi, pop, tar, tru = attack_targeted(model, samples = 1,pixels=(1,3), maxiter=10,
+                                                        popsize=30, verbose=True, target_class=target_class,
+                                                        true_class=true_class)
+    plot_targeted(res, pix, sam, mxi, pop, tar, tru)
 
+
+#run_plot_targeted(1, 2)
 run_plot_untargeted()
