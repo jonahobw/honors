@@ -1,0 +1,37 @@
+Attacking with 1 pixels
+
+
+10 samples tested so far
+20 samples tested so far
+30 samples tested so far
+40 samples tested so far
+50 samples tested so far
+60 samples tested so far
+70 samples tested so far
+80 samples tested so far
+Attack success for 1-pixel attack on 100 samples is 16.0%
+
+
+Attacking with 3 pixels
+
+
+10 samples tested so far
+20 samples tested so far
+30 samples tested so far
+40 samples tested so far
+50 samples tested so far
+60 samples tested so far
+70 samples tested so far
+Attack success for 3-pixel attack on 100 samples is 27.0%
+
+
+Attacking with 5 pixels
+
+
+10 samples tested so far
+20 samples tested so far
+30 samples tested so far
+40 samples tested so far
+50 samples tested so far
+60 samples tested so far
+Attack success for 5-pixel attack on 100 samples is 32.0%

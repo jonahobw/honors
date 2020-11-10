@@ -6,6 +6,7 @@ from PIL import Image
 from pytorch_resnet import load_model, test_one_image, format_two_digits, NUM_CLASSES
 from scipy.optimize import differential_evolution
 import random
+import time
 
 # most code in this file adapted from https://github.com/Hyperparticle/one-pixel-attack-keras/blob/master/1_one-pixel-attack-cifar10.ipynb
 
@@ -67,7 +68,7 @@ def attack_success(xs, img, target_class, model, targeted_attack=False, verbose=
     # If the prediction is what we want (misclassification or targeted classification), return True
     if verbose:
         print('Model Confidence in true class {}:     {:4f}%'.format(target_class, target_class_confidence*100))
-        print('Model prediction was class     {} with {:4f}% confidence'.format(predicted_class, predicted_class_confidence*100))
+        print('Model prediction was class     {} with {:4f}% confidence\n'.format(predicted_class, predicted_class_confidence*100))
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
         return True
@@ -96,6 +97,18 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
     # popsize       (int):  parameter used for the differential evolution algorithm
     # verbose      (bool):  detailed output if True
 
+    if verbose:
+        img_file = os.path.split(img_id)
+        print("---------------Testing image {}---------------".format(img_file[1]))
+        prior_probs = test_one_image(model, img_id, path= True)
+        prior_true_class_confidence = prior_probs[int(img_class)]
+        prior_predicted_class = prior_probs.index(max(prior_probs))
+        prior_predicted_class_confidence = prior_probs[prior_predicted_class]
+        print('Prior Model Confidence in true class {}:     {:4f}% '
+              '(before attack)'.format(str(img_class), prior_true_class_confidence * 100))
+        print('Prior Model prediction was class     {} with {:4f}% '
+              'confidence (before attack)\n'.format(str(prior_predicted_class), 100*prior_predicted_class_confidence))
+
     # Change the target class based on whether this is a targeted attack or not
     targeted_attack = target is not None
     target_class = target if targeted_attack else img_class
@@ -123,9 +136,6 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
         recombination=1, atol=-1, callback=callback_fn, polish=False)
 
     # Calculate some useful statistics to return from this function
-    #prior_probs = test_one_image(model, img_id, path= True)
-    #prior_true_class_confidence = prior_probs[int(img_class)]
-
     attack_image = perturb_image(attack_result.x, img_id)[0]
     predicted_probs = test_one_image(model, attack_image)
     predicted_class = predicted_probs.index(max(predicted_probs))
@@ -136,6 +146,10 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
         success = True
+        if verbose:
+            print("Success on image {}\n".format(img_file[1]))
+    elif(verbose):
+        print("Reached max iterations, attack unsuccessful on image {}\n".format(img_file[1]))
     #cdiff = prior_true_class_confidence - true_class_confidence
 
     # Show the best attempt at a solution (successful or not)
@@ -187,27 +201,50 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None):
 
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), targeted=False,
-               maxiter=25, popsize=100, verbose=False, show_image = False):
+               maxiter=25, popsize=200, verbose=False, show_image = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
+    print("-----Attacking Parameters:-----")
+    print("Test folder:     {}".format(image_folder))
+    print("Samples:         {}".format(str(samples)))
+    print("Pixels:          {}".format(pixels))
+    print("Max iterations:  {}".format(str(maxiter)))
+    print("Population size: {}\n\n".format(str(popsize)))
+
+    since = time.time()
     img_samples = retrieve_valid_test_images(model, image_folder, samples)
+
+    # 1d array where index corresponds to pixel count, and the value of an element is the success of
+    # an untargeted attack with that pixel count
+    results = [0]*len(pixels)
 
     total_success = 0
 
-    for pixel_count in pixels:
-        print("\n\nAttacking with {} pixels\n\n".format(pixel_count))
-        for i, (img, label) in enumerate(img_samples):
-            if(i%10 == 0 and i != 0):
+    for i, pixel_count in enumerate(pixels):
+        print("\n\nAttacking with {} pixels\n".format(pixel_count))
+        items_to_remove = []
+        for j, (img, label) in enumerate(img_samples):
+            if(j%10 == 0 and j != 0):
                 print("{} samples tested so far".format(str(i)))
             success = attack(img, int(label), model, pixel_count=pixel_count,
                              maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
             if success:
                 total_success +=1
-                img_samples.remove(img_samples[i])
+                items_to_remove.append(img_samples[j])
+        for item in items_to_remove:
+            img_samples.remove(item)
         success_percent = 100*total_success/samples
+        results[i] = success_percent
         print("Attack success for {}-pixel attack on {} "
-              "samples is {}%".format(str(pixel_count), str(samples), str(success_percent)))
+              "samples is {:4f}%".format(str(pixel_count), str(samples), success_percent))
+        print("{} images were successfully perturbed to trick the model".format(str(total_success)))
+
+    print("Results vector:")
+    print(results)
+    time_elapsed = time.time() - since
+    print('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    return results, pixels, samples, maxiter, popsize
 
 def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), targeted=False,
                maxiter=75, popsize=400, verbose=False, show_image = False):
@@ -218,20 +255,43 @@ def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5
     for i in range(NUM_CLASSES):
         test_images.append(retrieve_valid_test_images(model, image_folder, samples, targeted=i))
 
-    for pixel_count in pixels:
-        for i in range(NUM_CLASSES):
-            target_class = i
-            img_samples = test_images[i]
+    # 2d array where 1st dimension is pixel count and 2nd is target class
+    results = []
+    for i in range(len(pixels)):
+        results.append([0]*NUM_CLASSES)
+
+    for i, pixel_count in enumerate(pixels):
         print("\n\nAttacking with {} pixels\n\n".format(pixel_count))
-        total_success = 0
-        for img, label in img_samples:
-            success = attack(img, int(label), model, pixel_count=pixel_count,
-                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
-            if success:
-                total_success +=1
-        success_percent = 100*total_success/samples
-        print("Attack success for {}-pixel attack on {} "
-              "samples is {}".format(str(pixel_count), str(samples), str(success_percent)))
+        for j in range(NUM_CLASSES):
+            total_success = 0
+            target_class = j
+            img_samples = test_images[j]
+            for img, label in img_samples:
+                success = attack(img, int(label), model, pixel_count=pixel_count, target= target_class,
+                                 maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
+                if success:
+                    total_success +=1
+            success_percent = 100 * total_success / samples
+            results[i][j] = success_percent
+            print("Attack success for {}-pixel attack with target {} on {} "
+              "samples is {}".format(str(pixel_count), str(target_class), str(samples), str(success_percent)))
+
+    print(results)
+    return results
+
+
+def plot_untargeted(results, pixels, samples, maxiter, popsize):
+    plt.figure(0)
+    plt.plot(pixels, results)
+    title = 'Attack Success by Number of Pixels, {} samples'.format(str(samples))
+    title += "\nMax iterations = {}, Population Size = {}".format(str(maxiter), str(popsize))
+    plt.title(title)
+    plt.xlabel('Number of Pixels changed')
+    plt.xticks(range(max(pixels)+1))
+    plt.ylabel('Attack Success (%)')
+    plt.legend()
+    plt.show()
 
 model = load_model("pytorch_resnet_saved_11_9_20")
-attack_all_untargeted(model)
+r, pix, s, m, p = attack_all_untargeted(model)
+plot_untargeted(r, pix, s, m, p)
