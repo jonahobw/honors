@@ -123,8 +123,8 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
         recombination=1, atol=-1, callback=callback_fn, polish=False)
 
     # Calculate some useful statistics to return from this function
-    prior_probs = test_one_image(model, img_id, path= True)
-    prior_true_class_confidence = prior_probs[int(img_class)]
+    #prior_probs = test_one_image(model, img_id, path= True)
+    #prior_true_class_confidence = prior_probs[int(img_class)]
 
     attack_image = perturb_image(attack_result.x, img_id)[0]
     predicted_probs = test_one_image(model, attack_image)
@@ -136,7 +136,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
         success = True
-    cdiff = prior_true_class_confidence - true_class_confidence
+    #cdiff = prior_true_class_confidence - true_class_confidence
 
     # Show the best attempt at a solution (successful or not)
     if show_image:
@@ -186,23 +186,25 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None):
         return valid_imgs
 
 
-def attack_all_untargeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), targeted=False,
-               maxiter=75, popsize=400, verbose=False, show_image = False):
+def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), targeted=False,
+               maxiter=25, popsize=100, verbose=False, show_image = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
     img_samples = retrieve_valid_test_images(model, image_folder, samples)
 
+    total_success = 0
+
     for pixel_count in pixels:
         print("\n\nAttacking with {} pixels\n\n".format(pixel_count))
-        total_success = 0
         for i, (img, label) in enumerate(img_samples):
-            if(i%100 ==0 and i != 0):
-                print("{} samples tested so far, attack succeeded for {}".format(str(i), str(total_success)))
+            if(i%10 == 0 and i != 0):
+                print("{} samples tested so far".format(str(i)))
             success = attack(img, int(label), model, pixel_count=pixel_count,
                              maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
             if success:
                 total_success +=1
+                img_samples.remove(img_samples[i])
         success_percent = 100*total_success/samples
         print("Attack success for {}-pixel attack on {} "
               "samples is {}%".format(str(pixel_count), str(samples), str(success_percent)))
