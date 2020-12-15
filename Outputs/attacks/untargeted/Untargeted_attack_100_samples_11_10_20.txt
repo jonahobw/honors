@@ -43,3 +43,5 @@ Attacking with 5 pixels
 50 samples tested so far
 60 samples tested so far
 Attack success for 5-pixel attack on 100 samples is 32.0%
+
+Attack complete in 46m 08s 
