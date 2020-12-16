@@ -14,12 +14,13 @@ import logging
 #changeable parameters
 MODEL_NAME = "pytorch_resnet_saved_11_9_20"
 SAMPLES = 1
-POP_SIZE = 2
-MAX_ITER = 1
-PIXELS = [3]
+POP_SIZE = 5
+MAX_ITER = 3
+PIXELS = [100]
 SAVE = True
-LOG_LEVEL = logging.INFO
+LOG_LEVEL = logging.DEBUG
 TARGETED = False
+SHOW_IMAGE = True
 
 #unchangeable parameters
 ROOT_SAVE_FOLDER = os.path.join(os.getcwd(), "Outputs", "attacks")
@@ -42,10 +43,10 @@ if SAVE:
     os.mkdir(PLT_FOLDER)
     logfile = os.path.join(ROOT_SAVE_FOLDER, "attack.log")
     logging.basicConfig(filename=logfile, format='%(message)s')
+    logging.getLogger("attack_log").addHandler(logging.StreamHandler())
 else:
     logging.basicConfig(format='%(message)s')
 
-logging.getLogger("attack_log").addHandler(logging.StreamHandler())
 
 # most code in this file adapted from https://github.com/Hyperparticle/one-pixel-attack-keras/blob/master/1_one-pixel-attack-cifar10.ipynb
 
@@ -123,16 +124,14 @@ def print_image(img, path = True, title = ""):
     plt.show()
 
 
-def save_perturbed_image(img, title = "", true_class = None, targeted = ""):
+def save_perturbed_image(img, title = "", true_class = None, pixels = None, filename =None):
     # saves an image with the filename of <trueclass>_<targetclass>_<date>
     global IMG_FOLDER
     plt.imshow(img)
     plt.title(title)
     plt.tight_layout()
-    save_date = str_date()
-    if targeted != "":
-        targeted = str(targeted)
-    fname = '{}_{}_{}'.format(str(true_class), targeted, save_date)
+    filename = filename.split(".")[0]
+    fname = 'img_{}_class_{}_{}pixels'.format(filename, str(true_class), str(pixels))
     fname = os.path.join(IMG_FOLDER, fname)
     plt.savefig(fname)
 
@@ -218,7 +217,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
 
     if SAVE and success:
         # saving successfully perturbed images
-        save_perturbed_image(attack_image, annotation, img_class, target)
+        save_perturbed_image(attack_image, annotation, img_class, pixel_count, img_file[1])
 
     return success
 
@@ -293,7 +292,7 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
 
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5),
-               maxiter=25, popsize=200, verbose=False, show_image = False, save_im = None):
+               maxiter=25, popsize=200, verbose=False, show_image = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
@@ -446,7 +445,6 @@ def plot_untargeted(results, pixels, samples, maxiter, popsize):
     plt.xlabel('Number of Pixels changed')
     plt.xticks(range(max(pixels)+1))
     plt.ylabel('Attack Success (%)')
-    plt.legend()
     if SAVE:
         save_date = str_date()
         fname = "untargeted_{}_samples_{}".format(str(samples), save_date)
@@ -467,7 +465,6 @@ def plot_targeted(results, pixels, samples, maxiter, popsize, target_class, true
     plt.xlabel('Number of Pixels changed')
     plt.xticks(range(max(pixels) + 1))
     plt.ylabel('Attack Success (%)')
-    plt.legend()
     if SAVE:
         save_date = str_date()
         fname = "targeted_{}_samples_{}".format(str(samples), save_date)
@@ -498,29 +495,25 @@ def setup_logging():
 def run_plot_untargeted():
     globals()
     model = load_model(MODEL_NAME)
-    # if SAVE:
-    #     setup_saved_folders(MODEL_NAME, False, SAMPLES)
     if LOG_LEVEL == logging.DEBUG:
         verbose = True
     else:
         verbose = False
     r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
-                                            popsize=POP_SIZE, verbose=verbose)
+                                            popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE)
     plot_untargeted(r, pix, s, m, p)
 
 
 def run_plot_targeted(target_class, true_class):
     globals()
     model = load_model(MODEL_NAME)
-    if SAVE:
-        setup_saved_folders(MODEL_NAME, True, SAMPLES)
     if LOG_LEVEL == logging.DEBUG:
         verbose = True
     else:
         verbose = False
     res, pix, sam, mxi, pop, tar, tru = attack_targeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
                                                         popsize=POP_SIZE, verbose=verbose, target_class=target_class,
-                                                        true_class=true_class)
+                                                        true_class=true_class, show_image=SHOW_IMAGE)
     plot_targeted(res, pix, sam, mxi, pop, tar, tru)
 
 if __name__ == '__main__':
