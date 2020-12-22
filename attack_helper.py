@@ -86,14 +86,25 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
     return get_correctly_classified_imgs(model, imgs, samples)
 
 
-def highest_attack_pairs(n):
-    # gets n highest attack pairs by weight and returns an array of tuples
+def retrieve_attack_pairs(n, rand = False):
+    # if rand = False: gets n highest attack pairs by weight and returns an array of tuples
     # (startsign, endsign) in descending order of attack weight
+    #
+    # if rand = True, same as above except that the attack pairs are chosen randomly
     attack_pairs = []
 
     for startsign in range(43):
         for endsign in range(43):
             attack_pairs.append((startsign, endsign, attack_danger_weights(startsign, endsign)))
+
+    #random case
+    if rand:
+        random.shuffle(attack_pairs)
+        attack_pairs = attack_pairs[:n]
+        for i in range(n):
+            st, end, weight = attack_pairs[i]
+            attack_pairs[i] = (st, end)
+        return attack_pairs
 
     attack_pairs.sort(key=lambda x: x[2], reverse = True)
     attack_pairs = attack_pairs[:n]

@@ -11,16 +11,16 @@ from attack_helper import *
 # neural net to use (filename)
 MODEL_NAME = "pytorch_resnet_saved_11_9_20"
 # Differential Evolution parameters (ints)
-POP_SIZE = 200
-MAX_ITER = 20
+POP_SIZE = 1
+MAX_ITER = 1
 # Number of pixels to attack (array of ints)
 PIXELS = [1]
 # Save into a folder (bool)
-SAVE = True
+SAVE = False
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
-SHOW_IMAGE = False
+SHOW_IMAGE = True
 # Targeted attack (bool)
 TARGETED = True
 
@@ -34,7 +34,9 @@ SAMPLES = 1
 # Number of targeted pairs to attack (int)
 ATTACK_PAIRS = 1
 # Number of images to attack for each targeted pair (int)
-N = 10
+N = 1
+# Either attack the pairs with the highest danger weight (False) or random pairs (True)
+RANDOM = True
 
 def setup_variables():
     globals()
@@ -272,106 +274,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     return results, pixels, samples, maxiter, popsize
 
 
-def attack_all_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5), num_classes = NUM_CLASSES,
-               maxiter=75, popsize=400, verbose=False, show_image = False):
-    if image_folder == None:
-        image_folder = os.path.join(os.getcwd(), "Test")
-
-    logger.info("-----Attacking Parameters:-----")
-    logger.info("Test folder:     {}".format(image_folder))
-    logger.info("Samples:         {}".format(str(samples)))
-    logger.info("Pixels:          {}".format(pixels))
-    logger.info("Max iterations:  {}".format(str(maxiter)))
-    logger.info("Population size: {}\n\n".format(str(popsize)))
-
-    since = time.time()
-
-    test_images = []
-    for i in range(NUM_CLASSES):
-        test_images.append(retrieve_valid_test_images(model, image_folder, samples, targeted=i))
-
-    # 2d array where 1st dimension is pixel count and 2nd is target class
-    results = []
-    for i in range(len(pixels)):
-        results.append([0]*num_classes)
-
-    for i, pixel_count in enumerate(pixels):
-        logger.info("\n\nAttacking with {} pixels\n\n".format(pixel_count))
-        for j in range(num_classes):
-            total_success = 0
-            target_class = j
-            img_samples = test_images[j]
-            for img, label in img_samples:
-                success = attack(img, int(label), model, pixel_count=pixel_count, target= target_class,
-                                 maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
-                if success:
-                    total_success +=1
-            success_percent = 100 * total_success / samples
-            results[i][j] = success_percent
-            logger.info("Attack success for {}-pixel attack with target {} on {} "
-              "samples is {}\n".format(str(pixel_count), str(target_class), str(samples), str(success_percent)))
-
-    logger.info("\nResults:")
-    logger.info(results)
-    time_elapsed = time.time() - since
-    logger.info('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    return results, pixels, samples, maxiter, popsize
-
-
-def attack_targeted(model, target_class, true_class, image_folder = None, samples=500, pixels=(1, 3, 5),
-                    maxiter=75, popsize=400, verbose=False, show_image = False):
-    globals()
-    if image_folder == None:
-        image_folder = os.path.join(os.getcwd(), "Test")
-
-    logger.info("-----Attacking Parameters:-----")
-    logger.info("Test folder:     {}".format(image_folder))
-    logger.info("Samples:         {}".format(str(samples)))
-    logger.info("Pixels:          {}".format(pixels))
-    logger.info("Max iterations:  {}".format(str(maxiter)))
-    logger.info("Target class:    {}".format(str(target_class)))
-    logger.info("True class:      {}".format(str(true_class)))
-    logger.info("Population size: {}\n\n".format(str(popsize)))
-
-    since = time.time()
-
-    # get highest N attack pairs from global variable N
-    attack_pairs = highest_attack_pairs(N)
-    img_samples = retrieve_valid_test_images(model, image_folder, samples, exclusive=true_class)
-
-    # 1d array where index corresponds to pixel count, and the value of an element is the success of
-    # a targeted attack from <true_class> to <target_class> with that pixel count
-    results = [0] * len(pixels)
-
-    total_success = 0
-
-    for i, pixel_count in enumerate(pixels):
-        logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
-        items_to_remove = []
-        for j, (img, label) in enumerate(img_samples):
-            if(j%10 == 0 and j != 0):
-                logger.info("{} samples tested so far".format(str(j)))
-            success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
-                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
-            if success:
-                total_success +=1
-                items_to_remove.append(img_samples[j])
-        for item in items_to_remove:
-            img_samples.remove(item)
-        success_percent = 100*total_success/samples
-        results[i] = success_percent
-        logger.info("Attack success for {}-pixel attack on {} "
-              "samples is {:4f}%".format(str(pixel_count), str(samples), success_percent))
-        logger.info("{} images were successfully perturbed to trick the model".format(str(total_success)))
-
-    logger.info("Results vector:")
-    logger.info(results)
-    time_elapsed = time.time() - since
-    logger.info('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    return results, pixels, samples, maxiter, popsize, target_class, true_class
-
-
-def attack_selected_targeted(model, image_folder = None, samples=500, pixels=(1, 3, 5),
+def attack_all_targeted(model, random = False, image_folder = None, samples=500, pixels=(1, 3, 5),
                     maxiter=75, popsize=400, verbose=False, show_image = False):
     # attacks the N highest attack pairs by danger weight
     # ATTACK_PAIRS (int) is a global variable that determines how many pairs to attack
@@ -382,17 +285,18 @@ def attack_selected_targeted(model, image_folder = None, samples=500, pixels=(1,
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
-    # get highest N attack pairs from global variable N
-    attack_pairs = highest_attack_pairs(ATTACK_PAIRS)
+    # get N attack pairs from global variable N
+    attack_pairs = retrieve_attack_pairs(ATTACK_PAIRS, random)
 
     logger.info("-----Attacking Parameters:-----")
-    logger.info("Test folder:       {}".format(image_folder))
-    logger.info("Pixels:            {}".format(pixels))
-    logger.info("Max iterations:    {}".format(str(maxiter)))
-    logger.info("Population size:   {}".format(str(popsize)))
-    logger.info("# of attack pairs: {}".format(str(ATTACK_PAIRS)))
-    logger.info("Samples per pair:  {}".format(str(N)))
-    logger.info("Attack pairs:      {}\n\n".format(str(attack_pairs)))
+    logger.info("Random attack pairs:   {}".format(str(random)))
+    logger.info("Test folder:           {}".format(image_folder))
+    logger.info("Pixels:                {}".format(pixels))
+    logger.info("Max iterations:        {}".format(str(maxiter)))
+    logger.info("Population size:       {}".format(str(popsize)))
+    logger.info("# of attack pairs:     {}".format(str(ATTACK_PAIRS)))
+    logger.info("Samples per pair:      {}".format(str(N)))
+    logger.info("Attack pairs:          {}\n\n".format(str(attack_pairs)))
 
 
     since = time.time()
@@ -471,25 +375,7 @@ def plot_untargeted(results, pixels, samples, maxiter, popsize):
         plt.show()
 
 
-def plot_targeted(results, pixels, samples, maxiter, popsize):
-    global SAVE, PLT_FOLDER
-    plt.figure()
-    plt.plot(pixels, results)
-    title = 'Targeted Attack Success by Number of Pixels, {} samples'.format(str(samples))
-    title += "\nMax iterations = {}, Population Size = {}".format(str(maxiter), str(popsize))
-    plt.title(title)
-    plt.xlabel('Number of Pixels changed')
-    plt.xticks(range(max(pixels) + 1))
-    plt.ylabel('Attack Success (%)')
-    if SAVE:
-        save_date = str_date()
-        fname = "targeted_{}_samples_{}".format(str(samples), save_date)
-        fname = os.path.join(PLT_FOLDER, fname)
-        plt.savefig(fname)
-    else:
-        plt.show()
-
-def plot_selected_targeted(results, pixels, maxiter, popsize):
+def plot_targeted(results, pixels, maxiter, popsize):
     global SAVE, PLT_FOLDER, ATTACK_PAIRS, N
     samples = ATTACK_PAIRS * N
     # adapted from https://matplotlib.org/3.3.3/gallery/lines_bars_and_markers/barchart.html#sphx-glr-gallery-lines-bars-and-markers-barchart-py
@@ -542,6 +428,7 @@ def plot_selected_targeted(results, pixels, maxiter, popsize):
     else:
         plt.show()
 
+
 def run_plot_untargeted():
     globals()
     model = load_model(MODEL_PATH)
@@ -561,9 +448,10 @@ def run_plot_targeted():
         verbose = True
     else:
         verbose = False
-    res, pix, sam, mxi, pop = attack_selected_targeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
-                                                        popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE)
-    plot_selected_targeted(res, pix, mxi, pop)
+    res, pix, sam, mxi, pop = attack_all_targeted(model, random = RANDOM, samples=SAMPLES, pixels=PIXELS,
+                                                       maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
+                                                       show_image=SHOW_IMAGE)
+    plot_targeted(res, pix, mxi, pop)
 
 
 def save_perturbed_image(img, title = "", true_class = None, pixels = None, filename =None):
@@ -576,6 +464,7 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     fname = 'img_{}_class_{}_{}pixels'.format(filename, str(true_class), str(pixels))
     fname = os.path.join(IMG_FOLDER, fname)
     plt.savefig(fname)
+
 
 if __name__ == '__main__':
     globals()
