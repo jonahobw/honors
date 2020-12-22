@@ -10,28 +10,31 @@ from attack_helper import *
 #-----------------------------------------------
 # neural net to use (filename)
 MODEL_NAME = "pytorch_resnet_saved_11_9_20"
-# number of pictures to attack (int)
-SAMPLES = 1
 # Differential Evolution parameters (ints)
-POP_SIZE = 1
-MAX_ITER = 1
+POP_SIZE = 200
+MAX_ITER = 20
 # Number of pixels to attack (array of ints)
-PIXELS = [100]
+PIXELS = [1]
 # Save into a folder (bool)
 SAVE = True
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
-# Targeted attack (bool)
-TARGETED = True
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = False
+# Targeted attack (bool)
+TARGETED = True
+
+# Untargeted attack parameters
+#----------------------------------------------
+# number of pictures to attack (int)
+SAMPLES = 1
 
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
 ATTACK_PAIRS = 1
 # Number of images to attack for each targeted pair (int)
-N = 1
+N = 10
 
 def setup_variables():
     globals()
@@ -103,7 +106,7 @@ def predict_classes(xs, img, target_class, model, minimize=True):
     return target_class_confidence if minimize else 1 - target_class_confidence
 
 
-def attack_success(xs, img, target_class, model, targeted_attack=False, verbose=False):
+def attack_success(xs, img, img_class, target_class, model, targeted_attack=False, verbose=False):
     # evaluates the success of an attack.
     # input a perturbed image to the model and get it's prediction vector
     # if this is a targeted attack, return true if the model predicted the image to be of target_class
@@ -116,11 +119,19 @@ def attack_success(xs, img, target_class, model, targeted_attack=False, verbose=
     target_class_confidence = preds[target_class]
     predicted_class = preds.index(max(preds))
     predicted_class_confidence = preds[predicted_class]
+    true_class_confidence = preds[int(img_class)]
 
     # If the prediction is what we want (misclassification or targeted classification), return True
     if verbose:
-        logger.debug('Model Confidence in true class {}:     {:4f}%'.format(target_class, target_class_confidence*100))
-        logger.debug('Model prediction was class     {} with {:4f}% confidence\n'.format(predicted_class, predicted_class_confidence*100))
+        annotation = '\nModel Confidence in true class   {}:     {:4f}%'.format(str(img_class),
+                                                                              true_class_confidence * 100)
+        if targeted_attack:
+            annotation += '\nModel confidence in target class {}:     {:4f}%'.format(str(target_class),
+                                                                                     target_class_confidence * 100)
+        else:
+            annotation += '\nModel prediction was class    {} with {:4f}% confidence'.format(str(predicted_class),
+                                                                                             predicted_class_confidence * 100)
+        logger.debug(annotation)
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
         return True
@@ -145,12 +156,8 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
         logger.debug("---------------Testing image {}---------------".format(img_file[1]))
         prior_probs = test_one_image(model, img_id, path= True)
         prior_true_class_confidence = prior_probs[int(img_class)]
-        prior_predicted_class = prior_probs.index(max(prior_probs))
-        prior_predicted_class_confidence = prior_probs[prior_predicted_class]
         logger.debug('Prior Model Confidence in true class {}:     {:4f}% '
               '(before attack)'.format(str(img_class), prior_true_class_confidence * 100))
-        logger.debug('Prior Model prediction was class     {} with {:4f}% '
-              'confidence (before attack)\n'.format(str(prior_predicted_class), 100*prior_predicted_class_confidence))
 
     # Change the target class based on whether this is a targeted attack or not
     targeted_attack = target is not None
@@ -170,7 +177,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
         return predict_classes(xs, img_id, target_class, model, minimize= not targeted_attack)
 
     def callback_fn(xs, convergence):
-        return attack_success(xs, img_id, target_class,
+        return attack_success(xs, img_id, img_class, target_class,
                               model, targeted_attack, verbose)
 
     # Call Scipy's Implementation of Differential Evolution
@@ -184,6 +191,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
     predicted_class = predicted_probs.index(max(predicted_probs))
     predicted_class_confidence = predicted_probs[predicted_class]
     true_class_confidence = predicted_probs[int(img_class)]
+    target_class_confidence = predicted_probs[int(target)]
 
     success = False
     if ((targeted_attack and predicted_class == target_class) or
@@ -193,11 +201,14 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
             logger.debug("Success on image {}\n".format(img_file[1]))
     elif(verbose):
         logger.debug("Reached max iterations, attack unsuccessful on image {}\n".format(img_file[1]))
-    #cdiff = prior_true_class_confidence - true_class_confidence
 
-    annotation = 'Model Confidence in true class  {}:     {:4f}%'.format(str(img_class),
+    annotation = 'Model Confidence in true class   {}:     {:4f}%'.format(str(img_class),
                                                                          true_class_confidence * 100)
-    annotation += '\nModel prediction was class   {} with {:4f}% confidence'.format(str(predicted_class),
+    if targeted_attack:
+        annotation += '\nModel confidence in target class {}:     {:4f}%'.format(str(target),
+                                                                                 target_class_confidence * 100)
+    else:
+        annotation += '\nModel prediction was class    {} with {:4f}% confidence'.format(str(predicted_class),
                                                                                     predicted_class_confidence * 100)
     annotation += '\nAttack was {}'.format("successful" if success else "unsuccessful")
 
@@ -237,6 +248,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
         logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
         items_to_remove = []
         for j, (img, label) in enumerate(img_samples):
+            logger.debug("Image {}".format(str(j)))
             if(j%10 == 0 and j != 0):
                 logger.info("{} samples tested so far".format(str(j)))
             success = attack(img, int(label), model, pixel_count=pixel_count,
@@ -371,7 +383,7 @@ def attack_selected_targeted(model, image_folder = None, samples=500, pixels=(1,
         image_folder = os.path.join(os.getcwd(), "Test")
 
     # get highest N attack pairs from global variable N
-    attack_pairs = highest_attack_pairs(N)
+    attack_pairs = highest_attack_pairs(ATTACK_PAIRS)
 
     logger.info("-----Attacking Parameters:-----")
     logger.info("Test folder:       {}".format(image_folder))
@@ -411,6 +423,7 @@ def attack_selected_targeted(model, image_folder = None, samples=500, pixels=(1,
             logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
             items_to_remove = []
             for j, (img, label) in enumerate(img_samples):
+                logger.debug("Image {}".format(str(j)))
                 if(j%10 == 0 and j != 0):
                     logger.info("{} samples tested so far".format(str(j)))
                 success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
