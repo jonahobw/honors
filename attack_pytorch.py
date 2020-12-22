@@ -11,16 +11,16 @@ from attack_helper import *
 # neural net to use (filename)
 MODEL_NAME = "pytorch_resnet_saved_11_9_20"
 # Differential Evolution parameters (ints)
-POP_SIZE = 1
-MAX_ITER = 1
+POP_SIZE = 200
+MAX_ITER = 25
 # Number of pixels to attack (array of ints)
-PIXELS = [1]
+PIXELS = [1, 3, 5]
 # Save into a folder (bool)
-SAVE = False
+SAVE = True
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
-SHOW_IMAGE = True
+SHOW_IMAGE = False
 # Targeted attack (bool)
 TARGETED = True
 
@@ -32,11 +32,11 @@ SAMPLES = 1
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
-ATTACK_PAIRS = 1
+ATTACK_PAIRS = 10
 # Number of images to attack for each targeted pair (int)
-N = 1
+N = 10
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
-RANDOM = True
+RANDOM = False
 
 def setup_variables():
     globals()
@@ -313,7 +313,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples=500,
     all_results = {}
 
     # loop over set of attack pairs
-    for i, (true_class, target_class) in enumerate(attack_pairs):
+    for k, (true_class, target_class) in enumerate(attack_pairs):
         img_samples = retrieve_valid_test_images(model, image_folder, N, exclusive=true_class)
         logger.info("\nTargeted Attack from True Class {} to Target Class {}\n".format(str(true_class), str(target_class)))
 
@@ -328,8 +328,6 @@ def attack_all_targeted(model, random = False, image_folder = None, samples=500,
             items_to_remove = []
             for j, (img, label) in enumerate(img_samples):
                 logger.debug("Image {}".format(str(j + 1)))
-                if ((j + 1) % 10 == 0 and (j + 1) != 0):
-                    logger.info("{} samples tested so far".format(str(j)))
                 success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
                                  maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
                 if success:
@@ -347,7 +345,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples=500,
         logger.info("From true class {} to target class {}:".format(str(true_class), str(target_class)))
         logger.info("Results vector:")
         logger.info(results)
-        all_results[attack_pairs[i]] = results
+        all_results[attack_pairs[k]] = results
 
     time_elapsed = time.time() - since
     logger.info("\n\nAll results: ")
@@ -378,6 +376,7 @@ def plot_untargeted(results, pixels, samples, maxiter, popsize):
 def plot_targeted(results, pixels, maxiter, popsize):
     global SAVE, PLT_FOLDER, ATTACK_PAIRS, N
     samples = ATTACK_PAIRS * N
+
     # adapted from https://matplotlib.org/3.3.3/gallery/lines_bars_and_markers/barchart.html#sphx-glr-gallery-lines-bars-and-markers-barchart-py
     def autolabel(rects):
         """Attach a text label above each bar in *rects*, displaying its height."""
@@ -387,7 +386,7 @@ def plot_targeted(results, pixels, maxiter, popsize):
                         xy=(rect.get_x() + rect.get_width() / 2, height),
                         xytext=(0, 3),  # 3 points vertical offset
                         textcoords="offset points",
-                        ha='center', va='bottom')
+                        ha='center', va='bottom', fontsize=8)
 
     pixel_results = {}
     for pix_count in pixels:
@@ -400,8 +399,9 @@ def plot_targeted(results, pixels, maxiter, popsize):
             pixel_results[pixels[i]].append(percent)
 
     x = np.arange(len(labels))
-    width = 0.35
-    fig, ax = plt.subplots()
+    width = 0.75
+    fig, ax = plt.subplots(figsize=(12, 5))
+    plt.xlabel("Attack Pair")
 
     offset = 0
     for i in pixels:
@@ -412,7 +412,7 @@ def plot_targeted(results, pixels, maxiter, popsize):
     # Add some text for labels, title and custom x-axis tick labels, etc.
     ax.set_ylabel('Attack Success')
     plt.ylim(0, 1)
-    ax.set_xticks(x)
+    ax.set_xticks(x + width / 2 - width / (2 * len(pixels)))
     ax.set_xticklabels(labels)
     ax.legend()
 
@@ -448,14 +448,14 @@ def run_plot_targeted():
         verbose = True
     else:
         verbose = False
-    res, pix, sam, mxi, pop = attack_all_targeted(model, random = RANDOM, samples=SAMPLES, pixels=PIXELS,
+    res, pix, sam, mxi, pop = attack_all_targeted(model, random = RANDOM, samples=N, pixels=PIXELS,
                                                        maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
                                                        show_image=SHOW_IMAGE)
     plot_targeted(res, pix, mxi, pop)
 
 
 def save_perturbed_image(img, title = "", true_class = None, pixels = None, filename =None):
-    # saves an image with the filename of <trueclass>_<targetclass>_<date>
+    # saves an image
     global IMG_FOLDER
     plt.imshow(img)
     plt.title(title)
