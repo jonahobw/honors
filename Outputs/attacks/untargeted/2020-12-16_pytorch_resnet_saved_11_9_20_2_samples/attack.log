@@ -1,0 +1,43 @@
+-----Attacking Parameters:-----
+Test folder:     C:\Users\Jonah\Desktop\Jonah\1Senior\Honors\Pycharm\GTSRB_ResNet\Test
+Samples:         2
+Pixels:          [10]
+Max iterations:  3
+Population size: 5
+
+
+
+
+Attacking with 10 pixels
+
+---------------Testing image 03978.png---------------
+Prior Model Confidence in true class 31:     99.952829% (before attack)
+Prior Model prediction was class     31 with 99.952829% confidence (before attack)
+
+Model Confidence in true class 31:     99.841523%
+Model prediction was class     31 with 99.841523% confidence
+
+Model Confidence in true class 31:     99.841523%
+Model prediction was class     31 with 99.841523% confidence
+
+Model Confidence in true class 31:     99.841523%
+Model prediction was class     31 with 99.841523% confidence
+
+Reached max iterations, attack unsuccessful on image 03978.png
+
+---------------Testing image 02844.png---------------
+Prior Model Confidence in true class 8:     75.567853% (before attack)
+Prior Model prediction was class     8 with 75.567853% confidence (before attack)
+
+Model Confidence in true class 8:     3.584544%
+Model prediction was class     7 with 94.936824% confidence
+
+Success on image 02844.png
+
+Attack success for 10-pixel attack on 2 samples is 50.000000%
+1 images were successfully perturbed to trick the model
+Results vector:
+[50.0]
+
+Attack complete in 0m 26s
+That took 26.26764440536499 seconds
