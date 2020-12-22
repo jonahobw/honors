@@ -248,8 +248,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
         logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
         items_to_remove = []
         for j, (img, label) in enumerate(img_samples):
-            logger.debug("Image {}".format(str(j)))
-            if(j%10 == 0 and j != 0):
+            logger.debug("Image {}".format(str(j+1)))
+            if((j+1)%10 == 0 and (j+1) != 0):
                 logger.info("{} samples tested so far".format(str(j)))
             success = attack(img, int(label), model, pixel_count=pixel_count,
                              maxiter = maxiter, popsize= popsize, verbose=verbose,
@@ -423,8 +423,8 @@ def attack_selected_targeted(model, image_folder = None, samples=500, pixels=(1,
             logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
             items_to_remove = []
             for j, (img, label) in enumerate(img_samples):
-                logger.debug("Image {}".format(str(j)))
-                if(j%10 == 0 and j != 0):
+                logger.debug("Image {}".format(str(j + 1)))
+                if ((j + 1) % 10 == 0 and (j + 1) != 0):
                     logger.info("{} samples tested so far".format(str(j)))
                 success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
                                  maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
