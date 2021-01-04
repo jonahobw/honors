@@ -14,6 +14,7 @@ import pandas as pd
 import numpy as np
 from shutil import copyfile
 from general import *
+from tree_helper import split_all, split_signs, signs
 
 
 BATCH_SIZE = 64
@@ -453,6 +454,79 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     correct = 0
     for i in range(total):
         if (int(labels[i]) == int(predictions[i])):
+            correct +=1
+
+    test_accuracy = correct/total
+    print('Test Accuracy: {:.7f}%'.format(test_accuracy*100))
+    print("Number of images tested: {}".format(str(total)))
+
+
+def test_attribute_model_manually(model, attribute, path = None, verbose = False, limit = None, startlimit = None):
+    # tests an attribute model on all images in the subfolders of path, where the sufolders are organized by sign class
+    # like in the original Training data folder
+    # limit and startlimit allow you to only test the model on a subset of all the images
+    # limit specifies how many images to test
+    # startlimit specifies the first image to test
+
+    model.eval()
+    if (path == None):
+        path = os.path.join(os.getcwd(), "Test")
+
+    classes = os.listdir(path)
+
+    # map class label to attribute label
+
+    # array where each index represents a class, and the value at that index represents the attribute label for that
+    # class
+    class_attributes = split_all(attribute)
+
+    # attribute values is the order of predictions of the attribute model
+    attribute_values, _, = split_signs(signs(), attribute)
+    mapping = {}
+    for i, attribute in enumerate(attribute_values):
+        mapping[attribute] = i
+
+    imgs = []
+    labels = []
+
+    for sign in classes:
+        sign_directory = os.path.join(path, str(sign))
+        # array of full path to image
+        test_data = [os.path.join(path, sign, x) for x in os.listdir(sign_directory)]
+        # labels are the string versions of the attribute values
+        labels.extend([class_attributes[int(sign)]]*len(test_data))
+        imgs.extend(test_data)
+
+    if limit is not None:
+        start = 0
+        if startlimit is not None:
+            start = startlimit
+        labels = labels[start:limit+start]
+        imgs = imgs[start:limit+start]
+        if (len(labels)<1 or len(imgs)<1):
+            print("Error, invalid limit and startlimit parameters.")
+            return -1
+
+    predictions = []
+
+    for i, img in enumerate(imgs):
+        #image = Image.open(os.path.join(path, img))
+        image = preprocess_image(img)
+        #image = create_batch(torch.tensor(image))
+        image = create_batch(image.clone().detach())
+        pred = get_model_prediction_probs(model, image)
+        class_pred = pred.index(max(pred))
+        predictions.append(class_pred)
+
+    if (verbose):
+        for i in range(len(imgs)):
+            print('Model prediction for image {} was {}, actual was {} ({})'.format(imgs[i], predictions[i], labels[i], mapping[labels[i]]))
+
+    # Accuracy with the test data
+    total = len(labels)
+    correct = 0
+    for i in range(total):
+        if (mapping[labels[i]] == int(predictions[i])):
             correct +=1
 
     test_accuracy = correct/total

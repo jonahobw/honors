@@ -34,5 +34,3 @@ def count_folder_contents(root_folder = None, verbose = False):
         print(str(folder_count) + " images total\n")
         total_count += folder_count
     print("Total number of images: " + str(total_count))
-
-count_folder_contents()

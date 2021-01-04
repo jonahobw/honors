@@ -1,7 +1,7 @@
 from tree_classes import *
 from general import *
 from tree_helper import signs, print_tree, Tree_stats, split_all, split_signs
-from pytorch_resnet import create_and_train_model
+from pytorch_resnet import create_and_train_model, load_model, test_model_manually, test_attribute_model_manually
 import os
 from shutil import copyfile
 
@@ -111,5 +111,12 @@ def test_nndt():
     Tree = nndt_depth3_unweighted()
     Tree_stats(Tree)
 
+def test_data():
+    model_file = os.path.join(os.getcwd(), "nndt_data", "shape", "shape_resnet_2021-01-03")
+    model = load_model(model_file)
+    test_folder = os.path.join(os.getcwd(), "Test")
+    test_attribute_model_manually(model, "shape", path=test_folder)
+
 # generate_attribute_dataset("shape")
 # create_train_attribute_model("shape")
+test_data()
