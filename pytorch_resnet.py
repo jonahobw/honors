@@ -40,9 +40,12 @@ def make_resnet_model():
     return model
 
 
-def save_model(model, path="pytorch_resnet_saved"):
+def save_model(model, path=None):
     #save a model
-    path = os.path.join(os.getcwd(), path)
+    if path == None:
+        date = str_date()
+        filename = "resnet" + date
+        path = os.path.join(os.getcwd(), "Models", filename)
     torch.save(model, path)
     print('Model saved as {}'.format(path))
     return path
@@ -338,7 +341,7 @@ def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
     plt.show()
 
 
-def create_and_train_model(path = None):
+def create_and_train_model(path = None, filename = None):
     if (path == None):
         path = os.getcwd()
     # creates a model, trains it, plots the accuracy/loss, and saves the model
@@ -347,7 +350,10 @@ def create_and_train_model(path = None):
     data = generate_training_dataloaders(path = path)
     model, train_acc, val_acc, train_loss, val_loss = train_model(model, data)
     plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss)
-    save_model(model)
+    if filename is not None:
+        save_model(model, filename)
+    else:
+        save_model(model)
     return model
 
 

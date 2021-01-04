@@ -84,7 +84,8 @@ def construct_trees(root, classifiers, signs, currentdepth, maxdepth):
     return tree_list
 
 
-def find_optimal_tree(maxdepth):
+def find_optimal_tree(maxdepth, weighted = False):
+    # weighted indicates whether or not to used weighted average attack distance
     signsarray = signs()
     classifiers = list(signsarray[0].properties.keys())
     max_avg_attack_distance = 0
@@ -95,7 +96,10 @@ def find_optimal_tree(maxdepth):
         print(str(len(treelist)) + " Trees found for root node of", Classifier)
         local_max_avg_attack_distance = 0
         for Tree in treelist:
-            aad = avg_attack_distance(Tree, signsarray)
+            if weighted:
+                aad = weighted_avg_attack_distance(Tree, signsarray)
+            else:
+                aad = avg_attack_distance(Tree, signsarray)
             if(aad> local_max_avg_attack_distance):
                 local_max_avg_attack_distance = aad
             if(aad>max_avg_attack_distance):
@@ -221,5 +225,5 @@ def construct_tree(signsarray):
     return Tree
 
 
-Tree = find_optimal_tree(5)
-Tree_stats(Tree)
+Tree = find_optimal_tree(3, False)
+Tree_stats(Tree, False)

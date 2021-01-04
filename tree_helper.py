@@ -4,91 +4,91 @@ def signs():
     signs = []
     for i in range(43):
         signs.append([])
-    signs[0] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[0] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[1] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[1] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[2] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[2] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[3] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[3] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[4] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[4] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[5] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[5] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[6] = {"color": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[6] = {"color": "white", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[7] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[7] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[8] = {"color": "red", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
+    signs[8] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": True, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[9] = {"color": "red", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
+    signs[9] = {"color": "red", "fill": "white", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[10] = {"color": "red", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
+    signs[10] = {"color": "red", "fill": "white", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[11] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[11] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": True}
-    signs[12] = {"color": "yellow", "shape": "diamond", "car": False, "numbers": False, "straight_arrows": False,
+    signs[12] = {"color": "yellow", "fill": "yellow", "shape": "diamond", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[13] = {"color": "red", "shape": "inverted_triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[13] = {"color": "red", "fill": "white", "shape": "inverted_triangle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[14] = {"color": "red", "shape": "octagon", "car": False, "numbers": False, "straight_arrows": False,
+    signs[14] = {"color": "red", "fill": "red", "shape": "octagon", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[15] = {"color": "red", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[15] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[16] = {"color": "red", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[16] = {"color": "red", "fill": "white", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[17] = {"color": "red", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[17] = {"color": "red", "fill": "red", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[18] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[18] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": False}
-    signs[19] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[19] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": True}
-    signs[20] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[20] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                 "curved_arrows": False, "road": True}
-    signs[21] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[21] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": True}
-    signs[22] = {"color": "yellow", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[22] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[23] = {"color": "red", "shape": "triangle", "car": True, "numbers": False, "straight_arrows": False,
+    signs[23] = {"color": "red", "fill": "white", "shape": "triangle", "car": True, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[24] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[24] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": True}
-    signs[25] = {"color": "yellow", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[25] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[26] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[26] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[27] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[27] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[28] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[28] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[29] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[29] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[30] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[30] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[31] = {"color": "red", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[31] = {"color": "red", "fill": "white", "shape": "triangle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[32] = {"color": "white", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[32] = {"color": "white", "fill": "white", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[33] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[33] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": True, "road": False}
-    signs[34] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[34] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": True, "road": False}
-    signs[35] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
+    signs[35] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
                  "curved_arrows": False, "road": False}
-    signs[36] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
+    signs[36] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
                  "curved_arrows": True, "road": False}
-    signs[37] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
+    signs[37] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
                  "curved_arrows": True, "road": False}
-    signs[38] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
+    signs[38] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
                  "curved_arrows": False, "road": False}
-    signs[39] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
+    signs[39] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": True,
                  "curved_arrows": False, "road": False}
-    signs[40] = {"color": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
+    signs[40] = {"color": "blue", "fill": "blue", "shape": "circle", "car": False, "numbers": False, "straight_arrows": False,
                  "curved_arrows": True, "road": False}
-    signs[41] = {"color": "white", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
+    signs[41] = {"color": "white", "fill": "white", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
-    signs[42] = {"color": "white", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
+    signs[42] = {"color": "white", "fill": "white", "shape": "circle", "car": True, "numbers": False, "straight_arrows": False,
                  "curved_arrows": False, "road": False}
 
     road_sign_objects = []
@@ -293,16 +293,17 @@ def attack_danger_weights(startsign_name, targetsign_name):
          1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 2, 1, 0],
     ]
 
-    return weights[startsign_name][targetsign_name]
+    return weights[int(startsign_name)][int(targetsign_name)]
 
 
-def split_signs(sign_array, attribute_name):
+def split_signs(sign_array, attribute_name, dict = False):
 
     # splits the signs in signarray based on the attribute_name
     # return values:
     # values (array) - unique values of attribute name
     # split (2d array) - the split up signs in sets, with the indexes
     #                   corresponding to the values array
+    # dict (bool)    - whether or not to return dictionary format
 
     split = []
     values = []
@@ -313,7 +314,26 @@ def split_signs(sign_array, attribute_name):
         else:
             a = values.index(sign.properties[attribute_name])
             split[a].append(sign)
+    if dict:
+        split_dict = {}
+        for i, value in enumerate(values):
+            split_dict[value] = split[i]
+        return split_dict
     return values, split
+
+
+def split_all(attribute):
+    # splits all 43 signs based on the attribute, returns an array of length 43 where each index corresponds to
+    # a class of a road sign and the element at that index represents the value of that class when split by the
+    # attribute
+    signsarray = signs()
+    values = []
+    for i in range(len(signsarray)):
+        for sign in signsarray:
+            if(int(sign.name) == i):
+                values.append(sign.properties[attribute])
+                break
+    return values
 
 
 def find_child_classifiers(root, classifiers, signs):
@@ -384,14 +404,14 @@ def find_child_classifiers2(root, classifiers, signs, classifier_budget):
 
 def print_tree(tree):
 
-    # prints a 2D array where the 1st dimension is the depth of the nodes
+    # returns a 2D array where the 1st dimension is the depth of the nodes
     # and the second dimension are the nodes at that depth
     # nodes are printed in tuples (name of the node, name of the parent node)
 
     nodes = []
     nodenames = []
     root = tree.root
-    nodenames.append([(root.name, root.parent)])
+    nodenames.append([(type(root), root.name, root.attribute_name, root.parent)])
     nodes.append([root])
 
     children = root.children
@@ -543,7 +563,6 @@ def avg_attack_distance(tree, road_signs):
 
 def weighted_avg_attack_distance(tree, road_signs):
     # it is a directed attack so we want the data going from 0 -> 1 and 1 -> 0
-    #TODO implement weights in attack_danger_weights
     root = tree.root
     total_distance = 0
     count = 0
@@ -590,12 +609,16 @@ def get_permutations(array, permutations = [], current = []):
                 get_permutations(array[1:], permutations, new)
 
 
-def Tree_stats(Tree):
+def Tree_stats(Tree, weighted = False):
     signsarray = signs()
     print("\n\n\nThe tree is:")
     print(print_tree(Tree))
-    print("\naverage attack distance:")
-    print(avg_attack_distance(Tree, signsarray))
+    if weighted:
+        print("\nweighted average attack distance:")
+        print(weighted_avg_attack_distance(Tree, signsarray))
+    else:
+        print("\naverage attack distance:")
+        print(avg_attack_distance(Tree, signsarray))
     print("number of road signs:")
     print(count_road_signs(Tree))
     print("number of leaf nodes:")

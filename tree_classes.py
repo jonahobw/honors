@@ -11,15 +11,52 @@ class node:
     def delete_child(self, name):
         self.children.remove(x for x in self.children if x.name ==name)
 
+    def predict(self, prev_edge_weight, image, prediction_vector=None):
+        # previous edge weight is the probability of getting to the current node, the node's prediction vector
+        # will be multiplied by this
+        # function will return a dict of the format {<class name> : <probability that input image is <class name>>}
+
+        if prediction_vector is None:
+            prediction_vector = {}
+
+        # if this is a none node, give it no probability
+        if(self.name.find("none")>0):
+            return prediction_vector
+
+        # base case, if this is a road sign, return the previous edge weight
+        if(isinstance(self, road_sign)):
+            prediction_vector[self.name] = prev_edge_weight
+            return prediction_vector
+
+        if(isinstance(self, classifier) or isinstance(self, final_classifier)):
+            prediction = self.neuralnet(image)
+
+            # map prediction output to child nodes and recursively call predict()
+            for i, child in enumerate(self.pred_value_names):
+                next_prev_edge_weight = prev_edge_weight * prediction[i]
+                child.predict(next_prev_edge_weight, image, prediction_vector)
+
+        return prediction_vector
+
+
+
 
 class classifier(node):
     def __init__(self, name, attribute_name, parent = None):
         super().__init__(name, parent)
         self.attribute_name = attribute_name
+        self.neuralnet = None
+        # maps the output of the neural network to the children of current node, the elements of the array should
+        # be the child nodes and they should be in the order of the neural network output vector
+        self.pred_value_names = []
 
 class final_classifier(node):
     def __init__(self, name, parent = None):
         super().__init__(name, parent)
+        self.neuralnet = None
+        # maps the output of the neural network to the children of current node, the elements of the array should
+        # be the child nodes and they should be in the order of the neural network output vector
+        self.pred_value_names = []
 
 class road_sign(node):
     def __init__(self, name, properties, parent = None):
@@ -28,7 +65,7 @@ class road_sign(node):
 
 
 
-class tree:
+class tree():
     def __init__(self, root):
         self.root = root
         self.nodes = [root]
