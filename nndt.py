@@ -62,6 +62,18 @@ class nndt_depth3_unweighted(tree):
         # todo: normalize and combine?
         return self.root.predict(1, image)
 
+    def generate_all_final_classifier_datasets(self):
+        # there are 2 final classifiers, circle and triangle
+        # circle:
+        circle_signs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+        circle_folder = "circle_final_classifier"
+        generate_attribute_dataset_final_classifier(circle_signs, circle_folder)
+
+        # triangle:
+        triangle_signs = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
+        triangle_folder = "triangle_final_classifier"
+        generate_attribute_dataset_final_classifier(triangle_signs, triangle_folder)
+
 
 def generate_attribute_dataset(attribute):
     # takes in an <attribute> (string) and reformats the GTSRB dataset into Test, Train, and Validation folders
@@ -103,7 +115,53 @@ def generate_attribute_dataset(attribute):
                 copyfile(full_img_path, os.path.join(subfolder_root, sign_value, image_file))
 
 
+def generate_attribute_dataset_final_classifier(road_signs, filename):
+    # takes in a list of road signs in the final classifier and reformats the GTSRB dataset into Test, Train,
+    # and Validation folders.  Each of these folders will have subfolders corresponding to the classes
+    # in <road_signs> and all classes not included in road_signs will be in the none folder. The reformatted
+    # dataset will be stored in the ./nndt_data folder under a root folder named <filename>.
+
+    # make root folder and test, train, val folders
+    attribute_root_folder = os.path.join(os.getcwd(), "nndt_data", filename)
+    os.mkdir(attribute_root_folder)
+    attribute_test_folder = os.path.join(attribute_root_folder, "Test")
+    os.mkdir(attribute_test_folder)
+    attribute_train_folder = os.path.join(attribute_root_folder, "Train")
+    os.mkdir(attribute_train_folder)
+    attribute_val_folder = os.path.join(attribute_root_folder, "Validation")
+    os.mkdir(attribute_val_folder)
+    subfolders = {"Validation": attribute_val_folder, "Test": attribute_test_folder, "Train": attribute_train_folder}
+
+    # road_signs are all the classes classified by the final classifier
+    road_signs = [format_two_digits(x) for x in road_signs]
+
+    for key in subfolders:
+        print("Working on folder " + key + "\n\n")
+        subfolder_root = subfolders[key]
+        original_folder = os.path.join(os.getcwd(), key)
+        # make subfolders based on the attribute classes
+        for included_class in road_signs:
+            os.mkdir(os.path.join(subfolder_root, included_class))
+
+        # make none class
+        os.mkdir(os.path.join(subfolder_root, "none"))
+
+        # iterate through corresponding original dataset folder to copy images into these subfolders
+        original_classes = os.listdir(original_folder)
+        for sign in original_classes:
+            print("Copying images of class " + sign)
+
+            # if sign is part of the final classifier, it's label is it's class name, else it is "none"
+            sign_value = sign if sign in road_signs else "none"
+            sign_folder = os.path.join(original_folder, sign)
+            for image_file in os.listdir(sign_folder):
+                full_img_path = os.path.join(sign_folder, image_file)
+                copyfile(full_img_path, os.path.join(subfolder_root, sign_value, image_file))
+
+
 def create_train_attribute_model(attribute):
+    # for classifiers, <attribute> should be the string version of the attribute
+    # for final classifiers, <attribute> should be the name of the root folder of the dataset in ./nndt_data
     attribute_folder = os.path.join(os.getcwd(), "nndt_data", attribute)
     model_filename = attribute + "_resnet_" + str_date()
     model_path = os.path.join(attribute_folder, model_filename)
@@ -121,4 +179,5 @@ def test_data():
 
 # generate_attribute_dataset("shape")
 # create_train_attribute_model("shape")
-test_data()
+nndt = nndt_depth3_unweighted()
+nndt.generate_all_final_classifier_datasets()

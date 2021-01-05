@@ -140,14 +140,6 @@ def calculate_accuracy(y_true, y_pred):
     return c.sum().float()/len(y_true)
 
 
-def get_model_prediction(model, data):
-    # adapted from https://curiousily.com/posts/build-your-first-neural-network-with-pytorch/
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    t = torch.as_tensor(data).float().to(device)
-    output = model(t)
-    return output.ge(0.5).item(), output
-
-
 def save_model(model, path="pytorch_saved"):
     #save a model
     path = os.path.join(os.getcwd(), "ML", path)
