@@ -5,6 +5,8 @@ from pytorch_resnet import create_and_train_model, load_model, test_model_manual
 import os
 from shutil import copyfile
 
+shape_mapping = {"circle": 0, "diamond" : 1, "inverted_triangle": 2, "octagon": 3, "triangle": 4}
+
 class nndt_depth3_unweighted(tree):
     def __init__(self):
         # creates the structure of the tree
@@ -115,7 +117,7 @@ def test_data():
     model_file = os.path.join(os.getcwd(), "nndt_data", "shape", "shape_resnet_2021-01-03")
     model = load_model(model_file)
     test_folder = os.path.join(os.getcwd(), "Test")
-    test_attribute_model_manually(model, "shape", path=test_folder)
+    test_attribute_model_manually(model, "shape", shape_mapping, path=test_folder, verbose=True)
 
 # generate_attribute_dataset("shape")
 # create_train_attribute_model("shape")

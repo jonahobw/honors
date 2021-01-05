@@ -461,7 +461,7 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     print("Number of images tested: {}".format(str(total)))
 
 
-def test_attribute_model_manually(model, attribute, path = None, verbose = False, limit = None, startlimit = None):
+def test_attribute_model_manually(model, attribute, mapping, path = None, verbose = False, limit = None, startlimit = None):
     # tests an attribute model on all images in the subfolders of path, where the sufolders are organized by sign class
     # like in the original Training data folder
     # limit and startlimit allow you to only test the model on a subset of all the images
@@ -482,9 +482,9 @@ def test_attribute_model_manually(model, attribute, path = None, verbose = False
 
     # attribute values is the order of predictions of the attribute model
     attribute_values, _, = split_signs(signs(), attribute)
-    mapping = {}
-    for i, attribute in enumerate(attribute_values):
-        mapping[attribute] = i
+    # mapping = {}
+    # for i, attribute in enumerate(attribute_values):
+    #     mapping[attribute] = i
 
     imgs = []
     labels = []
@@ -520,7 +520,7 @@ def test_attribute_model_manually(model, attribute, path = None, verbose = False
 
     if (verbose):
         for i in range(len(imgs)):
-            print('Model prediction for image {} was {}, actual was {} ({})'.format(imgs[i], predictions[i], labels[i], mapping[labels[i]]))
+            print('({}) Model prediction for image {} was {}, actual was {} ({})'.format(str(i), imgs[i], predictions[i], labels[i], mapping[labels[i]]))
 
     # Accuracy with the test data
     total = len(labels)
