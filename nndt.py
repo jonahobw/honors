@@ -1,11 +1,19 @@
 from tree_classes import *
 from general import *
 from tree_helper import signs, print_tree, Tree_stats, split_all, split_signs
-from pytorch_resnet import create_and_train_model, load_model, test_model_manually, test_attribute_model_manually
+from pytorch_resnet import create_and_train_model, load_model, test_model_manually, \
+    test_attribute_model_manually, test_final_classifier_manually
 import os
 from shutil import copyfile
 
-shape_mapping = {"circle": 0, "diamond" : 1, "inverted_triangle": 2, "octagon": 3, "triangle": 4}
+def shape_mapping():
+    return {"circle": 0, "diamond" : 1, "inverted_triangle": 2, "octagon": 3, "triangle": 4}
+
+def circle_signs():
+    return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42]
+
+def triangle_signs():
+    return [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
 
 class nndt_depth3_unweighted(tree):
     def __init__(self):
@@ -172,12 +180,20 @@ def test_nndt():
     Tree_stats(Tree)
 
 def test_data():
-    model_file = os.path.join(os.getcwd(), "nndt_data", "shape", "shape_resnet_2021-01-03")
+    model_file = os.path.join(os.getcwd(), "nndt_data", "circle_final_classifier",
+                              "circle_final_classifier_resnet_2021-01-04")
     model = load_model(model_file)
     test_folder = os.path.join(os.getcwd(), "Test")
-    test_attribute_model_manually(model, "shape", shape_mapping, path=test_folder, verbose=True)
+    test_final_classifier_manually(model, circle_signs(), path=test_folder, verbose=True)
+
+    # model_file = os.path.join(os.getcwd(), "nndt_data", "triangle_final_classifier",
+    #                           "triangle_final_classifier_resnet_2021-01-04")
+    # model = load_model(model_file)
+    # test_folder = os.path.join(os.getcwd(), "Test")
+    # test_final_classifier_manually(model, triangle_signs(), path=test_folder, verbose=True)
 
 # generate_attribute_dataset("shape")
 # create_train_attribute_model("shape")
-nndt = nndt_depth3_unweighted()
-nndt.generate_all_final_classifier_datasets()
+#nndt = nndt_depth3_unweighted()
+#nndt.generate_all_final_classifier_datasets()
+test_data()
