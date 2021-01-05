@@ -21,7 +21,7 @@ class nndt_depth3_unweighted(tree):
         # creates the structure of the tree
         root = classifier("root", "shape")
         root.neuralnet = load_model(os.path.join(os.getcwd(), "nndt_data", "shape",
-                              "shape_resnet_2021-01-03"))
+                              "shape_resnet_2021-01-04"))
         self.rootnode = root
         super().__init__(root)
         signsarray = signs()
@@ -199,10 +199,11 @@ def test_data():
     test_folder = os.path.join(os.getcwd(), "Test")
     test_final_classifier_manually(model, circle_signs(), path=test_folder, verbose=True, limit=1)
 
-# generate_attribute_dataset("shape")
-create_train_attribute_model("shape", 5)
-#
-# img_file = os.path.join(os.getcwd(), "Test", "00", "00243.png")
-# nndt = nndt_depth3_unweighted()
-# a = nndt.predict(img_file)
-# print(a)
+if __name__ == '__main__':
+    # generate_attribute_dataset("shape")
+    create_train_attribute_model("circle_final_classifier", len(circle_signs()))
+    #
+    # img_file = os.path.join(os.getcwd(), "Test", "00", "00243.png")
+    # nndt = nndt_depth3_unweighted()
+    # a = nndt.predict(img_file)
+    # print(a)
