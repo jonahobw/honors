@@ -429,7 +429,7 @@ def print_tree(tree):
                     grandchildren.append(grandchild)
         nodenames.append(add_names)
         children = grandchildren
-    return nodenames
+    print(nodenames)
 
 
 def count_road_signs(Tree):

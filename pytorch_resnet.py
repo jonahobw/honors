@@ -403,13 +403,15 @@ def test_one_image(model, image, path = False):
     return preds
 
 
-def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None):
+def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None, nndt = False):
     # tests the model on all images in the subfolders of path
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
     # startlimit specifies the first image to test
+    # nndt is a boolean indicating if the input model is an nndt object or a neural network
 
-    model.eval()
+    if not nndt:
+        model.eval()
     if (path == None):
         path = os.path.join(os.getcwd(), "Test")
 
@@ -437,13 +439,19 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     predictions = []
 
     for i, img in enumerate(imgs):
-        #image = Image.open(os.path.join(path, img))
-        image = preprocess_image(os.path.join(path, str(labels[i]), img))
-        #image = create_batch(torch.tensor(image))
-        image = create_batch(image.clone().detach())
-        pred = get_model_prediction_probs(model, image)
-        class_pred = pred.index(max(pred))
-        predictions.append(class_pred)
+        full_file = os.path.join(path, str(labels[i]), img)
+        if nndt:
+            pred_vector = model.prediction_vector(full_file)
+            pred = model.prediction(pred_vector)
+            predictions.append(pred[0])
+        else:
+            #image = Image.open(os.path.join(path, img))
+            image = preprocess_image(full_file)
+            #image = create_batch(torch.tensor(image))
+            image = create_batch(image.clone().detach())
+            pred = get_model_prediction_probs(model, image)
+            class_pred = pred.index(max(pred))
+            predictions.append(class_pred)
 
     if (verbose):
         for i in range(len(imgs)):
