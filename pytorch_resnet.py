@@ -544,7 +544,12 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
 
     classes = os.listdir(path)
 
-    # map class label to attribute label
+    # map class label to attribute label for predicted output
+    mapping = {}
+    for i, sign in enumerate(road_signs):
+        mapping[sign] = i
+    mapping["none"] = len(road_signs)
+
 
     # array where each index represents a class, and the value at that index represents the attribute label for that
     # class
@@ -589,13 +594,13 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
 
     if (verbose):
         for i in range(len(imgs)):
-            print('({}) Model prediction for image {} was {}, actual was {} ({})'.format(str(i), imgs[i], predictions[i], labels[i], mapping[labels[i]]))
+            print('({}) Model prediction for image {} was {}, actual was {} ({})'.format(str(i), imgs[i], predictions[i], labels[i], str(mapping[labels[i]])))
 
     # Accuracy with the test data
     total = len(labels)
     correct = 0
     for i in range(total):
-        if (labels[i] == int(predictions[i])):
+        if (mapping[labels[i]] == int(predictions[i])):
             correct +=1
 
     test_accuracy = correct/total
