@@ -25,7 +25,7 @@ EPOCHS = 15
 # most of this code is adapted from the PyTorch documentation on resnet
 # found here: https://pytorch.org/hub/pytorch_vision_resnet/
 
-def make_resnet_model():
+def make_resnet_model(num_classes = NUM_CLASSES):
     #loads the model architecture
 
     model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet18', pretrained=False)
@@ -36,7 +36,7 @@ def make_resnet_model():
     # model = torch.hub.load('pytorch/vision:v0.6.0', 'resnet152', pretrained=True)
 
     #modify the last layer to output the number of classes
-    model.fc = torch.nn.Linear(512, NUM_CLASSES)
+    model.fc = torch.nn.Linear(512, num_classes)
     model.eval()
     return model
 
@@ -342,11 +342,11 @@ def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
     plt.show()
 
 
-def create_and_train_model(path = None, filename = None):
+def create_and_train_model(path = None, filename = None, num_classes = NUM_CLASSES):
     if (path == None):
         path = os.getcwd()
     # creates a model, trains it, plots the accuracy/loss, and saves the model
-    model = make_resnet_model()
+    model = make_resnet_model(num_classes)
     # data = generate_reduced_training_dataloader()
     data = generate_training_dataloaders(path = path)
     model, train_acc, val_acc, train_loss, val_loss = train_model(model, data)

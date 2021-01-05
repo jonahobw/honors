@@ -2,7 +2,7 @@ from tree_classes import *
 from general import *
 from tree_helper import signs, print_tree, Tree_stats, split_all, split_signs
 from pytorch_resnet import create_and_train_model, load_model, test_model_manually, \
-    test_attribute_model_manually, test_final_classifier_manually
+    test_attribute_model_manually, test_final_classifier_manually, preprocess_image
 import os
 from shutil import copyfile
 
@@ -15,12 +15,13 @@ def circle_signs():
 def triangle_signs():
     return [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
 
+
 class nndt_depth3_unweighted(tree):
     def __init__(self):
         # creates the structure of the tree
-        # todo fill out the .neuralnet parameter of the classifiers and final classifiers
-        # todo fill out the .pred_value_names parameter of the classifiers and final classifiers
         root = classifier("root", "shape")
+        root.neuralnet = load_model(os.path.join(os.getcwd(), "nndt_data", "shape",
+                              "shape_resnet_2021-01-03"))
         self.rootnode = root
         super().__init__(root)
         signsarray = signs()
@@ -40,6 +41,8 @@ class nndt_depth3_unweighted(tree):
 
         # add final classifiers and none nodes
         circle_classifier = final_classifier("circle", root)
+        circle_classifier.neuralnet = load_model(os.path.join(os.getcwd(), "nndt_data", "circle_final_classifier",
+                              "circle_final_classifier_resnet_2021-01-04"))
         root.add_child(circle_classifier)
         self.add_node(circle_classifier)
 
@@ -48,6 +51,8 @@ class nndt_depth3_unweighted(tree):
         self.add_node(circle_none)
 
         triangle_classifier = final_classifier("triangle", root)
+        triangle_classifier.neuralnet = load_model(os.path.join(os.getcwd(), "nndt_data", "triangle_final_classifier",
+                              "triangle_final_classifier_resnet_2021-01-04"))
         root.add_child(triangle_classifier)
         self.add_node(triangle_classifier)
 
@@ -66,9 +71,17 @@ class nndt_depth3_unweighted(tree):
                 sign.parent = circle_classifier
                 self.add_node(sign)
 
+        # fill out the .pred_value_names parameter of the classifiers and final classifiers
+        root.pred_value_names = [circle_classifier, signsarray[12], signsarray[13], signsarray[14], triangle_classifier]
+        triangle_classifier.pred_value_names = [signsarray[x] for x in triangle_signs()]
+        triangle_classifier.pred_value_names.append(triangle_none)
+        circle_classifier.pred_value_names = [signsarray[x] for x in circle_signs()]
+        circle_classifier.pred_value_names.append(circle_none)
+
     def predict(self, image):
+        # input is a full image path
         # todo: normalize and combine?
-        return self.root.predict(1, image)
+        return self.root.predict(1, preprocess_image(image))
 
     def generate_all_final_classifier_datasets(self):
         # there are 2 final classifiers, circle and triangle
@@ -167,13 +180,13 @@ def generate_attribute_dataset_final_classifier(road_signs, filename):
                 copyfile(full_img_path, os.path.join(subfolder_root, sign_value, image_file))
 
 
-def create_train_attribute_model(attribute):
+def create_train_attribute_model(attribute, num_classes):
     # for classifiers, <attribute> should be the string version of the attribute
     # for final classifiers, <attribute> should be the name of the root folder of the dataset in ./nndt_data
     attribute_folder = os.path.join(os.getcwd(), "nndt_data", attribute)
     model_filename = attribute + "_resnet_" + str_date()
     model_path = os.path.join(attribute_folder, model_filename)
-    create_and_train_model(attribute_folder, model_path)
+    create_and_train_model(attribute_folder, model_path, num_classes)
 
 def test_nndt():
     Tree = nndt_depth3_unweighted()
@@ -184,16 +197,12 @@ def test_data():
                               "circle_final_classifier_resnet_2021-01-04")
     model = load_model(model_file)
     test_folder = os.path.join(os.getcwd(), "Test")
-    test_final_classifier_manually(model, circle_signs(), path=test_folder, verbose=True)
-
-    # model_file = os.path.join(os.getcwd(), "nndt_data", "triangle_final_classifier",
-    #                           "triangle_final_classifier_resnet_2021-01-04")
-    # model = load_model(model_file)
-    # test_folder = os.path.join(os.getcwd(), "Test")
-    # test_final_classifier_manually(model, triangle_signs(), path=test_folder, verbose=True)
+    test_final_classifier_manually(model, circle_signs(), path=test_folder, verbose=True, limit=1)
 
 # generate_attribute_dataset("shape")
-# create_train_attribute_model("shape")
-#nndt = nndt_depth3_unweighted()
-#nndt.generate_all_final_classifier_datasets()
-test_data()
+create_train_attribute_model("shape", 5)
+#
+# img_file = os.path.join(os.getcwd(), "Test", "00", "00243.png")
+# nndt = nndt_depth3_unweighted()
+# a = nndt.predict(img_file)
+# print(a)

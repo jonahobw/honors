@@ -1,3 +1,5 @@
+import torch
+
 class node:
     def __init__(self, name, parent = None):
         self.name = name
@@ -29,7 +31,7 @@ class node:
             return prediction_vector
 
         if(isinstance(self, classifier) or isinstance(self, final_classifier)):
-            prediction = self.neuralnet(image)
+            prediction = get_model_prediction_probs(self.neuralnet, image)
 
             # map prediction output to child nodes and recursively call predict()
             for i, child in enumerate(self.pred_value_names):
@@ -75,3 +77,21 @@ class tree():
 
     def remove_node(self, name):
         self.nodes.remove(node for node in self.nodes if node.name == name)
+
+
+# functions from pytorch_resnet.py repeated here to avoid circular import
+def get_model_prediction_probs(model, image):
+    # feeds an image to a neural network and returns the predictions vector
+    image = image.clone().detach().unsqueeze(0)
+    if torch.cuda.is_available():
+        image= image.to('cuda')
+        model.to('cuda')
+
+    with torch.no_grad():
+        output = model(image)
+
+    # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
+    sm = torch.nn.functional.softmax(output[0], dim=0)
+    sm_list = sm.tolist()
+
+    return sm_list
