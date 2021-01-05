@@ -117,6 +117,9 @@ class nndt_depth3_unweighted(tree):
         triangle_folder = "triangle_final_classifier"
         generate_attribute_dataset_final_classifier(triangle_signs, triangle_folder)
 
+    def test(self, verbose=True, limit=None, startlimit = None, exclusive = None):
+        test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit, exclusive=exclusive)
+
 
 def generate_attribute_dataset(attribute):
     # takes in an <attribute> (string) and reformats the GTSRB dataset into Test, Train, and Validation folders
@@ -227,4 +230,4 @@ if __name__ == '__main__':
     # create_train_attribute_model("circle_final_classifier", len(circle_signs()))
     #
     nndt = nndt_depth3_unweighted()
-    test_model_manually(nndt, verbose=True, nndt=True)
+    nndt.test(exclusive=triangle_signs())

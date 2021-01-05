@@ -403,12 +403,14 @@ def test_one_image(model, image, path = False):
     return preds
 
 
-def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None, nndt = False):
+def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None, nndt = False, exclusive = None):
     # tests the model on all images in the subfolders of path
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
     # startlimit specifies the first image to test
     # nndt is a boolean indicating if the input model is an nndt object or a neural network
+    # if exclusive is not none it should be an integer array representing the classes that should be tested on the
+    # model.  For example, exclusive = [0, 1] will only test the model on signs of class 0 and 1
 
     if not nndt:
         model.eval()
@@ -416,6 +418,8 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
         path = os.path.join(os.getcwd(), "Test")
 
     classes = os.listdir(path)
+    if exclusive is not None:
+        classes = [format_two_digits(x) for x in exclusive]
 
     imgs = []
     labels = []
