@@ -117,8 +117,9 @@ class nndt_depth3_unweighted(tree):
         triangle_folder = "triangle_final_classifier"
         generate_attribute_dataset_final_classifier(triangle_signs, triangle_folder)
 
-    def test(self, verbose=True, limit=None, startlimit = None, exclusive = None):
-        test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit, exclusive=exclusive)
+    def test(self, path = None, verbose=True, limit=None, startlimit = None, exclusive = None):
+        test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit,
+                            exclusive=exclusive, path=path)
 
 
 def generate_attribute_dataset(attribute):
