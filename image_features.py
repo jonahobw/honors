@@ -356,8 +356,9 @@ def get_dominant_colors(image_file, number_of_colors = 5, show_chart = False):
     return rgb_colors
 
 #file = os.path.join(os.getcwd(), 'Debug', '00', '03922.png')
-#file = os.path.join(os.getcwd(), 'Debug', '00', '06946.png')
-#print(get_dominant_colors(file, 8, True))
+file = os.path.join(os.getcwd(), 'Debug', '00', '06946.png')
+print(get_max_color_length(file))
+#print(get_dominant_colors(file, 5, True))
 #print(gather_image_features(file))
 #test_folder = os.path.join(os.getcwd(), "small_test_dataset", "Train")
 #print(gather_test_data(test_folder))

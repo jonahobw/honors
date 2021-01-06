@@ -486,8 +486,6 @@ def test_attribute_model_manually(model, attribute, mapping, path = None, verbos
 
     classes = os.listdir(path)
 
-    # map class label to attribute label
-
     # array where each index represents a class, and the value at that index represents the attribute label for that
     # class
     class_attributes = split_all(attribute)
@@ -541,7 +539,8 @@ def test_attribute_model_manually(model, attribute, mapping, path = None, verbos
     print("Number of images tested: {}".format(str(total)))
 
 
-def test_final_classifier_manually(model, road_signs, path = None, verbose = False, limit = None, startlimit = None):
+def test_final_classifier_manually(model, road_signs, path = None, verbose = False, limit = None,
+                                   startlimit = None, exclusive = None):
     # tests a final classifier on all images in the subfolders of path, where the sufolders are organized by
     # sign class like in the original Training data folder.
     # <road_signs> are the signs included in the final classifier, all other road signs will be grouped into the
@@ -555,6 +554,8 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
         path = os.path.join(os.getcwd(), "Test")
 
     classes = os.listdir(path)
+    if exclusive is not None:
+        classes = [format_two_digits(x) for x in exclusive]
 
     # map class label to attribute label for predicted output
     mapping = {}
