@@ -2,7 +2,8 @@ from tree_classes import *
 from general import *
 from tree_helper import signs, print_tree, Tree_stats, split_all, split_signs
 from pytorch_resnet import create_and_train_model, load_model, test_model_manually, \
-    test_attribute_model_manually, test_final_classifier_manually, preprocess_image
+    test_attribute_model_manually, test_final_classifier_manually, preprocess_image, \
+    test_final_classifier_manually_byclass
 import os
 from shutil import copyfile
 
@@ -220,15 +221,16 @@ def test_nndt():
     Tree_stats(Tree)
 
 def test_data():
-    model_file = os.path.join(os.getcwd(), "nndt_data", "circle_final_classifier",
-                              "circle_final_classifier_resnet_2021-01-04")
+    model_file = os.path.join(os.getcwd(), "nndt_data", "triangle_final_classifier",
+                              "triangle_final_classifier_resnet_2021-01-05")
     model = load_model(model_file)
     test_folder = os.path.join(os.getcwd(), "Test")
-    test_final_classifier_manually(model, circle_signs(), path=test_folder, verbose=True, limit=1)
+    test_final_classifier_manually_byclass(model, triangle_signs(), path=test_folder, verbose=True,
+                                           exclusive=triangle_signs(), limit=10, top_misclassifications=2)
 
 if __name__ == '__main__':
     # generate_attribute_dataset("shape")
     # create_train_attribute_model("circle_final_classifier", len(circle_signs()))
-    #
-    nndt = nndt_depth3_unweighted()
-    nndt.test(exclusive=triangle_signs())
+    # nndt = nndt_depth3_unweighted()
+    # nndt.test(exclusive=triangle_signs())
+    test_data()

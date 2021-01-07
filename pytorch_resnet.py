@@ -621,6 +621,117 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
     print("Number of images tested: {}".format(str(total)))
 
 
+def test_final_classifier_manually_byclass(model, road_signs, path = None, verbose = False, limit = None,
+                                           exclusive = None, top_misclassifications = None):
+    # tests a final classifier on all images in the subfolders of path, where the sufolders are organized by
+    # sign class like in the original Training data folder.  Returns accuracy on each class
+    # <road_signs> are the signs included in the final classifier, all other road signs will be grouped into the
+    # "none" category
+    # limit specifies how many images to test for each class
+    # top_misclassifications is an int; if specified, prints the top classes that each class was misclassified as
+
+    # set up model and get test folder
+    model.eval()
+    if (path == None):
+        path = os.path.join(os.getcwd(), "Test")
+
+    # get list of classes to test
+    classes = os.listdir(path)
+    if exclusive is not None:
+        classes = [format_two_digits(x) for x in exclusive]
+
+    # map class label to attribute label for predicted output
+    mapping = {}
+    inv_mapping = {}
+    for i, sign in enumerate(road_signs):
+        mapping[sign] = i
+        inv_mapping[i] = sign
+    mapping["none"] = len(road_signs)
+    inv_mapping[len(road_signs)] = "none"
+
+
+    # imgs_labels is a dict where the keys are the classes and the values are arrays of paths to images of that class
+    imgs_labels = {}
+
+    # img_results is an array of 3-tuples of the format
+    # (class_name, number of images tested of that class, number of correctly classified images)
+    img_results = []
+
+    # initialize misclassifications if specified in function call
+    if top_misclassifications is not None:
+        # dict of dicts for misclassifications, format is
+        # {class name: {misclassified class: number of misclassifications}}
+        misclassified = {}
+        for sign in classes:
+            misclassified[int(sign)] = {}
+
+    # get paths to images
+    for sign in classes:
+        sign_directory = os.path.join(path, str(sign))
+        # array of full path to image
+        test_data = [os.path.join(path, sign, x) for x in os.listdir(sign_directory)]
+        imgs_labels[int(sign)] = test_data
+
+    # reduce number of images if specified in the function call
+    if limit is not None:
+        for key in imgs_labels:
+            imgs_labels[key] = imgs_labels[key][:limit]
+
+    # test the images
+    total_images = 0
+    total_correct = 0
+    for key in imgs_labels: # key is the integer version of the original class
+        class_images_count = len(imgs_labels[key])
+        class_correct_count = 0
+        total_images += class_images_count
+
+        if verbose:
+            print("Class {}".format(key))
+
+        for i, img in enumerate(imgs_labels[key]):
+            image = preprocess_image(img)
+            image = create_batch(image.clone().detach())
+            pred = get_model_prediction_probs(model, image)
+            class_pred = pred.index(max(pred))
+            if class_pred == mapping[key]:
+                class_correct_count += 1
+            elif top_misclassifications is not None:
+                if inv_mapping[class_pred] in misclassified[key]:
+                    misclassified[key][inv_mapping[class_pred]] +=1
+                else:
+                    misclassified[key][inv_mapping[class_pred]] = 1
+            if (verbose):
+                print('({}) Model prediction for image {} was {} ({}), actual was {} ({})'.format(str(i+1), img,
+                                                                                             str(class_pred),
+                                                                                            str(inv_mapping[class_pred]),
+                                                                                             str(mapping[key]),
+                                                                                             str(key)))
+
+        if verbose:
+            print("\n\n")
+
+        img_results.append((key, class_images_count, class_correct_count))
+        total_correct += class_correct_count
+
+    for i in range(len(img_results)):
+        sign_class, count, correct = img_results[i]
+        print('Class {}: {} images tested, {:4f}% accuracy'.format(sign_class, count, correct * 100 / count))
+        if top_misclassifications is not None and count != correct:
+            sign_misclassifications = misclassified[sign_class]
+            sorted_misclassifications = sorted(sign_misclassifications.items(), key=lambda x: x[1], reverse=True)
+            sorted_misclassifications = sorted_misclassifications[:top_misclassifications]
+            print('    Top {} misclassifications:'.format(top_misclassifications))
+            for misclassified_class, freq in sorted_misclassifications:
+                print('        Class {}, {} occurances, ({:4f}% of all misclassifications)'.format(misclassified_class,
+                                                                                                freq,
+                                                                                                100*freq/(count-correct)))
+
+
+    test_accuracy = total_correct/total_images
+    print('\n\nOverall test Accuracy: {:.7f}%'.format(test_accuracy*100))
+    print("{}/{} images correct".format(total_correct, total_images))
+
+
 def load_and_test_model(modelpath, test_path = None, verbose = False):
     # loads a model and tests it using a dataloader and manually
 
