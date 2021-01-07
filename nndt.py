@@ -16,6 +16,11 @@ def circle_signs():
 def triangle_signs():
     return [11, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
 
+def complement_signs(signs_array):
+    # takes the complement of a set of signs <signs_array> which is an array of ints
+    all_signs = [i for i in range(43)]
+    return list(set(all_signs) - set(signs_array))
+
 
 class nndt_depth3_unweighted(tree):
     def __init__(self):
@@ -224,9 +229,11 @@ def test_data():
     model_file = os.path.join(os.getcwd(), "nndt_data", "triangle_final_classifier",
                               "triangle_final_classifier_resnet_2021-01-05")
     model = load_model(model_file)
-    test_folder = os.path.join(os.getcwd(), "Test")
-    test_final_classifier_manually_byclass(model, triangle_signs(), path=test_folder, verbose=True,
-                                           exclusive=triangle_signs(), limit=10, top_misclassifications=2)
+    test_folder = os.path.join(os.getcwd(), "Debug")
+    test_final_classifier_manually(model, triangle_signs(), path = test_folder, verbose=True,
+                                   exclusive=complement_signs(triangle_signs()))
+    #test_final_classifier_manually_byclass(model, triangle_signs(), path=test_folder, verbose=True,
+    #                                       exclusive=triangle_signs(), limit=10, top_misclassifications=2)
 
 if __name__ == '__main__':
     # generate_attribute_dataset("shape")

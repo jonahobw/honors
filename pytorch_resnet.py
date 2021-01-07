@@ -532,7 +532,7 @@ def test_attribute_model_manually(model, attribute, mapping, path = None, verbos
     correct = 0
     for i in range(total):
         if (mapping[labels[i]] == int(predictions[i])):
-            correct +=1
+            correct += 1
 
     test_accuracy = correct/total
     print('Test Accuracy: {:.7f}%'.format(test_accuracy*100))
@@ -715,7 +715,7 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
 
     for i in range(len(img_results)):
         sign_class, count, correct = img_results[i]
-        print('Class {}: {} images tested, {:4f}% accuracy'.format(sign_class, count, correct * 100 / count))
+        print('\nClass {}: {}/{} images correct, {:4f}% accuracy'.format(sign_class, correct, count, correct * 100 / count))
         if top_misclassifications is not None and count != correct:
             sign_misclassifications = misclassified[sign_class]
             sorted_misclassifications = sorted(sign_misclassifications.items(), key=lambda x: x[1], reverse=True)
