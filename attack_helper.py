@@ -7,6 +7,7 @@ from general import *
 import random
 import logging
 from tree_helper import attack_danger_weights
+from nndt import nndt_depth3_unweighted
 
 logger = logging.getLogger("attack_log")
 
@@ -20,20 +21,24 @@ def print_image(img, path = True, title = ""):
     plt.show()
 
 
-def get_correctly_classified_imgs(model, imgs, samples):
+def get_correctly_classified_imgs(model, imgs, samples, nndt = False):
     # This function takes an array of image files and returns a subset of that array of size <samples> where
     # every image in the subset is correctly classified by the <model>
     #
     # parameters:
-    # model (neural network object): the model to use for classification
+    # model (neural network object or nndt): the model to use for classification
+    # nndt (bool) indicates whether or not the model is an nndt
     # imgs (list): array of tuples (image file name, image true class)
     # samples (int): the number of images desired who classify correctly
 
     valid_imgs = []
     for i in range(len(imgs)):
         image, true_class = imgs.pop()
-        im = Image.open(image)
-        preds = test_one_image(model, im)
+        if not nndt:
+            im = Image.open(image)
+            preds = test_one_image(model, im)
+        else:
+            preds = model.prediction_vector(image, dict=False)
         class_pred = preds.index(max(preds))
         if(int(class_pred)==int(true_class)):
             valid_imgs.append((image, true_class))
@@ -48,7 +53,7 @@ def get_correctly_classified_imgs(model, imgs, samples):
         return valid_imgs
 
 
-def retrieve_valid_test_images(model, image_folder, samples, targeted = None, exclusive = None):
+def retrieve_valid_test_images(model, image_folder, samples, targeted = None, exclusive = None, nndt = False):
     # returns a set of images who classify correctly of size <samples>
     #
     # if <targeted> is not none, it should be an integer representing one of the classes, and
@@ -68,7 +73,7 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
             file_path = os.path.join(sign_folder, file)
             # tuple of (image filename, label of image)
             imgs.append((file_path, exclusive))
-        return get_correctly_classified_imgs(model, imgs, samples)
+        return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt)
 
     classes = os.listdir(image_folder)
 
@@ -83,7 +88,7 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
             # tuple of (image filename, label of image)
             imgs.append((file_path, sign))
     random.shuffle(imgs)
-    return get_correctly_classified_imgs(model, imgs, samples)
+    return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt)
 
 
 def retrieve_attack_pairs(n, rand = False):
@@ -95,7 +100,8 @@ def retrieve_attack_pairs(n, rand = False):
 
     for startsign in range(43):
         for endsign in range(43):
-            attack_pairs.append((startsign, endsign, attack_danger_weights(startsign, endsign)))
+            if startsign != endsign:
+                attack_pairs.append((startsign, endsign, attack_danger_weights(startsign, endsign)))
 
     #random case
     if rand:

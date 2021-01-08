@@ -1,4 +1,6 @@
 from tree_classes import *
+from PIL import Image
+import numpy as np
 from general import *
 from tree_helper import signs, print_tree, Tree_stats, split_all, split_signs
 from pytorch_resnet import create_and_train_model, load_model, test_model_manually, \
@@ -87,19 +89,32 @@ class nndt_depth3_unweighted(tree):
         circle_classifier.pred_value_names = [signsarray[x] for x in circle_signs()]
         circle_classifier.pred_value_names.append(circle_none)
 
-    def prediction_vector(self, image):
-        # input is a full image path
+    def prediction_vector(self, image, dict = True, path = True):
+        # path (bool) indicates whether <image> is a path to an image or a tensor representing an image
+        # image (tensor or string) image in tensor form or full path to an image
+        # dict indicates whether or not to return a dictionary or array
         # unnormalized vector, probability taken away by none nodes
-        pred = self.root.predict(1, preprocess_image(image))
+        if (isinstance(image, np.ndarray)):
+            image = Image.fromarray(image)
+        image = preprocess_image(image, path = path)
+        pred = self.root.predict(1, image)
 
         # normalize the vector and format as 2 digits
         total_prob = 0
         for key in pred:
             total_prob += pred[key]
-        normalized = {}
-        for key in pred:
-            normalized[format_two_digits(key)] = pred[key]/total_prob
-        return normalized
+        if dict:
+            # make a dictionary to return
+            normalized = {}
+            for key in pred:
+                normalized[format_two_digits(key)] = pred[key]/total_prob
+            return normalized
+        else:
+            # make an array to return
+            normalized = [x for x in range(43)]
+            for key in pred:
+                normalized[int(key)] = pred[key]/total_prob
+            return normalized
 
     def prediction(self, pred_vector):
         # pred_vector is a dict from prediction_vector()
@@ -223,7 +238,9 @@ def create_train_attribute_model(attribute, num_classes):
 
 def test_nndt():
     Tree = nndt_depth3_unweighted()
-    Tree_stats(Tree)
+    #Tree_stats(Tree)
+    img = os.path.join(os.getcwd(), "Test", "00", "00243.png")
+    print(Tree.prediction_vector(img, dict=False))
 
 def test_fc():
     model_file = os.path.join(os.getcwd(), "nndt_data", "triangle_final_classifier",
@@ -247,4 +264,4 @@ if __name__ == '__main__':
     # create_train_attribute_model("circle_final_classifier", len(circle_signs()))
     # nndt = nndt_depth3_unweighted()
     # nndt.test(exclusive=triangle_signs())
-    test_reg()
+    test_nndt()

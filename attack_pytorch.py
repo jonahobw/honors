@@ -1,6 +1,7 @@
 import numpy as np
 from pytorch_resnet import load_model, test_one_image, NUM_CLASSES
 from scipy.optimize import differential_evolution
+from nndt import nndt_depth3_unweighted
 import time
 from general import str_date
 import logging
@@ -8,21 +9,25 @@ from attack_helper import *
 
 # changeable parameters
 #-----------------------------------------------
-# neural net to use (filename)
-MODEL_NAME = "pytorch_resnet_saved_11_9_20"
+# neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
+# ./Models folder in string format.  If this is an nndt, this should be the name of the nndt class in string format
+MODEL_NAME = "nndt_depth3_unweighted"
+# this should be none if the model is a regular resnet.  If the model is an nndt, then this should be an instance of
+# the nndt class
+NNDT = nndt_depth3_unweighted()
 # Differential Evolution parameters (ints)
-POP_SIZE = 200
-MAX_ITER = 25
+POP_SIZE = 500
+MAX_ITER = 50
 # Number of pixels to attack (array of ints)
-PIXELS = [1, 3, 5]
+PIXELS = [5]
 # Save into a folder (bool)
-SAVE = True
+SAVE = False
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = False
 # Targeted attack (bool)
-TARGETED = True
+TARGETED = False
 
 # Untargeted attack parameters
 #----------------------------------------------
@@ -32,16 +37,17 @@ SAMPLES = 1
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
-ATTACK_PAIRS = 10
+ATTACK_PAIRS = 1
 # Number of images to attack for each targeted pair (int)
-N = 10
+N = 3
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
-RANDOM = False
+RANDOM = True
 
 def setup_variables():
     globals()
-    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH
-    MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
+    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT
+    if NNDT is None:
+        MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
     logger.setLevel(LOG_LEVEL)
 
@@ -63,6 +69,8 @@ def setup_variables():
         logging.getLogger("attack_log").addHandler(logging.StreamHandler())
     else:
         logging.basicConfig(format='%(message)s')
+
+    logger.info("Model Name: {}".format(MODEL_NAME))
 
 
 # most code in this file adapted from https://github.com/Hyperparticle/one-pixel-attack-keras/blob/master/1_one-pixel-attack-cifar10.ipynb
@@ -98,17 +106,20 @@ def perturb_image(xs, img_path):
     return imgs
 
 
-def predict_classes(xs, img, target_class, model, minimize=True):
+def predict_classes(xs, img, target_class, model, minimize=True, nndt = False):
     # Perturb the image with the given pixel(s) x and get the prediction of the model
     attack_image = perturb_image(xs, img)[0]
-    preds = test_one_image(model, attack_image)
+    if not nndt:
+        preds = test_one_image(model, attack_image)
+    else:
+        preds = model.prediction_vector(attack_image, dict=False, path=False)
     target_class_confidence = preds[target_class]
 
     # This function should always be minimized, so return its complement if needed
     return target_class_confidence if minimize else 1 - target_class_confidence
 
 
-def attack_success(xs, img, img_class, target_class, model, targeted_attack=False, verbose=False):
+def attack_success(xs, img, img_class, target_class, model, targeted_attack=False, verbose=False, nndt=False):
     # evaluates the success of an attack.
     # input a perturbed image to the model and get it's prediction vector
     # if this is a targeted attack, return true if the model predicted the image to be of target_class
@@ -116,7 +127,10 @@ def attack_success(xs, img, img_class, target_class, model, targeted_attack=Fals
 
     # Perturb the image with the given pixel(s) and get the prediction of the model
     attack_image = perturb_image(xs, img)[0]
-    preds= test_one_image(model,attack_image)
+    if not nndt:
+        preds= test_one_image(model,attack_image)
+    else:
+        preds = model.prediction_vector(attack_image, dict=False, path=False)
 
     target_class_confidence = preds[target_class]
     predicted_class = preds.index(max(preds))
@@ -139,24 +153,28 @@ def attack_success(xs, img, img_class, target_class, model, targeted_attack=Fals
         return True
 
 
-def attack(img_id, img_class, model, target=None, pixel_count=1,
+def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
            maxiter=75, popsize=400, verbose=False, show_image = False):
     # performs an attack on a model using possible perturbations on 1 input image
     # uses differential evolution to try to find an image that succeeds in fooling the network
     # parameters:
     # img_id     (string):  the file name of the image
     # img_class     (int):  the true class of the image
-    # target        (int):  if None, this is not a targeted attack, otherwise, this is the class we want to
+    # target        (int):  if None, this is an untargeted attack, otherwise, this is the class we want to
     #                           try to get the network to predict
     # pixel_count   (int):  maximum number of pixels allowed in perturbations
     # maxiter       (int):  max number of differential evolution iterations to try before declaring failure
     # popsize       (int):  parameter used for the differential evolution algorithm
     # verbose      (bool):  detailed output if True
+    # nndt         (bool):  indicates whether or not the model is an nndt
 
     if verbose:
         img_file = os.path.split(img_id)
         logger.debug("---------------Testing image {}---------------".format(img_file[1]))
-        prior_probs = test_one_image(model, img_id, path= True)
+        if not nndt:
+            prior_probs = test_one_image(model, img_id, path= True)
+        else:
+            prior_probs = model.prediction_vector(img_id, dict=False)
         prior_true_class_confidence = prior_probs[int(img_class)]
         logger.debug('Prior Model Confidence in true class {}:     {:4f}% '
               '(before attack)'.format(str(img_class), prior_true_class_confidence * 100))
@@ -176,11 +194,11 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
 
     # Format the predict/callback functions for the differential evolution algorithm
     def predict_fn(xs):
-        return predict_classes(xs, img_id, target_class, model, minimize= not targeted_attack)
+        return predict_classes(xs, img_id, target_class, model, minimize= not targeted_attack, nndt=nndt)
 
     def callback_fn(xs, convergence):
         return attack_success(xs, img_id, img_class, target_class,
-                              model, targeted_attack, verbose)
+                              model, targeted_attack, verbose, nndt=nndt)
 
     # Call Scipy's Implementation of Differential Evolution
     attack_result = differential_evolution(
@@ -189,11 +207,15 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
 
     # Calculate some useful statistics to return from this function
     attack_image = perturb_image(attack_result.x, img_id)[0]
-    predicted_probs = test_one_image(model, attack_image)
+    if not nndt:
+        predicted_probs = test_one_image(model, attack_image)
+    else:
+        predicted_probs = model.prediction_vector(attack_image, dict=False, path=False)
+
     predicted_class = predicted_probs.index(max(predicted_probs))
     predicted_class_confidence = predicted_probs[predicted_class]
     true_class_confidence = predicted_probs[int(img_class)]
-    target_class_confidence = predicted_probs[int(target)]
+    target_class_confidence = predicted_probs[int(target_class)]
 
     success = False
     if ((targeted_attack and predicted_class == target_class) or
@@ -226,7 +248,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1,
 
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5),
-               maxiter=25, popsize=200, verbose=False, show_image = False):
+               maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
@@ -238,7 +260,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     logger.info("Population size: {}\n\n".format(str(popsize)))
 
     since = time.time()
-    img_samples = retrieve_valid_test_images(model, image_folder, samples)
+    img_samples = retrieve_valid_test_images(model, image_folder, samples, nndt = nndt)
 
     # 1d array where index corresponds to pixel count, and the value of an element is the success of
     # an untargeted attack with that pixel count
@@ -255,7 +277,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
                 logger.info("{} samples tested so far".format(str(j)))
             success = attack(img, int(label), model, pixel_count=pixel_count,
                              maxiter = maxiter, popsize= popsize, verbose=verbose,
-                             show_image = show_image)
+                             show_image = show_image, nndt = nndt)
             if success:
                 total_success +=1
                 items_to_remove.append(img_samples[j])
@@ -275,7 +297,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
 
 def attack_all_targeted(model, random = False, image_folder = None, samples=500, pixels=(1, 3, 5),
-                    maxiter=75, popsize=400, verbose=False, show_image = False):
+                    maxiter=75, popsize=400, verbose=False, show_image = False, nndt = False):
     # attacks the N highest attack pairs by danger weight
     # ATTACK_PAIRS (int) is a global variable that determines how many pairs to attack
     # N (int) is a global variable that determines how many images to attack for each attack pair
@@ -314,7 +336,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples=500,
 
     # loop over set of attack pairs
     for k, (true_class, target_class) in enumerate(attack_pairs):
-        img_samples = retrieve_valid_test_images(model, image_folder, N, exclusive=true_class)
+        img_samples = retrieve_valid_test_images(model, image_folder, N, exclusive=true_class, nndt=nndt)
         logger.info("\nTargeted Attack from True Class {} to Target Class {}\n".format(str(true_class), str(target_class)))
 
         # 1d array where index corresponds to pixel count, and the value of an element is the success of
@@ -329,7 +351,8 @@ def attack_all_targeted(model, random = False, image_folder = None, samples=500,
             for j, (img, label) in enumerate(img_samples):
                 logger.debug("Image {}".format(str(j + 1)))
                 success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
-                                 maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image)
+                                 maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image,
+                                 nndt = nndt)
                 if success:
                     total_success +=1
                     items_to_remove.append(img_samples[j])
@@ -431,26 +454,36 @@ def plot_targeted(results, pixels, maxiter, popsize):
 
 def run_plot_untargeted():
     globals()
-    model = load_model(MODEL_PATH)
+    if NNDT is None:
+        model = load_model(MODEL_PATH)
+        nndt = False
+    else:
+        model = NNDT
+        nndt = True
     if LOG_LEVEL == logging.DEBUG:
         verbose = True
     else:
         verbose = False
     r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
-                                            popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE)
+                                            popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE, nndt=nndt)
     plot_untargeted(r, pix, s, m, p)
 
 
 def run_plot_targeted():
     globals()
-    model = load_model(MODEL_PATH)
+    if NNDT is None:
+        model = load_model(MODEL_PATH)
+        nndt = False
+    else:
+        model = NNDT
+        nndt = True
     if LOG_LEVEL == logging.DEBUG:
         verbose = True
     else:
         verbose = False
     res, pix, sam, mxi, pop = attack_all_targeted(model, random = RANDOM, samples=N, pixels=PIXELS,
                                                        maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
-                                                       show_image=SHOW_IMAGE)
+                                                       show_image=SHOW_IMAGE, nndt = nndt)
     plot_targeted(res, pix, mxi, pop)
 
 

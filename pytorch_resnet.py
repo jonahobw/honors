@@ -752,4 +752,7 @@ def train_and_test_model_from_scratch(path = None, verbose = False):
 
 if __name__ == '__main__':
     #load_and_test_model("pytorch_resnet_saved_11_9_20", test_path=os.path.join(os.getcwd(), 'Debug'), verbose=True)
-    train_and_test_model_from_scratch()
+    #train_and_test_model_from_scratch()
+    model_path = os.path.join(os.getcwd(), "Models", "pytorch_resnet_saved_11_9_20")
+    model = load_model(model_path)
+    print(type(model))
