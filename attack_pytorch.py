@@ -58,7 +58,8 @@ def setup_variables():
         IMG_FOLDER = ""
         PLT_FOLDER = ""
         save_date = str_date()
-        ROOT_SAVE_FOLDER = os.path.join(root_folder_prefix, "{}_{}_{}_samples".format(save_date, MODEL_NAME, str(SAMPLES)))
+        num_images = ATTACK_PAIRS * N if TARGETED else SAMPLES
+        ROOT_SAVE_FOLDER = os.path.join(root_folder_prefix, "{}_{}_{}_samples".format(save_date, MODEL_NAME, str(num_images)))
         os.mkdir(ROOT_SAVE_FOLDER)
         IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "imgs")
         os.mkdir(IMG_FOLDER)

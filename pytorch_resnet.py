@@ -403,7 +403,8 @@ def test_one_image(model, image, path = False):
     return preds
 
 
-def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None, nndt = False, exclusive = None):
+def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None, nndt = False,
+                        exclusive = None, top_misclassifications = None, byclass = False):
     # tests the model on all images in the subfolders of path
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
@@ -411,6 +412,9 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     # nndt is a boolean indicating if the input model is an nndt object or a neural network
     # if exclusive is not none it should be an integer array representing the classes that should be tested on the
     # model.  For example, exclusive = [0, 1] will only test the model on signs of class 0 and 1
+    # byclass indicates if results should be printed out by class
+    # top_misclassifications should be an int if none and prints out the most frequent misclassifications for each
+    # class.  This can only be used if byclass is True
 
     if not nndt:
         model.eval()
@@ -421,6 +425,87 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     if exclusive is not None:
         classes = [format_two_digits(x) for x in exclusive]
 
+    if byclass == True:
+        # imgs_labels is a dict where the keys are the classes and the values are arrays of paths to images of that class
+        imgs_labels = {}
+
+        # img_results is an array of 3-tuples of the format
+        # (class_name, number of images tested of that class, number of correctly classified images)
+        img_results = []
+
+        # initialize misclassifications if specified in function call
+        if top_misclassifications is not None:
+            # dict of dicts for misclassifications, format is
+            # {class name: {misclassified class: number of misclassifications}}
+            misclassified = {}
+            for sign in classes:
+                misclassified[int(sign)] = {}
+
+        # get paths to images
+        for sign in classes:
+            sign_directory = os.path.join(path, str(sign))
+            # array of full path to image
+            test_data = [os.path.join(path, sign, x) for x in os.listdir(sign_directory)]
+            imgs_labels[int(sign)] = test_data
+
+        # reduce number of images if specified in the function call
+        if limit is not None:
+            for key in imgs_labels:
+                imgs_labels[key] = imgs_labels[key][:limit]
+
+        # test the images
+        total_images = 0
+        total_correct = 0
+        for key in imgs_labels:  # key is the integer version of the original class
+            class_images_count = len(imgs_labels[key])
+            class_correct_count = 0
+            total_images += class_images_count
+
+            if verbose:
+                print("Class {}".format(key))
+
+            for i, img in enumerate(imgs_labels[key]):
+                image = preprocess_image(img)
+                image = create_batch(image.clone().detach())
+                pred = get_model_prediction_probs(model, image)
+                class_pred = pred.index(max(pred))
+                if class_pred == int(key):
+                    class_correct_count += 1
+                elif top_misclassifications is not None:
+                    if class_pred in misclassified[key]:
+                        misclassified[key][class_pred] += 1
+                    else:
+                        misclassified[key][class_pred] = 1
+                if (verbose):
+                    print('({}) Model prediction for image {} was {}, actual was {}'.format(str(i + 1), img,
+                                                                                                 str(class_pred),
+                                                                                                 str(key)))
+
+            if verbose:
+                print("\n\n")
+
+            img_results.append((key, class_images_count, class_correct_count))
+            total_correct += class_correct_count
+
+        for i in range(len(img_results)):
+            sign_class, count, correct = img_results[i]
+            print('\nClass {}: {}/{} images correct, {:4f}% accuracy'.format(sign_class, correct, count,
+                                                                             correct * 100 / count))
+            if top_misclassifications is not None and count != correct:
+                sign_misclassifications = misclassified[sign_class]
+                sorted_misclassifications = sorted(sign_misclassifications.items(), key=lambda x: x[1], reverse=True)
+                sorted_misclassifications = sorted_misclassifications[:top_misclassifications]
+                print('    Top {} misclassifications:'.format(top_misclassifications))
+                for misclassified_class, freq in sorted_misclassifications:
+                    print('        Class {}, {} occurances, ({:4f}% of all misclassifications)'.format(
+                        misclassified_class,
+                        freq,
+                        100 * freq / (count - correct)))
+
+        test_accuracy = total_correct / total_images
+        print('\n\nOverall test Accuracy: {:.7f}%'.format(test_accuracy * 100))
+        print("{}/{} images correct".format(total_correct, total_images))
+    #----------------------------------------------------------------------------------
     imgs = []
     labels = []
 
@@ -752,7 +837,7 @@ def train_and_test_model_from_scratch(path = None, verbose = False):
 
 if __name__ == '__main__':
     #load_and_test_model("pytorch_resnet_saved_11_9_20", test_path=os.path.join(os.getcwd(), 'Debug'), verbose=True)
-    #train_and_test_model_from_scratch()
-    model_path = os.path.join(os.getcwd(), "Models", "pytorch_resnet_saved_11_9_20")
-    model = load_model(model_path)
-    print(type(model))
+    train_and_test_model_from_scratch()
+    # model_path = os.path.join(os.getcwd(), "Models", "pytorch_resnet_saved_11_9_20")
+    # model = load_model(model_path)
+    # print(type(model))
