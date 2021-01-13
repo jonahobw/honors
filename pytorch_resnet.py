@@ -837,7 +837,8 @@ def train_and_test_model_from_scratch(path = None, verbose = False):
 
 if __name__ == '__main__':
     #load_and_test_model("pytorch_resnet_saved_11_9_20", test_path=os.path.join(os.getcwd(), 'Debug'), verbose=True)
-    train_and_test_model_from_scratch()
-    # model_path = os.path.join(os.getcwd(), "Models", "pytorch_resnet_saved_11_9_20")
-    # model = load_model(model_path)
-    # print(type(model))
+    # train_and_test_model_from_scratch()
+    model_path = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted", "triangle_final_classifier",
+                              "triangle_final_classifier_resnet_2021-01-05")
+    model = load_model(model_path)
+    print(summary(model, input_size=(3, INPUT_SIZE, INPUT_SIZE)))

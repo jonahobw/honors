@@ -78,7 +78,7 @@ class nndt_depth3_unweighted(tree):
 
         triangle_classifier = final_classifier("triangle", root)
         triangle_classifier.neuralnet = load_model(os.path.join(model_folder, "triangle_final_classifier",
-                              "triangle_final_classifier_resnet_2021-01-05"))
+                              "triangle_final_classifier_resnet_2021-01-11"))
         triangle_classifier.neuralnet.eval()
         root.add_child(triangle_classifier)
         self.add_node(triangle_classifier)
@@ -371,7 +371,15 @@ class nndt_depth4_unweighted(tree):
 
     @staticmethod
     def generate_all_classifier_datasets():
-        generate_classifier_dataset(red_circular_signs(), "circle", "red_circular", "nndt4_unweighted")
+        # the root classifier of shape is the same as for nndt3_unweighted, so no need to recreate it
+        # there are 2 other classifiers: circular signs which are classified based on color and triangular signs
+        # which are classified based on road
+
+        # circular signs classified by color:
+        generate_classifier_dataset(circle_signs(), "color", "circle_color", "nndt4_unweighted")
+
+        # triangular signs classified by road
+        generate_classifier_dataset(triangle_signs(), "road", "triangle_road", "nndt4_unweighted")
 
     def test(self, path = None, verbose=True, limit=None, startlimit = None, exclusive = None):
         test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit,
@@ -402,45 +410,12 @@ def test_train_val_folders(folder_root):
     return subfolders
 
 
-def generate_root_dataset(attribute):
-    # takes in an <attribute> (string) and reformats the GTSRB dataset into Test, Train, and Validation folders
-    # according to <attribute>.  Each of these folders will have subfolders corresponding to the classes
-    # resulting from splitting the dataset based on <attribute>.  The reformatted dataset will be stored in
-    # the ./nndt_data folder under a root folder named <attribute>
-
-    # make root folder and test, train, val folders
-    attribute_root_folder = os.path.join(os.getcwd(), "nndt_data", attribute)
-    os.mkdir(attribute_root_folder)
-    subfolders = test_train_val_folders(attribute_root_folder)
-
-    # split up signs into groups
-    split = split_all(attribute)
-    values, _ = split_signs(signs(), attribute)
-
-    for key in subfolders:
-        print("Working on folder " + key + "\n\n")
-        subfolder_root = subfolders[key]
-        original_folder = os.path.join(os.getcwd(), key)
-        # make subfolders based on the attribute classes
-        for value in values:
-            os.mkdir(os.path.join(subfolder_root, value))
-
-        # iterate through corresponding original dataset folder to copy images into these subfolders
-        original_classes = os.listdir(original_folder)
-        for sign in original_classes:
-            print("Copying images of class " + sign)
-            sign_value = split[int(sign)]
-            sign_folder = os.path.join(original_folder, sign)
-            for image_file in os.listdir(sign_folder):
-                full_img_path = os.path.join(sign_folder, image_file)
-                copyfile(full_img_path, os.path.join(subfolder_root, sign_value, image_file))
-
-
 def generate_classifier_dataset(road_signs, attribute, filename, classinstance):
     # takes in a list of road signs that will reach this classifier and reformats the GTSRB dataset into Test, Train,
     # and Validation folders according to <attribute>.  Each of these folders will have subfolders corresponding to
     # the classes resulting from splitting the dataset based on <attribute>.  The reformatted dataset will be stored
     # in the ./nndt_data/<classinstance> folder under a root folder named <attribute>.
+    # for a root node of an nndt, road signs will be all classes: [0, 1, 2, ..., 42, 43]
 
     # make root folder and test, train, val folders
     root_folder = os.path.join(os.getcwd(), "nndt_data", classinstance, filename)
@@ -452,7 +427,7 @@ def generate_classifier_dataset(road_signs, attribute, filename, classinstance):
     included = [signarray[i] for i in road_signs]
     values, _ = split_signs(included, attribute)
 
-    # road_signs are all the classes classified by the final classifier
+    # road_signs are all the classes classified by the classifier
     road_signs = [format_two_digits(x) for x in road_signs]
 
     # key: Test, Train, or Validation
@@ -518,20 +493,24 @@ def generate_attribute_dataset_final_classifier(road_signs, filename, classinsta
                 copyfile(full_img_path, os.path.join(subfolder_root, sign_value, image_file))
 
 
-def create_train_attribute_model(attribute, num_classes):
+def create_train_attribute_model(attribute, num_classes, classinstance):
+    # classinstance is the string version of the nndt class name, specifies the folder in ./nndt_data to look for
+    # datasets
     # for classifiers, <attribute> should be the string version of the attribute
-    # for final classifiers, <attribute> should be the name of the root folder of the dataset in ./nndt_data, and
-    # make sure to include the none node in the number of classes
-    attribute_folder = os.path.join(os.getcwd(), "nndt_data", attribute)
+    # for final classifiers, <attribute> should be the name of the root folder of the dataset in
+    # ./nndt_data/<classinstance>, and make sure to include the none node in the number of classes
+    attribute_folder = os.path.join(os.getcwd(), "nndt_data", classinstance, attribute)
     model_filename = attribute + "_resnet_" + str_date()
     model_path = os.path.join(attribute_folder, model_filename)
     create_and_train_model(attribute_folder, model_path, num_classes)
+
 
 def test_nndt():
     Tree = nndt_depth3_unweighted()
     #Tree_stats(Tree)
     img = os.path.join(os.getcwd(), "Test", "00", "00243.png")
     print(Tree.prediction_vector(img, dict=False))
+
 
 def test_fc():
     model_file = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted", "triangle_final_classifier",
@@ -543,11 +522,13 @@ def test_fc():
     test_final_classifier_manually_byclass(model, triangle_signs(), path=test_folder, verbose=True,
                                            exclusive=triangle_signs()) #, limit=10, top_misclassifications=2)
 
+
 def test_reg():
     model_file = os.path.join(os.getcwd(), "Models", "pytorch_resnet_saved_11_9_20")
     model = load_model(model_file)
     test_folder = os.path.join(os.getcwd(), "Test")
     test_model_manually(model, test_folder, exclusive=triangle_signs(), byclass=True, top_misclassifications=2)
+
 
 def num_images(folder = None, show_output = True):
     if folder ==None:
@@ -564,6 +545,11 @@ def num_images(folder = None, show_output = True):
             print("Class {}: {} images".format(sign, num_imgs))
     return signs_per_class
 
+
+def create_all_nndt4_unweighted_datasets():
+    nndt_depth4_unweighted.generate_all_classifier_datasets()
+    nndt_depth4_unweighted.generate_all_final_classifier_datasets()
+
 if __name__ == '__main__':
     # generate_attribute_dataset("shape")
     # create_train_attribute_model("circle_final_classifier", len(circle_signs()))
@@ -574,5 +560,16 @@ if __name__ == '__main__':
     # for i in range(len(a)):
     #     if i in b:
     #         print("Class {}: {} images".format(i, a[i]))
-    #nndt_depth4_unweighted.test_sign_set()
-    test_reg()
+    # nndt_depth4_unweighted.test_sign_set()
+    create_all_nndt4_unweighted_datasets()
+    # create_train_attribute_model("red_circular_final_classifier", len(red_circular_signs())+1, "nndt4_unweighted")
+    # create_train_attribute_model("white_circular_final_classifier", len(white_circular_signs()) + 1, "nndt4_unweighted")
+    # create_train_attribute_model("blue_circular_final_classifier", len(blue_circular_signs()) + 1, "nndt4_unweighted")
+    #
+    # create_train_attribute_model("triangular_road_true_final_classifier", len(triangular_road_true_signs()) + 1,
+    #                              "nndt4_unweighted")
+    # create_train_attribute_model("triangular_road_false_final_classifier", len(triangular_road_false_signs()) + 1,
+    #                              "nndt4_unweighted")
+    #
+    # create_train_attribute_model("circle_color", len(circle_signs()) + 1, "nndt4_unweighted")
+    # create_train_attribute_model("triangle_road", len(triangle_signs()) + 1, "nndt4_unweighted")
