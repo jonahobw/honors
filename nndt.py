@@ -154,6 +154,13 @@ class nndt_depth3_unweighted(tree):
         triangle_folder = "triangle_final_classifier"
         generate_attribute_dataset_final_classifier(triangle_signs, triangle_folder, "nndt3_unweighted")
 
+    @staticmethod
+    def leaf_classifier_groups():
+        # returns a 2d array for untargeted attack over multiple classifiers
+        # 1st dimension represents the leaf classifiers for this nndt (circular signs, triangular signs, shape)
+        # and 2nd dimension represents the classs classified by the leaf classifier
+        return [circle_signs(), triangle_signs(), [12, 13, 14]]
+
     def test(self, path = None, verbose=True, limit=None, startlimit = None, exclusive = None):
         test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit,
                             exclusive=exclusive, path=path)
@@ -343,7 +350,7 @@ class nndt_depth4_unweighted(tree):
 
     @staticmethod
     def generate_all_final_classifier_datasets():
-        classname = "nndt4_unweighed"
+        classname = "nndt4_unweighted"
         # there are 3 circular final classifiers, red, white, and blue
         # red:
         red_signs = red_circular_signs()
@@ -437,7 +444,7 @@ def generate_classifier_dataset(road_signs, attribute, filename, classinstance):
         original_folder = os.path.join(os.getcwd(), key)
         # make subfolders based on the attribute classes
         for value in values:
-            os.mkdir(os.path.join(subfolder_root, value))
+            os.mkdir(os.path.join(subfolder_root, str(value)))
 
         # make none class
         os.mkdir(os.path.join(subfolder_root, "none"))
@@ -452,7 +459,7 @@ def generate_classifier_dataset(road_signs, attribute, filename, classinstance):
             sign_folder = os.path.join(original_folder, sign)
             for image_file in os.listdir(sign_folder):
                 full_img_path = os.path.join(sign_folder, image_file)
-                copyfile(full_img_path, os.path.join(subfolder_root, sign_value, image_file))
+                copyfile(full_img_path, os.path.join(subfolder_root, str(sign_value), image_file))
 
 
 def generate_attribute_dataset_final_classifier(road_signs, filename, classinstance):
@@ -561,7 +568,7 @@ if __name__ == '__main__':
     #     if i in b:
     #         print("Class {}: {} images".format(i, a[i]))
     # nndt_depth4_unweighted.test_sign_set()
-    create_all_nndt4_unweighted_datasets()
+    # create_all_nndt4_unweighted_datasets()
     # create_train_attribute_model("red_circular_final_classifier", len(red_circular_signs())+1, "nndt4_unweighted")
     # create_train_attribute_model("white_circular_final_classifier", len(white_circular_signs()) + 1, "nndt4_unweighted")
     # create_train_attribute_model("blue_circular_final_classifier", len(blue_circular_signs()) + 1, "nndt4_unweighted")
@@ -573,3 +580,4 @@ if __name__ == '__main__':
     #
     # create_train_attribute_model("circle_color", len(circle_signs()) + 1, "nndt4_unweighted")
     # create_train_attribute_model("triangle_road", len(triangle_signs()) + 1, "nndt4_unweighted")
+    print()

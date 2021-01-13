@@ -320,9 +320,10 @@ def train_model(model, dataloaders, num_epochs=EPOCHS, lr = 0.001):
     return model, training_acc_history, val_acc_history, training_loss_history, val_loss_history
 
 
-def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
+def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss, path = None):
     # plots the training and validation accuracy and loss during training
     # plotting graphs for accuracy
+    # if path is specified, saves the plots under path folder
     plt.figure(0)
     plt.plot(train_acc, label='training accuracy')
     plt.plot(val_acc, label='val accuracy')
@@ -330,7 +331,11 @@ def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
     plt.xlabel('epochs')
     plt.ylabel('accuracy')
     plt.legend()
-    plt.show()
+    if path is not None:
+        fname = os.path.join(path, "accuracy.png")
+        plt.savefig(fname)
+    else:
+        plt.show()
 
     plt.figure(1)
     plt.plot(train_loss, label='training loss')
@@ -339,7 +344,11 @@ def plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss):
     plt.xlabel('epochs')
     plt.ylabel('loss')
     plt.legend()
-    plt.show()
+    if path is not None:
+        fname = os.path.join(path, "loss.png")
+        plt.savefig(fname)
+    else:
+        plt.show()
 
 
 def create_and_train_model(path = None, filename = None, num_classes = NUM_CLASSES):
@@ -350,7 +359,7 @@ def create_and_train_model(path = None, filename = None, num_classes = NUM_CLASS
     # data = generate_reduced_training_dataloader()
     data = generate_training_dataloaders(path = path)
     model, train_acc, val_acc, train_loss, val_loss = train_model(model, data)
-    plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss)
+    plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss, path = path)
     if filename is not None:
         save_model(model, filename)
     else:
