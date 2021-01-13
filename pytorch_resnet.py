@@ -15,7 +15,7 @@ import numpy as np
 from shutil import copyfile
 from general import *
 from tree_helper import split_all, split_signs, signs
-
+import logging
 
 BATCH_SIZE = 64
 INPUT_SIZE = 224
@@ -230,8 +230,23 @@ def get_model_prediction_probs(model, input):
     return sm_list
 
 
-def train_model(model, dataloaders, num_epochs=EPOCHS, lr = 0.001):
+def train_model(model, dataloaders, folder, num_epochs=EPOCHS, lr = 0.001, save = True):
     # trains a neural network on the dataloader data
+    # model(pytorch object): neural network to train
+    # dataloaders (dict {"Train": <dataloader of training data>, "Validation": <dataloader of validation data>})
+    # folder: folder to save training output log to
+
+    # setup logging
+    logger = logging.getLogger("neural_net_training")
+    logger.setLevel(logging.INFO)
+    logfile = os.path.join(folder, "training_output.txt")
+    if save:
+        logging.basicConfig(filename=logfile, format='%(message)s')
+    else:
+        logging.basicConfig(format='%(message)s')
+    logging.getLogger("neural_net_training").addHandler(logging.StreamHandler())
+    logger.info("Training from folder {}".format(folder))
+
     # this code is adapted from the PyTorch tutorial
     # at https://pytorch.org/tutorials/beginner/finetuning_torchvision_models_tutorial.html
     criterion = nn.CrossEntropyLoss()
@@ -251,8 +266,8 @@ def train_model(model, dataloaders, num_epochs=EPOCHS, lr = 0.001):
     best_acc = 0.0
 
     for epoch in range(num_epochs):
-        print('Epoch {}/{}'.format(epoch + 1, num_epochs))
-        print('-' * 10)
+        logger.info('Epoch {}/{}'.format(epoch + 1, num_epochs))
+        logger.info('-' * 10)
 
         # Each epoch has a training and validation phase
         for phase in ['Train', 'Validation']:
@@ -271,7 +286,7 @@ def train_model(model, dataloaders, num_epochs=EPOCHS, lr = 0.001):
 
                 count += 1
                 if (count % 100 == 0):
-                    print("Completed batch " + str(count))
+                    logger.info("Completed batch " + str(count))
 
                 # zero the parameter gradients
                 optimizer.zero_grad()
@@ -296,7 +311,7 @@ def train_model(model, dataloaders, num_epochs=EPOCHS, lr = 0.001):
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
+            logger.info('{} Loss: {:.4f} Acc: {:.4f}'.format(phase, epoch_loss, epoch_acc))
 
             if phase == 'Train':
                 training_acc_history.append(epoch_acc)
@@ -312,8 +327,8 @@ def train_model(model, dataloaders, num_epochs=EPOCHS, lr = 0.001):
         print()
 
     time_elapsed = time.time() - since
-    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best Validation Acc: {:4f}'.format(best_acc))
+    logger.info('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    logger.info('Best Validation Acc: {:4f}'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
@@ -358,7 +373,7 @@ def create_and_train_model(path = None, filename = None, num_classes = NUM_CLASS
     model = make_resnet_model(num_classes)
     # data = generate_reduced_training_dataloader()
     data = generate_training_dataloaders(path = path)
-    model, train_acc, val_acc, train_loss, val_loss = train_model(model, data)
+    model, train_acc, val_acc, train_loss, val_loss = train_model(model, data, path)
     plot_accuracy_and_loss(train_acc, train_loss, val_acc, val_loss, path = path)
     if filename is not None:
         save_model(model, filename)
@@ -847,7 +862,9 @@ def train_and_test_model_from_scratch(path = None, verbose = False):
 if __name__ == '__main__':
     #load_and_test_model("pytorch_resnet_saved_11_9_20", test_path=os.path.join(os.getcwd(), 'Debug'), verbose=True)
     # train_and_test_model_from_scratch()
-    model_path = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted", "triangle_final_classifier",
-                              "triangle_final_classifier_resnet_2021-01-05")
-    model = load_model(model_path)
-    print(summary(model, input_size=(3, INPUT_SIZE, INPUT_SIZE)))
+    # model_path = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted", "triangle_final_classifier",
+    #                           "triangle_final_classifier_resnet_2021-01-05")
+    # model = load_model(model_path)
+    # print(summary(model, input_size=(3, INPUT_SIZE, INPUT_SIZE)))
+    path = os.path.join(os.getcwd(), "small_test_dataset")
+    create_and_train_model(path = path, filename="TEST_RESNET_DELETEME", num_classes=2)
