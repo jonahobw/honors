@@ -430,6 +430,40 @@ class nndt_depth4_unweighted(tree):
             test_attribute_model_manually(model, attribute, correct_signs, mapping, path=testfolder, byclass = byclass,
                                           exclusive = exc, save_file=filename, verbose = verbose)
 
+
+    @staticmethod
+    def test_final_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False,
+                               top_misclassifications = None):
+        if testfolder == None:
+            testfolder = os.path.join(os.getcwd(), "Test")
+        fc_dict = {"blue_circle": blue_circular_signs(),
+                   "red_circle": red_circular_signs(),
+                   "white_circle": white_circular_signs(),
+                   "triangular_road_false": triangular_road_false_signs(),
+                   "triangular_road_true": triangular_road_true_signs()}
+        for classifier in fc_dict:
+            folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
+            model_file = os.path.join(folder, classifier + "_final_classifier_resnet_2021-01-13")
+            model = load_model(model_file)
+            correct_signs = fc_dict[classifier]
+            exc = correct_signs if exclusive else None
+            # make filename
+            filename = None
+            if save:
+                fname = "exclusive_" if exclusive else ""
+                fname += os.path.split(testfolder)[1].lower() + "_acc"
+                fname += "_byclass" if byclass else ""
+                fname += ".txt"
+                filename = os.path.join(folder, fname)
+            if not byclass:
+                test_final_classifier_manually(model, correct_signs, path = testfolder, verbose=verbose, exclusive=exc,
+                                               save_file = filename)
+            else:
+                test_final_classifier_manually_byclass(model, correct_signs, path=testfolder, verbose=verbose,
+                                                       exclusive=exc, top_misclassifications = top_misclassifications,
+                                                       save_file = filename)
+
+
     @staticmethod
     def train_classifiers():
         classifiers_num_classes = {"circle_color": 4, "triangle_road": 3}

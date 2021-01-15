@@ -713,7 +713,7 @@ def test_attribute_model_manually(model, attribute, correct_classes, mapping, pa
 
 
 def test_final_classifier_manually(model, road_signs, path = None, verbose = False, limit = None,
-                                   startlimit = None, exclusive = None):
+                                   startlimit = None, exclusive = None, save_file = None):
     # tests a final classifier on all images in the subfolders of path, where the sufolders are organized by
     # sign class like in the original Training data folder.
     # <road_signs> are the signs included in the final classifier, all other road signs will be grouped into the
@@ -721,6 +721,24 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
     # startlimit specifies the first image to test
+    # save_file specifies a path to save the output in
+
+    output_str = "Testing Parameters: \n"
+    output_str += "----------------------------------------\n"
+    output_str += "Classes in FC:   {}\n".format(str(road_signs))
+    output_str += "Test_folder:     {}\n".format(path)
+    output_str += "Limit:           {}\n".format(str(limit))
+    output_str += "Exclusive:       {}\n".format(str(exclusive))
+    output_str += "By Class:        False\n"
+    output_str += "Save File:        {}\n".format(str(save_file))
+    print(save_file)
+
+    save = save_file is not None
+    if save:
+        f = open(save_file, "w+")
+        f.write(output_str)
+    else:
+        print(output_str)
 
     model.eval()
     if (path == None):
@@ -780,7 +798,11 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
 
     if (verbose):
         for i in range(len(imgs)):
-            print('({}) Model prediction for image {} was {}, actual was {} ({})'.format(str(i), imgs[i], predictions[i], labels[i], str(mapping[labels[i]])))
+            output_str = '({}) Model prediction for image {} was {}, actual was {} ({})\n'.format(str(i), imgs[i], predictions[i], labels[i], str(mapping[labels[i]]))
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
 
     # Accuracy with the test data
     total = len(labels)
@@ -790,18 +812,43 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
             correct +=1
 
     test_accuracy = correct/total
-    print('Test Accuracy: {:.7f}%'.format(test_accuracy*100))
-    print("Number of images tested: {}".format(str(total)))
+    output_str = '\n\nOverall test Accuracy: {:.7f}%\n'.format(test_accuracy * 100)
+    output_str += "{}/{} images correct\n\n".format(correct, total)
+    if save:
+        f.write(output_str)
+        f.close()
+    else:
+        print(output_str)
 
 
 def test_final_classifier_manually_byclass(model, road_signs, path = None, verbose = False, limit = None,
-                                           exclusive = None, top_misclassifications = None):
+                                           exclusive = None, top_misclassifications = None, save_file = None):
     # tests a final classifier on all images in the subfolders of path, where the sufolders are organized by
     # sign class like in the original Training data folder.  Returns accuracy on each class
     # <road_signs> are the signs included in the final classifier, all other road signs will be grouped into the
     # "none" category
     # limit specifies how many images to test for each class
     # top_misclassifications is an int; if specified, prints the top classes that each class was misclassified as
+    # save_file specifies a path to save the output in
+
+    output_str = "Testing Parameters: \n"
+    output_str += "----------------------------------------\n"
+    output_str += "Classes in FC:   {}\n".format(str(road_signs))
+    output_str += "Test_folder:     {}\n".format(path)
+    output_str += "Limit:           {}\n".format(str(limit))
+    output_str += "Exclusive:       {}\n".format(str(exclusive))
+    output_str += "By Class:        True\n"
+    output_str += "Top Misclass:    {}\n".format(str(top_misclassifications))
+    output_str += "Save File:       {}\n".format(str(save_file))
+    print(save_file)
+
+    save = save_file is not None
+    if save:
+        f = open(save_file, "w+")
+        f.write(output_str)
+    else:
+        print(output_str)
+
 
     # set up model and get test folder
     model.eval()
@@ -859,7 +906,11 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
         total_images += class_images_count
 
         if verbose:
-            print("Class {}".format(key))
+            output_str = "\nClass {}\n".format(key)
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
 
         for i, img in enumerate(imgs_labels[key]):
             image = preprocess_image(img)
@@ -874,11 +925,15 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
                 else:
                     misclassified[key][inv_mapping[class_pred]] = 1
             if (verbose):
-                print('({}) Model prediction for image {} was {} ({}), actual was {} ({})'.format(str(i+1), img,
+                output_str = '({}) Model prediction for image {} was {} ({}), actual was {} ({})\n'.format(str(i+1), img,
                                                                                              str(class_pred),
                                                                                             str(inv_mapping[class_pred]),
                                                                                              str(mapping[key]),
-                                                                                             str(key)))
+                                                                                             str(key))
+                if save:
+                    f.write(output_str)
+                else:
+                    print(output_str)
 
         if verbose:
             print("\n\n")
@@ -888,21 +943,39 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
 
     for i in range(len(img_results)):
         sign_class, count, correct = img_results[i]
-        print('\nClass {}: {}/{} images correct, {:4f}% accuracy'.format(sign_class, correct, count, correct * 100 / count))
+        output_str = '\nClass {}: {}/{} images correct, {:4f}% accuracy\n'.format(sign_class, correct, count, correct * 100 / count)
+        if save:
+            f.write(output_str)
+        else:
+            print(output_str)
+
         if top_misclassifications is not None and count != correct:
             sign_misclassifications = misclassified[sign_class]
             sorted_misclassifications = sorted(sign_misclassifications.items(), key=lambda x: x[1], reverse=True)
             sorted_misclassifications = sorted_misclassifications[:top_misclassifications]
-            print('    Top {} misclassifications:'.format(top_misclassifications))
+            output_str = '    Top {} misclassifications:\n'.format(top_misclassifications)
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
             for misclassified_class, freq in sorted_misclassifications:
-                print('        Class {}, {} occurances, ({:4f}% of all misclassifications)'.format(misclassified_class,
+                output_str = '        Class {}, {} occurances, ({:4f}% of all misclassifications)\n'.format(misclassified_class,
                                                                                                 freq,
-                                                                                                100*freq/(count-correct)))
+                                                                                                100*freq/(count-correct))
+                if save:
+                    f.write(output_str)
+                else:
+                    print(output_str)
 
 
     test_accuracy = total_correct/total_images
-    print('\n\nOverall test Accuracy: {:.7f}%'.format(test_accuracy*100))
-    print("{}/{} images correct".format(total_correct, total_images))
+    output_str = '\n\nOverall test Accuracy: {:.7f}%\n'.format(test_accuracy * 100)
+    output_str += "{}/{} images correct\n\n".format(total_correct, total_images)
+    if save:
+        f.write(output_str)
+        f.close()
+    else:
+        print(output_str)
 
 
 def load_and_test_model(modelpath, test_path = None, verbose = False):
