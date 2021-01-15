@@ -20,6 +20,23 @@ def print_image(img, path = True, title = ""):
     plt.tight_layout()
     plt.show()
 
+def spans_multiple_classifiers(array, class1, class2):
+    # <array>: a 2d array where the first dimension are the leaf classifiers of the nndt
+    # and the second dimension are the classes classified by the leaf classifiers.
+    # class1 and class2 are ints representing two signs
+    # returns a boolean indicating !(class1 and class2 are in the same 2nd-dimension array)
+
+    for subarr in array:
+        # variables indicating if the classes have been found
+        cl1 = class1 in subarr
+        cl2 = class2 in subarr
+        if cl1 and cl2:
+            # 2 signs are in the same leaf classifier, they do NOT span multiple classifiers
+            return False
+        elif cl1 or cl2:
+            return True
+
+
 
 def get_correctly_classified_imgs(model, imgs, samples, nndt = False):
     # This function takes an array of image files and returns a subset of that array of size <samples> where

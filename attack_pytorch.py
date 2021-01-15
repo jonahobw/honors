@@ -7,7 +7,7 @@ from general import str_date
 import logging
 from attack_helper import *
 
-# changeable parameters
+# Model parameters
 #-----------------------------------------------
 # neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
 # ./Models folder in string format.  If this is an nndt, this should be the name of the nndt class in string format
@@ -15,6 +15,14 @@ MODEL_NAME = "nndt_depth3_unweighted"
 # this should be none if the model is a regular resnet.  If the model is an nndt, then this should be an instance of
 # the nndt class
 NNDT = nndt_depth3_unweighted()
+# If none, no change.  If not none, should be a 2d array where the first dimension are the leaf classifiers of the nndt
+# and the second dimension are the classes classified by the leaf classifiers.  For an untargeted attack: the attack
+# will only be called successful if the original class and misclassified class span multiple leaf classifiers.  For a
+# targeted attack: attack pairs will be sampled from the set of pairs that span multiple leaf classifiers
+ACROSS_CLASSIFIERS = None
+
+# Attack parameters
+#-----------------------------------------------
 # Differential Evolution parameters (ints)
 POP_SIZE = 500
 MAX_ITER = 50
@@ -42,6 +50,7 @@ ATTACK_PAIRS = 1
 N = 3
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
 RANDOM = True
+
 
 def setup_variables():
     globals()
@@ -120,11 +129,16 @@ def predict_classes(xs, img, target_class, model, minimize=True, nndt = False):
     return target_class_confidence if minimize else 1 - target_class_confidence
 
 
-def attack_success(xs, img, img_class, target_class, model, targeted_attack=False, verbose=False, nndt=False):
+def attack_success(xs, img, img_class, target_class, model, targeted_attack=False, verbose=False, nndt=False,
+                   across_classifiers = None):
     # evaluates the success of an attack.
     # input a perturbed image to the model and get it's prediction vector
     # if this is a targeted attack, return true if the model predicted the image to be of target_class
     # if untargeted, return true if the model's prediction is not the target_class
+
+    # across_classifiers: If none, no change.  If not none, should be a 2d array where the first dimension are the leaf
+    # classifiers of the nndt and the second dimension are the classes classified by the leaf classifiers.  The function
+    # will only return true if the predicted class and true class span multiple classifiers
 
     # Perturb the image with the given pixel(s) and get the prediction of the model
     attack_image = perturb_image(xs, img)[0]
@@ -151,6 +165,8 @@ def attack_success(xs, img, img_class, target_class, model, targeted_attack=Fals
         logger.debug(annotation)
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
+        if(across_classifiers is not None and not spans_multiple_classifiers(across_classifiers, int(img_class), int(predicted_class))):
+            return
         return True
 
 

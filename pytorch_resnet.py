@@ -329,7 +329,6 @@ def train_model(model, dataloaders, folder, num_epochs=EPOCHS, lr = 0.001, save 
     time_elapsed = time.time() - since
     logger.info('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     logger.info('Best Validation Acc: {:4f}'.format(best_acc))
-
     # load best model weights
     model.load_state_dict(best_model_wts)
     return model, training_acc_history, val_acc_history, training_loss_history, val_loss_history
@@ -529,6 +528,7 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
         test_accuracy = total_correct / total_images
         print('\n\nOverall test Accuracy: {:.7f}%'.format(test_accuracy * 100))
         print("{}/{} images correct".format(total_correct, total_images))
+        return
     #----------------------------------------------------------------------------------
     imgs = []
     labels = []
@@ -582,70 +582,134 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
     print("Number of images tested: {}".format(str(total)))
 
 
-def test_attribute_model_manually(model, attribute, mapping, path = None, verbose = False, limit = None, startlimit = None):
+def test_attribute_model_manually(model, attribute, correct_classes, mapping, path = None, verbose = False, limit = None,
+                                  exclusive = None, byclass = False, save_file = None):
     # tests an attribute model on all images in the subfolders of path, where the sufolders are organized by sign class
     # like in the original Training data folder
-    # limit and startlimit allow you to only test the model on a subset of all the images
-    # limit specifies how many images to test
-    # startlimit specifies the first image to test
+    # limit specifies how many images of each class to test
+    # exclusive is an array of ints specifying which images to test
+    # mapping is an array of the length of the output of the model, and specifies what attribute each index refers to;
+    # int of model prediction -> string of attribute
+    # correct_classes is an array of ints specifying which classes should reach this node and distinguishes the classes
+    # in the none node
+    # save_file specifies a path to save the output in
+
+    output_str = "Testing Parameters: \n"
+    output_str += "----------------------------------------\n"
+    output_str += "Attribute:       {}\n".format(attribute)
+    output_str += "Correct classes: {}\n".format(str(correct_classes))
+    output_str += "Mapping:         {}\n".format(str(mapping))
+    output_str += "Test_folder:     {}\n".format(path)
+    output_str += "Limit:           {}\n".format(str(limit))
+    output_str += "Exclusive:       {}\n".format(str(exclusive))
+    output_str += "By Class:        {}\n".format(str(byclass))
+    output_str += "Save File:        {}\n".format(str(save_file))
+    print(save_file)
+
+    save = save_file is not None
+    if save:
+        f = open(save_file, "w+")
+        f.write(output_str)
+    else:
+        print(output_str)
 
     model.eval()
     if (path == None):
         path = os.path.join(os.getcwd(), "Test")
 
     classes = os.listdir(path)
+    if exclusive is not None:
+        classes = [format_two_digits(x) for x in exclusive]
 
     # array where each index represents a class, and the value at that index represents the attribute label for that
     # class
     class_attributes = split_all(attribute)
 
+    # class_labels is an array of where the index represents the class (0 to 42) and value at that index represents the
+    # attribute of that class (either "none" or attribute string)
+    class_labels = [class_attributes[i] if i in correct_classes else "none" for i in range(43)]
 
-    imgs = []
-    labels = []
+
+    # imgs_labels is a dict where the keys are the classes and the values are arrays of paths to images of that class
+    imgs_labels = {}
+
+    # img_results is an array of 3-tuples of the format
+    # (class_name, number of images tested of that class, number of correctly classified images)
+    img_results = []
 
     for sign in classes:
         sign_directory = os.path.join(path, str(sign))
         # array of full path to image
         test_data = [os.path.join(path, sign, x) for x in os.listdir(sign_directory)]
-        # labels are the string versions of the attribute values
-        labels.extend([class_attributes[int(sign)]]*len(test_data))
-        imgs.extend(test_data)
+        if limit is not None:
+            test_data = test_data[:limit]
+        imgs_labels[sign] = test_data
 
-    if limit is not None:
-        start = 0
-        if startlimit is not None:
-            start = startlimit
-        labels = labels[start:limit+start]
-        imgs = imgs[start:limit+start]
-        if (len(labels)<1 or len(imgs)<1):
-            print("Error, invalid limit and startlimit parameters.")
-            return -1
+    # test the images
+    total_images = 0
+    total_correct = 0
+    for key in imgs_labels:  # key is the integer version of the original class
+        class_images_count = len(imgs_labels[key])
+        class_correct_count = 0
+        total_images += class_images_count
 
-    predictions = []
+        if verbose:
+            output_str = "\nClass {}\n".format(key)
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
 
-    for i, img in enumerate(imgs):
-        #image = Image.open(os.path.join(path, img))
-        image = preprocess_image(img)
-        #image = create_batch(torch.tensor(image))
-        image = create_batch(image.clone().detach())
-        pred = get_model_prediction_probs(model, image)
-        class_pred = pred.index(max(pred))
-        predictions.append(class_pred)
+        for i, img in enumerate(imgs_labels[key]):
+            image = preprocess_image(img)
+            image = create_batch(image.clone().detach())
+            pred = get_model_prediction_probs(model, image)
+            numerical_pred = pred.index(max(pred))
+            attribute_pred = mapping[numerical_pred]
+            if attribute_pred == class_attributes[int(key)]:
+                class_correct_count += 1
+            if (verbose):
+                output_str = '({}) Model prediction for image {} was {}, actual was {} (true class {})\n'.format(str(i+1),
+                                                                                                               img,
+                                                                                                        str(attribute_pred),
+                                                                                                        str(class_attributes[int(key)]),
+                                                                                                        str(key))
+                if save:
+                    f.write(output_str)
+                else:
+                    print(output_str)
 
-    if (verbose):
-        for i in range(len(imgs)):
-            print('({}) Model prediction for image {} was {}, actual was {} ({})'.format(str(i), imgs[i], predictions[i], labels[i], mapping[labels[i]]))
 
-    # Accuracy with the test data
-    total = len(labels)
-    correct = 0
-    for i in range(total):
-        if (mapping[labels[i]] == int(predictions[i])):
-            correct += 1
+        if verbose:
+            output_str = "\n\n"
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
 
-    test_accuracy = correct/total
-    print('Test Accuracy: {:.7f}%'.format(test_accuracy*100))
-    print("Number of images tested: {}".format(str(total)))
+        img_results.append((key, class_images_count, class_correct_count))
+        total_correct += class_correct_count
+
+    if byclass:
+        for i in range(len(img_results)):
+            sign_class, count, correct = img_results[i]
+            output_str = '\nClass {}: {}/{} images correct, {:4f}% accuracy'.format(sign_class, correct, count,
+                                                                             correct * 100 / count)
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
+
+    test_accuracy = total_correct / total_images
+    output_str = '\n\nOverall test Accuracy: {:.7f}%\n'.format(test_accuracy * 100)
+    output_str += "{}/{} images correct\n\n".format(total_correct, total_images)
+    if save:
+        f.write(output_str)
+        f.close()
+    else:
+        print(output_str)
+
+    return
 
 
 def test_final_classifier_manually(model, road_signs, path = None, verbose = False, limit = None,

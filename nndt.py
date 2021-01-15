@@ -405,6 +405,47 @@ class nndt_depth4_unweighted(tree):
         b = [i for i in range(43)]
         print(a==b)
 
+    @staticmethod
+    def test_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False):
+        if testfolder == None:
+            testfolder = os.path.join(os.getcwd(), "Test")
+        circle_mapping = ["red", "white", "blue", "none"]
+        triangle_mapping = ["False", "none", "True"]
+        classifier_dict = {"circle_color": ("color", circle_signs(), circle_mapping),
+                           "triangle_road": ("road", triangle_signs(), triangle_mapping)}
+        for classifier in classifier_dict:
+            folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
+            model_file = os.path.join(folder, classifier + "_resnet_2021-01-13")
+            model = load_model(model_file)
+            attribute, correct_signs, mapping = classifier_dict[classifier]
+            exc = correct_signs if exclusive else None
+            # make filename
+            filename = None
+            if save:
+                fname = "exclusive_" if exclusive else ""
+                fname += os.path.split(testfolder)[1].lower() + "_acc"
+                fname += "_byclass" if byclass else ""
+                fname += ".txt"
+                filename = os.path.join(folder, fname)
+            test_attribute_model_manually(model, attribute, correct_signs, mapping, path=testfolder, byclass = byclass,
+                                          exclusive = exc, save_file=filename, verbose = verbose)
+
+    @staticmethod
+    def train_classifiers():
+        classifiers_num_classes = {"circle_color": 4, "triangle_road": 3}
+        for classifier in classifiers_num_classes:
+            create_train_attribute_model(classifier, classifiers_num_classes[classifier], "nndt4_unweighted")
+
+    @staticmethod
+    def train_final_classifiers():
+        create_train_attribute_model("red_circular_final_classifier", len(red_circular_signs())+1, "nndt4_unweighted")
+        create_train_attribute_model("white_circular_final_classifier", len(white_circular_signs()) + 1, "nndt4_unweighted")
+        create_train_attribute_model("blue_circular_final_classifier", len(blue_circular_signs()) + 1, "nndt4_unweighted")
+        create_train_attribute_model("triangular_road_true_final_classifier", len(triangular_road_true_signs()) + 1,
+                                     "nndt4_unweighted")
+        create_train_attribute_model("triangular_road_false_final_classifier", len(triangular_road_false_signs()) + 1,
+                                     "nndt4_unweighted")
+
 
 def test_train_val_folders(folder_root):
     attribute_test_folder = os.path.join(folder_root, "Test")
@@ -523,7 +564,7 @@ def test_fc():
     model_file = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted", "triangle_final_classifier",
                               "triangle_final_classifier_resnet_2021-01-05")
     model = load_model(model_file)
-    test_folder = os.path.join(os.getcwd(), "Validation")
+    test_folder = os.path.join(os.getcwd(), "Test")
     #test_final_classifier_manually(model, triangle_signs(), path = test_folder, verbose=True,
     #                               exclusive=triangle_signs())
     test_final_classifier_manually_byclass(model, triangle_signs(), path=test_folder, verbose=True,
@@ -537,47 +578,11 @@ def test_reg():
     test_model_manually(model, test_folder, exclusive=triangle_signs(), byclass=True, top_misclassifications=2)
 
 
-def num_images(folder = None, show_output = True):
-    if folder ==None:
-        folder = os.path.join(os.getcwd(), "Train")
-    classes = os.listdir(folder)
-    signs_per_class = []
-    if show_output:
-        print(folder)
-    for sign in classes:
-        sign_folder = os.path.join(folder, sign)
-        num_imgs = len(os.listdir(sign_folder))
-        signs_per_class.append(num_imgs)
-        if show_output:
-            print("Class {}: {} images".format(sign, num_imgs))
-    return signs_per_class
-
-
 def create_all_nndt4_unweighted_datasets():
     nndt_depth4_unweighted.generate_all_classifier_datasets()
     nndt_depth4_unweighted.generate_all_final_classifier_datasets()
 
 if __name__ == '__main__':
-    # generate_attribute_dataset("shape")
-    # create_train_attribute_model("circle_final_classifier", len(circle_signs()))
-    # nndt = nndt_depth3_unweighted()
-    # nndt.test(exclusive=triangle_signs())
-    # a = num_images(show_output=False)
-    # b = triangle_signs()
-    # for i in range(len(a)):
-    #     if i in b:
-    #         print("Class {}: {} images".format(i, a[i]))
-    # nndt_depth4_unweighted.test_sign_set()
-    # create_all_nndt4_unweighted_datasets()
-    # create_train_attribute_model("red_circular_final_classifier", len(red_circular_signs())+1, "nndt4_unweighted")
-    # create_train_attribute_model("white_circular_final_classifier", len(white_circular_signs()) + 1, "nndt4_unweighted")
-    # create_train_attribute_model("blue_circular_final_classifier", len(blue_circular_signs()) + 1, "nndt4_unweighted")
-    #
-    # create_train_attribute_model("triangular_road_true_final_classifier", len(triangular_road_true_signs()) + 1,
-    #                              "nndt4_unweighted")
-    # create_train_attribute_model("triangular_road_false_final_classifier", len(triangular_road_false_signs()) + 1,
-    #                              "nndt4_unweighted")
-    #
-    # create_train_attribute_model("circle_color", len(circle_signs()) + 1, "nndt4_unweighted")
     # create_train_attribute_model("triangle_road", len(triangle_signs()) + 1, "nndt4_unweighted")
+    nndt_depth4_unweighted.train_classifiers()
     print()
