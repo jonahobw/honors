@@ -591,11 +591,10 @@ def generate_classifier_dataset_2(road_signs, attribute, filename, classinstance
 
         # iterate through corresponding original dataset folder to copy images into these subfolders
         original_classes = os.listdir(original_folder)
-        for i, sign in enumerate(original_classes):
+        for sign in original_classes:
             print("Copying images of class " + sign)
-
             # if sign attribute is part of <values>, it's label is it's attribute value, else it is "none"
-            sign_attribute = signarray[i].properties[attribute]
+            sign_attribute = signarray[int(sign)].properties[attribute]
             sign_value = sign_attribute if sign_attribute in values else "none"
             sign_folder = os.path.join(original_folder, sign)
             for image_file in os.listdir(sign_folder):
@@ -687,11 +686,17 @@ if __name__ == '__main__':
     # nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
 
     # test_folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color", "Train")
+    # test_folder = os.path.join(os.getcwd(), "Train")
     # model_file = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color",
-    #                           "circle_color_resnet_2021-01-15")
+    #                           "circle_color_resnet_2021-01-18")
     # model = load_model(model_file)
-    # test_model_manually(model, path=test_folder, verbose=True)
+    # correct = circle_signs()
+    # mapping = ["blue", "none", "red", "white"]
+    # test_attribute_model_manually(model, attribute="color", correct_classes=correct,
+    #                               path=test_folder, verbose=True, limit = 1, mapping=mapping)
 
     nndt_depth4_unweighted.generate_all_classifier_datasets()
-    nndt_depth4_unweighted.train_classifiers()
+
+    # nndt_depth4_unweighted.generate_all_classifier_datasets()
+    # nndt_depth4_unweighted.train_classifiers()
     print()
