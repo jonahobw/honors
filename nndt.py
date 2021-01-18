@@ -383,10 +383,10 @@ class nndt_depth4_unweighted(tree):
         # which are classified based on road
 
         # circular signs classified by color:
-        generate_classifier_dataset(circle_signs(), "color", "circle_color", "nndt4_unweighted")
+        generate_classifier_dataset_2(circle_signs(), "color", "circle_color", "nndt4_unweighted")
 
         # triangular signs classified by road
-        generate_classifier_dataset(triangle_signs(), "road", "triangle_road", "nndt4_unweighted")
+        generate_classifier_dataset_2(triangle_signs(), "road", "triangle_road", "nndt4_unweighted")
 
     def test(self, path = None, verbose=True, limit=None, startlimit = None, exclusive = None):
         test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit,
@@ -411,7 +411,7 @@ class nndt_depth4_unweighted(tree):
         if testfolder == None:
             testfolder = os.path.join(os.getcwd(), "Test")
         circle_mapping = ["red", "none", "blue", "white"]
-        triangle_mapping = ["False", "none", "True"]
+        triangle_mapping = ["False", "none", "none"]
         classifier_dict = {"circle_color": ("color", circle_signs(), circle_mapping),
                            "triangle_road": ("road", triangle_signs(), triangle_mapping)}
         for classifier in classifier_dict:
@@ -467,7 +467,7 @@ class nndt_depth4_unweighted(tree):
 
     @staticmethod
     def train_classifiers():
-        classifiers_num_classes = {"circle_color": 4, "triangle_road": 3}
+        classifiers_num_classes = {"circle_color": 4, "triangle_road": 2}
         for classifier in classifiers_num_classes:
             create_train_attribute_model(classifier, classifiers_num_classes[classifier], "nndt4_unweighted")
 
@@ -542,6 +542,61 @@ def generate_classifier_dataset(road_signs, attribute, filename, classinstance):
 
             # if sign is part of the classifier, it's label is it's attribute value, else it is "none"
             sign_value = signarray[i].properties[attribute] if sign in road_signs else "none"
+            sign_folder = os.path.join(original_folder, sign)
+            for image_file in os.listdir(sign_folder):
+                full_img_path = os.path.join(sign_folder, image_file)
+                copyfile(full_img_path, os.path.join(subfolder_root, str(sign_value), image_file))
+
+
+def generate_classifier_dataset_2(road_signs, attribute, filename, classinstance):
+    # takes in a list of road signs that will reach this classifier and reformats the GTSRB dataset into Test, Train,
+    # and Validation folders according to <attribute>.  Each of these folders will have subfolders corresponding to
+    # the classes resulting from splitting the dataset based on <attribute>.  The reformatted dataset will be stored
+    # in the ./nndt_data/<classinstance> folder under a root folder named <attribute>.
+    # for a root node of an nndt, road signs will be all classes: [0, 1, 2, ..., 42, 43]
+    #
+    # the difference between this and generate_classifier_dataset is that this one will not put all classes outside of
+    # the road_signs included classes in the none category.  The only classes that will go into the none category are
+    # those whose attribute value is not one of the attribute values of the included classes.  For example, if the
+    # classifier recieves circular signs and separates them based on color, the generate_classifier_dataset will put
+    # all non-circular signs into the none category, while this function will group all "red" signs together, including
+    # circular and non circular signs.  Separating the classes this way should result in higher accuracy of this
+    # classifier because it only separates between the attribute it is given, and nothing else.  It also places a
+    # greater responsibility on the none nodes of the final classifiers
+
+    # make root folder and test, train, val folders
+    root_folder = os.path.join(os.getcwd(), "nndt_data", classinstance, filename)
+    os.mkdir(root_folder)
+    subfolders = test_train_val_folders(root_folder)
+
+    # split up signs into groups
+    signarray = signs()
+    included = [signarray[i] for i in road_signs]
+    values, _ = split_signs(included, attribute)
+
+    # road_signs are all the classes classified by the classifier
+    road_signs = [format_two_digits(x) for x in road_signs]
+
+    # key: Test, Train, or Validation
+    for key in subfolders:
+        print("Working on folder " + key + "\n\n")
+        subfolder_root = subfolders[key]
+        original_folder = os.path.join(os.getcwd(), key)
+        # make subfolders based on the attribute classes
+        for value in values:
+            os.mkdir(os.path.join(subfolder_root, str(value)))
+
+        # make none class
+        os.mkdir(os.path.join(subfolder_root, "none"))
+
+        # iterate through corresponding original dataset folder to copy images into these subfolders
+        original_classes = os.listdir(original_folder)
+        for i, sign in enumerate(original_classes):
+            print("Copying images of class " + sign)
+
+            # if sign attribute is part of <values>, it's label is it's attribute value, else it is "none"
+            sign_attribute = signarray[i].properties[attribute]
+            sign_value = sign_attribute if sign_attribute in values else "none"
             sign_folder = os.path.join(original_folder, sign)
             for image_file in os.listdir(sign_folder):
                 full_img_path = os.path.join(sign_folder, image_file)
@@ -628,12 +683,15 @@ def create_all_nndt4_unweighted_datasets():
     nndt_depth4_unweighted.generate_all_final_classifier_datasets()
 
 if __name__ == '__main__':
-    testfolder = os.path.join(os.getcwd(), "Train")
-    nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
+    # testfolder = os.path.join(os.getcwd(), "Train")
+    # nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
 
     # test_folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color", "Train")
     # model_file = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color",
     #                           "circle_color_resnet_2021-01-15")
     # model = load_model(model_file)
     # test_model_manually(model, path=test_folder, verbose=True)
+
+    nndt_depth4_unweighted.generate_all_classifier_datasets()
+    nndt_depth4_unweighted.train_classifiers()
     print()
