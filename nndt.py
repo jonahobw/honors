@@ -406,16 +406,17 @@ class nndt_depth4_unweighted(tree):
         print(a==b)
 
     @staticmethod
-    def test_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False):
+    def test_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False,
+                         limit = None):
         if testfolder == None:
             testfolder = os.path.join(os.getcwd(), "Test")
-        circle_mapping = ["red", "white", "blue", "none"]
+        circle_mapping = ["red", "none", "blue", "white"]
         triangle_mapping = ["False", "none", "True"]
         classifier_dict = {"circle_color": ("color", circle_signs(), circle_mapping),
                            "triangle_road": ("road", triangle_signs(), triangle_mapping)}
         for classifier in classifier_dict:
             folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
-            model_file = os.path.join(folder, classifier + "_resnet_2021-01-13")
+            model_file = os.path.join(folder, classifier + "_resnet_2021-01-15")
             model = load_model(model_file)
             attribute, correct_signs, mapping = classifier_dict[classifier]
             exc = correct_signs if exclusive else None
@@ -428,7 +429,7 @@ class nndt_depth4_unweighted(tree):
                 fname += ".txt"
                 filename = os.path.join(folder, fname)
             test_attribute_model_manually(model, attribute, correct_signs, mapping, path=testfolder, byclass = byclass,
-                                          exclusive = exc, save_file=filename, verbose = verbose)
+                                          exclusive = exc, save_file=filename, verbose = verbose, limit=limit)
 
 
     @staticmethod
@@ -443,7 +444,7 @@ class nndt_depth4_unweighted(tree):
                    "triangular_road_true": triangular_road_true_signs()}
         for classifier in fc_dict:
             folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
-            model_file = os.path.join(folder, classifier + "_final_classifier_resnet_2021-01-13")
+            model_file = os.path.join(folder, classifier + "_final_classifier_resnet_2021-01-15")
             model = load_model(model_file)
             correct_signs = fc_dict[classifier]
             exc = correct_signs if exclusive else None
@@ -479,6 +480,16 @@ class nndt_depth4_unweighted(tree):
                                      "nndt4_unweighted")
         create_train_attribute_model("triangular_road_false_final_classifier", len(triangular_road_false_signs()) + 1,
                                      "nndt4_unweighted")
+
+    @staticmethod
+    def test_shape(byclass=False, verbose = True, save = True):
+        model_file = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "shape", "shape_resnet_2021-01-04")
+        model = load_model(model_file)
+        correct = [x for x in range(43)]
+        mapping = ["circle", "diamond", "inverted_triangle", "octagon", "triangle"]
+        save_file = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "shape", "test_acc.txt")
+        test_attribute_model_manually(model, "shape", correct, mapping, verbose=verbose, byclass=byclass,
+                                      save_file=save_file if save else None)
 
 
 def test_train_val_folders(folder_root):
@@ -617,6 +628,12 @@ def create_all_nndt4_unweighted_datasets():
     nndt_depth4_unweighted.generate_all_final_classifier_datasets()
 
 if __name__ == '__main__':
-    # create_train_attribute_model("triangle_road", len(triangle_signs()) + 1, "nndt4_unweighted")
-    nndt_depth4_unweighted.train_classifiers()
+    testfolder = os.path.join(os.getcwd(), "Train")
+    nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
+
+    # test_folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color", "Train")
+    # model_file = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color",
+    #                           "circle_color_resnet_2021-01-15")
+    # model = load_model(model_file)
+    # test_model_manually(model, path=test_folder, verbose=True)
     print()

@@ -666,13 +666,13 @@ def test_attribute_model_manually(model, attribute, correct_classes, mapping, pa
             pred = get_model_prediction_probs(model, image)
             numerical_pred = pred.index(max(pred))
             attribute_pred = mapping[numerical_pred]
-            if attribute_pred == class_attributes[int(key)]:
+            if attribute_pred == class_labels[int(key)]:
                 class_correct_count += 1
             if (verbose):
                 output_str = '({}) Model prediction for image {} was {}, actual was {} (true class {})\n'.format(str(i+1),
                                                                                                                img,
                                                                                                         str(attribute_pred),
-                                                                                                        str(class_attributes[int(key)]),
+                                                                                                        str(class_labels[int(key)]),
                                                                                                         str(key))
                 if save:
                     f.write(output_str)
