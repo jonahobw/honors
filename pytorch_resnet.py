@@ -949,7 +949,11 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
                     print(output_str)
 
         if verbose:
-            print("\n\n")
+            output_str = "\n\n"
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
 
         img_results.append((key, class_images_count, class_correct_count))
         total_correct += class_correct_count
