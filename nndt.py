@@ -406,20 +406,22 @@ class nndt_depth4_unweighted(tree):
         print(a==b)
 
     @staticmethod
-    def test_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False,
+    def test_classifiers(byclass = False, exclusive = None, testfolder = None, save = False, verbose = False,
                          limit = None):
+        # if exclusive is not none, it should be a dict {"circle_color": <circle color exclusive signs>,
+        # "triangle_road": <triangle road exclusive signs>}
         if testfolder == None:
             testfolder = os.path.join(os.getcwd(), "Test")
-        circle_mapping = ["red", "none", "blue", "white"]
-        triangle_mapping = ["False", "none", "none"]
-        classifier_dict = {"circle_color": ("color", circle_signs(), circle_mapping),
-                           "triangle_road": ("road", triangle_signs(), triangle_mapping)}
+        circle_mapping = ["blue", "none", "red", "white"]
+        triangle_mapping = ["False", "True"]
+        classifier_dict = {"circle_color": ("color", complement_signs([12]), circle_mapping),
+                           "triangle_road": ("road", [i for i in range(43)], triangle_mapping)}
         for classifier in classifier_dict:
             folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
             model_file = os.path.join(folder, classifier + "_resnet_2021-01-15")
             model = load_model(model_file)
             attribute, correct_signs, mapping = classifier_dict[classifier]
-            exc = correct_signs if exclusive else None
+            exc = exclusive[classifier] if exclusive is not None else None
             # make filename
             filename = None
             if save:
