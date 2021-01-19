@@ -666,6 +666,10 @@ def test_attribute_model_manually(model, attribute, correct_classes, mapping, pa
             pred = get_model_prediction_probs(model, image)
             numerical_pred = pred.index(max(pred))
             attribute_pred = mapping[numerical_pred]
+            if attribute_pred == "False":
+                attribute_pred = False
+            if attribute_pred == "True":
+                attribute_pred = True
             if attribute_pred == class_labels[int(key)]:
                 class_correct_count += 1
             if (verbose):
@@ -731,10 +735,10 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
     output_str += "Exclusive:       {}\n".format(str(exclusive))
     output_str += "By Class:        False\n"
     output_str += "Save File:        {}\n".format(str(save_file))
-    print(save_file)
 
     save = save_file is not None
     if save:
+        print(save_file)
         f = open(save_file, "w+")
         f.write(output_str)
     else:

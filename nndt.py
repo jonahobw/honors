@@ -418,7 +418,7 @@ class nndt_depth4_unweighted(tree):
                            "triangle_road": ("road", [i for i in range(43)], triangle_mapping)}
         for classifier in classifier_dict:
             folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
-            model_file = os.path.join(folder, classifier + "_resnet_2021-01-15")
+            model_file = os.path.join(folder, classifier + "_resnet_2021-01-18")
             model = load_model(model_file)
             attribute, correct_signs, mapping = classifier_dict[classifier]
             exc = exclusive[classifier] if exclusive is not None else None
@@ -436,17 +436,17 @@ class nndt_depth4_unweighted(tree):
 
     @staticmethod
     def test_final_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False,
-                               top_misclassifications = None):
+                               top_misclassifications = None, limit = None):
         if testfolder == None:
             testfolder = os.path.join(os.getcwd(), "Test")
-        fc_dict = {"blue_circle": blue_circular_signs(),
-                   "red_circle": red_circular_signs(),
-                   "white_circle": white_circular_signs(),
+        fc_dict = {"blue_circular": blue_circular_signs(),
+                   "red_circular": red_circular_signs(),
+                   "white_circular": white_circular_signs(),
                    "triangular_road_false": triangular_road_false_signs(),
                    "triangular_road_true": triangular_road_true_signs()}
         for classifier in fc_dict:
-            folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier)
-            model_file = os.path.join(folder, classifier + "_final_classifier_resnet_2021-01-15")
+            folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier + "_final_classifier")
+            model_file = os.path.join(folder, classifier + "_final_classifier_resnet_2021-01-13")
             model = load_model(model_file)
             correct_signs = fc_dict[classifier]
             exc = correct_signs if exclusive else None
@@ -460,11 +460,11 @@ class nndt_depth4_unweighted(tree):
                 filename = os.path.join(folder, fname)
             if not byclass:
                 test_final_classifier_manually(model, correct_signs, path = testfolder, verbose=verbose, exclusive=exc,
-                                               save_file = filename)
+                                               save_file = filename, limit=limit)
             else:
                 test_final_classifier_manually_byclass(model, correct_signs, path=testfolder, verbose=verbose,
                                                        exclusive=exc, top_misclassifications = top_misclassifications,
-                                                       save_file = filename)
+                                                       save_file = filename, limit = limit)
 
 
     @staticmethod
@@ -697,8 +697,8 @@ if __name__ == '__main__':
     # test_attribute_model_manually(model, attribute="color", correct_classes=correct,
     #                               path=test_folder, verbose=True, limit = 1, mapping=mapping)
 
-    nndt_depth4_unweighted.generate_all_classifier_datasets()
-
+    # nndt_depth4_unweighted.generate_all_classifier_datasets()
+    nndt_depth4_unweighted.test_final_classifiers(save = False, verbose=True, limit = 3)
     # nndt_depth4_unweighted.generate_all_classifier_datasets()
     # nndt_depth4_unweighted.train_classifiers()
     print()
