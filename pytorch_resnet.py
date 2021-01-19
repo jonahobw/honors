@@ -500,9 +500,10 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
                     else:
                         misclassified[key][class_pred] = 1
                 if (verbose):
-                    print('({}) Model prediction for image {} was {}, actual was {}'.format(str(i + 1), img,
-                                                                                                 str(class_pred),
-                                                                                                 str(key)))
+                    print('({}) Model prediction for image {} was {}, actual was {}'.format(str(i + 1),
+                                                                                            "..." + str(img[-30:]),
+                                                                                            str(class_pred),
+                                                                                            str(key)))
 
             if verbose:
                 print("\n\n")
@@ -568,7 +569,8 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
 
     if (verbose):
         for i in range(len(imgs)):
-            print('Model prediction for image {} was {}, actual was {}'.format(imgs[i], predictions[i], labels[i]))
+            print('Model prediction for image {} was {}, actual was {}'.format("..." + str(imgs[i][-30:]),
+                                                                               predictions[i], labels[i]))
 
     # Accuracy with the test data
     total = len(labels)
@@ -674,7 +676,7 @@ def test_attribute_model_manually(model, attribute, correct_classes, mapping, pa
                 class_correct_count += 1
             if (verbose):
                 output_str = '({}) Model prediction for image {} was {}, actual was {} (true class {})\n'.format(str(i+1),
-                                                                                                               img,
+                                                                                                        "..." + str(img[-30:]),
                                                                                                         str(attribute_pred),
                                                                                                         str(class_labels[int(key)]),
                                                                                                         str(key))
@@ -802,7 +804,11 @@ def test_final_classifier_manually(model, road_signs, path = None, verbose = Fal
 
     if (verbose):
         for i in range(len(imgs)):
-            output_str = '({}) Model prediction for image {} was {}, actual was {} ({})\n'.format(str(i), imgs[i], predictions[i], labels[i], str(mapping[labels[i]]))
+            output_str = '({}) Model prediction for image {} was {}, actual was {} ({})\n'.format(str(i),
+                                                                                                  "..." + str(imgs[i][-30:]),
+                                                                                                  predictions[i],
+                                                                                                  labels[i],
+                                                                                                  str(mapping[labels[i]]))
             if save:
                 f.write(output_str)
             else:
@@ -844,10 +850,10 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
     output_str += "By Class:        True\n"
     output_str += "Top Misclass:    {}\n".format(str(top_misclassifications))
     output_str += "Save File:       {}\n".format(str(save_file))
-    print(save_file)
 
     save = save_file is not None
     if save:
+        print(save_file)
         f = open(save_file, "w+")
         f.write(output_str)
     else:
@@ -921,7 +927,8 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
             image = create_batch(image.clone().detach())
             pred = get_model_prediction_probs(model, image)
             class_pred = pred.index(max(pred))
-            if class_pred == mapping[key]:
+            fc_label = mapping[key] if key in mapping else mapping['none']
+            if class_pred == fc_label:
                 class_correct_count += 1
             elif top_misclassifications is not None:
                 if inv_mapping[class_pred] in misclassified[key]:
@@ -929,10 +936,12 @@ def test_final_classifier_manually_byclass(model, road_signs, path = None, verbo
                 else:
                     misclassified[key][inv_mapping[class_pred]] = 1
             if (verbose):
-                output_str = '({}) Model prediction for image {} was {} ({}), actual was {} ({})\n'.format(str(i+1), img,
+                output_str = '({}) Model prediction for image {} was {} ({}), actual was {} (true class {})\n'.format(
+                                                                                             str(i+1),
+                                                                                             "..." + str(img[-30:]),
                                                                                              str(class_pred),
-                                                                                            str(inv_mapping[class_pred]),
-                                                                                             str(mapping[key]),
+                                                                                            "class " + str(inv_mapping[class_pred]),
+                                                                                             str(fc_label),
                                                                                              str(key))
                 if save:
                     f.write(output_str)

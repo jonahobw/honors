@@ -684,7 +684,7 @@ def create_all_nndt4_unweighted_datasets():
     nndt_depth4_unweighted.generate_all_final_classifier_datasets()
 
 if __name__ == '__main__':
-    # testfolder = os.path.join(os.getcwd(), "Train")
+    testfolder = os.path.join(os.getcwd(), "Train")
     # nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
 
     # test_folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "circle_color", "Train")
@@ -698,7 +698,7 @@ if __name__ == '__main__':
     #                               path=test_folder, verbose=True, limit = 1, mapping=mapping)
 
     # nndt_depth4_unweighted.generate_all_classifier_datasets()
-    nndt_depth4_unweighted.test_final_classifiers(save = False, verbose=True, limit = 3)
+    nndt_depth4_unweighted.test_final_classifiers(byclass=False, save = False, verbose=True, limit = 3)
     # nndt_depth4_unweighted.generate_all_classifier_datasets()
     # nndt_depth4_unweighted.train_classifiers()
     print()
