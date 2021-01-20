@@ -53,7 +53,7 @@ def blur_im(im, blur=21, rand=True):
             blur += 1
     return cv2.GaussianBlur(im, (blur, blur), 0)
 
-def generate_imgs(original_path, new_path, number_to_generate):
+def generate_imgs(original_path, new_path, number_to_generate, verbose = False):
     # original path  - path to original images
     # new path - where to save new images
     # number_to_generate - how many new images to make
@@ -73,6 +73,8 @@ def generate_imgs(original_path, new_path, number_to_generate):
     i = 1  # variable to iterate till images_to_generate
 
     while i <= number_to_generate:
+        if verbose and i%100 ==0:
+            print("{} images generated".format(str(i)))
         image = random.choice(images)
         original_image = load_im_cv2(image)
         transformed_image = None
@@ -92,7 +94,7 @@ def generate_imgs(original_path, new_path, number_to_generate):
         cv2.imwrite(new_image_path, transformed_image)  # save transformed image to path
         i = i + 1
 
-def augment_dataset(train_folder, num_imgs):
+def augment_dataset(train_folder, num_imgs, verbose = True):
     # expects train_folder to have subfolders with the name of the classes
     # num_imgs is the minimum number of images (per class) that the augmented dataset will have
 
@@ -102,8 +104,10 @@ def augment_dataset(train_folder, num_imgs):
         class_folder = os.path.join(train_folder, class_name)
         existing_imgs = len(os.listdir(class_folder))
         imgs_to_generate = num_imgs - existing_imgs
+        if verbose:
+            print("\nWorking on class {}, generating {} images".format(class_name, str(imgs_to_generate)))
         if imgs_to_generate > 0:
-            generate_imgs(class_folder, class_folder, imgs_to_generate)
+            generate_imgs(class_folder, class_folder, imgs_to_generate, verbose = verbose)
 
     return
 
