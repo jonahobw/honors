@@ -54,7 +54,7 @@ RANDOM = True
 
 def setup_variables():
     globals()
-    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT
+    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
@@ -72,6 +72,8 @@ def setup_variables():
         os.mkdir(ROOT_SAVE_FOLDER)
         IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "imgs")
         os.mkdir(IMG_FOLDER)
+        for pix_count in PIXELS:
+            os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
         PLT_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "plots")
         os.mkdir(PLT_FOLDER)
         logfile = os.path.join(ROOT_SAVE_FOLDER, "attack.log")
@@ -512,7 +514,7 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     plt.tight_layout()
     filename = filename.split(".")[0]
     fname = 'img_{}_class_{}_{}pixels'.format(filename, str(true_class), str(pixels))
-    fname = os.path.join(IMG_FOLDER, fname)
+    fname = os.path.join(IMG_FOLDER, str(pixels) + "_pixels", fname)
     plt.savefig(fname)
 
 
