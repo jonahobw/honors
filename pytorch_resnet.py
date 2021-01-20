@@ -20,7 +20,7 @@ import logging
 BATCH_SIZE = 64
 INPUT_SIZE = 224
 NUM_CLASSES = 43
-EPOCHS = 15
+EPOCHS = 10
 
 # most of this code is adapted from the PyTorch documentation on resnet
 # found here: https://pytorch.org/hub/pytorch_vision_resnet/

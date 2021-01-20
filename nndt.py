@@ -436,15 +436,20 @@ class nndt_depth4_unweighted(tree):
 
     @staticmethod
     def test_final_classifiers(byclass = False, exclusive = False, testfolder = None, save = False, verbose = False,
-                               top_misclassifications = None, limit = None):
+                               top_misclassifications = None, limit = None, subset = None):
+        # subset should be an array of strings that are keys in the fc_dict below, specifying which subset of fcs to
+        # test
         if testfolder == None:
             testfolder = os.path.join(os.getcwd(), "Test")
         fc_dict = {"blue_circular": blue_circular_signs(),
                    "red_circular": red_circular_signs(),
                    "white_circular": white_circular_signs(),
+                   "white_circular_fc_augmented": white_circular_signs(),
                    "triangular_road_false": triangular_road_false_signs(),
                    "triangular_road_true": triangular_road_true_signs()}
         for classifier in fc_dict:
+            if subset is not None and classifier not in subset:
+                continue
             folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", classifier + "_final_classifier")
             model_file = os.path.join(folder, classifier + "_final_classifier_resnet_2021-01-13")
             model = load_model(model_file)
@@ -703,6 +708,8 @@ if __name__ == '__main__':
     # nndt_depth4_unweighted.generate_all_classifier_datasets()
     # nndt_depth4_unweighted.train_classifiers()
 
-    generate_attribute_dataset_final_classifier(white_circular_signs(), "white_circular_fc_augmented", "nndt4_unweighted")
+    #generate_attribute_dataset_final_classifier(white_circular_signs(), "white_circular_fc_augmented", "nndt4_unweighted")
+    nndt_depth4_unweighted.test_final_classifiers(byclass=True, save=True, verbose=True,
+                                                  subset=["white_circular_fc_augmented"])
 
     print()
