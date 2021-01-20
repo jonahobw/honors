@@ -50,3 +50,7 @@ def num_images(folder = None, show_output = True):
         if show_output:
             print("Class {}: {} images".format(sign, num_imgs))
     return signs_per_class
+
+if __name__ == '__main__':
+    folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "white_circular_fc_augmented", "Train")
+    num_images(folder)
