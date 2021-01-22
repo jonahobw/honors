@@ -77,8 +77,8 @@ class nndt_depth3_unweighted(tree):
         self.add_node(circle_none)
 
         triangle_classifier = final_classifier("triangle", root)
-        triangle_classifier.neuralnet = load_model(os.path.join(model_folder, "triangle_final_classifier",
-                              "triangle_final_classifier_resnet_2021-01-11"))
+        triangle_classifier.neuralnet = load_model(os.path.join(model_folder, "triangle_augmented_final_classifier",
+                              "triangle_augmented_final_classifier_resnet_2021-01-20"))
         triangle_classifier.neuralnet.eval()
         root.add_child(triangle_classifier)
         self.add_node(triangle_classifier)
@@ -161,9 +161,23 @@ class nndt_depth3_unweighted(tree):
         # and 2nd dimension represents the classs classified by the leaf classifier
         return [circle_signs(), triangle_signs(), [12, 13, 14]]
 
-    def test(self, path = None, verbose=True, limit=None, startlimit = None, exclusive = None):
+    def test(self, testfolder=None, verbose=True, limit=None, startlimit=None, exclusive=None,
+             byclass=False, save=True, top_misclassifications=None):
+        if testfolder == None:
+            testfolder = os.path.join(os.getcwd(), "Test")
+        folder = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted")
+        # make filename
+        filename = None
+        if save:
+            fname = "exclusive_" if exclusive else ""
+            fname += os.path.split(testfolder)[1].lower() + "_acc"
+            fname += "_byclass" if byclass else ""
+            fname += "_" + str(top_misclassifications) + "top_misclass" if top_misclassifications else ""
+            fname += ".txt"
+            filename = os.path.join(folder, fname)
         test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit,
-                            exclusive=exclusive, path=path)
+                            exclusive=exclusive, path=testfolder, byclass=byclass,
+                            top_misclassifications=top_misclassifications, save_file=filename)
 
 
 class nndt_depth4_unweighted(tree):
@@ -194,9 +208,8 @@ class nndt_depth4_unweighted(tree):
 
         # add circle_color classifier and none nodes, and all classifiers below it
         circle_color_classifier = classifier("circle", "color", root)
-        # TODO
-        circle_color_classifier.neuralnet = load_model(os.path.join(model_folder, "circle_final_classifier",
-                              "circle_final_classifier_resnet_2021-01-05"))
+        circle_color_classifier.neuralnet = load_model(os.path.join(model_folder, "circle_color",
+                              "circle_color_resnet_2021-01-18"))
         circle_color_classifier.neuralnet.eval()
         root.add_child(circle_color_classifier)
         self.add_node(circle_color_classifier)
@@ -207,8 +220,8 @@ class nndt_depth4_unweighted(tree):
 
         # red circular signs
         red_circular_classifier = final_classifier("red_circular", circle_color_classifier)
-        # TODO
-        red_circular_classifier.neuralnet = load_model(os.path.join(model_folder, "nndt_data"))
+        red_circular_classifier.neuralnet = load_model(os.path.join(model_folder, "red_circular_final_classifier",
+                                                                    "red_circular_final_classifier_resnet_2021-01-13"))
         red_circular_classifier.neuralnet.eval()
         circle_color_classifier.add_child(red_circular_classifier)
         self.add_node(red_circular_classifier)
@@ -219,8 +232,8 @@ class nndt_depth4_unweighted(tree):
 
         # blue circular signs
         blue_circular_classifier = final_classifier("blue_circular", circle_color_classifier)
-        # TODO
-        blue_circular_classifier.neuralnet = load_model(os.path.join(model_folder, "nndt_data"))
+        blue_circular_classifier.neuralnet = load_model(os.path.join(model_folder, "blue_circular_final_classifier",
+                                                                     "blue_circular_final_classifier_resnet_2021-01-13"))
         blue_circular_classifier.neuralnet.eval()
         circle_color_classifier.add_child(blue_circular_classifier)
         self.add_node(blue_circular_classifier)
@@ -231,8 +244,8 @@ class nndt_depth4_unweighted(tree):
 
         # white circular signs
         white_circular_classifier = final_classifier("white_circular", circle_color_classifier)
-        # TODO
-        white_circular_classifier.neuralnet = load_model(os.path.join(model_folder, "nndt_data"))
+        white_circular_classifier.neuralnet = load_model(os.path.join(model_folder, "white_circular_augmented_final_classifier",
+                                                                      "white_circular_augmented_final_classifier_resnet_2021-01-20"))
         white_circular_classifier.neuralnet.eval()
         circle_color_classifier.add_child(white_circular_classifier)
         self.add_node(white_circular_classifier)
@@ -243,21 +256,17 @@ class nndt_depth4_unweighted(tree):
 
         # add triangle_road classifier and none nodes, and all nodes below it
         triangle_road_classifier = classifier("triangle", "road", root)
-        # TODO
-        triangle_road_classifier.neuralnet = load_model(os.path.join(model_folder, "triangle_final_classifier",
-                              "triangle_final_classifier_resnet_2021-01-05"))
+        triangle_road_classifier.neuralnet = load_model(os.path.join(model_folder, "triangle_road",
+                              "triangle_road_resnet_2021-01-18"))
         triangle_road_classifier.neuralnet.eval()
         root.add_child(triangle_road_classifier)
         self.add_node(triangle_road_classifier)
 
-        triangle_road_none = node("triangle_road_none", triangle_road_classifier)
-        triangle_road_classifier.add_child(triangle_road_none)
-        self.add_node(triangle_road_none)
-
         # triangle signs with road
         triangle_road_true_classifier = final_classifier("triangle_road_true", triangle_road_classifier)
-        # TODO
-        triangle_road_true_classifier.neuralnet = load_model(os.path.join(model_folder, "nndt_data"))
+        triangle_road_true_classifier.neuralnet = load_model(os.path.join(model_folder,
+                                                                          "triangular_road_true_augmented_final_classifier",
+                                                                          "triangular_road_true_augmented_final_classifier_resnet_2021-01-20"))
         triangle_road_true_classifier.neuralnet.eval()
         triangle_road_classifier.add_child(triangle_road_true_classifier)
         self.add_node(triangle_road_true_classifier)
@@ -268,8 +277,10 @@ class nndt_depth4_unweighted(tree):
 
         # triangle signs without road
         triangle_road_false_classifier = final_classifier("triangle_road_false", triangle_road_classifier)
-        # TODO
-        triangle_road_false_classifier.neuralnet = load_model(os.path.join(model_folder, "nndt_data"))
+        triangle_road_false_classifier.neuralnet = load_model(os.path.join(model_folder,
+                                                                          "triangular_road_false_augmented_final_classifier",
+                                                                          "triangular_road_false_augmented_final_classifier_resnet_2021-01-20"))
+
         triangle_road_false_classifier.neuralnet.eval()
         triangle_road_classifier.add_child(triangle_road_false_classifier)
         self.add_node(triangle_road_false_classifier)
@@ -304,12 +315,25 @@ class nndt_depth4_unweighted(tree):
                     self.add_node(sign)
 
         # fill out the .pred_value_names parameter of the classifiers and final classifiers
-        # TODO
-        # root.pred_value_names = [circle_classifier, signsarray[12], signsarray[13], signsarray[14], triangle_classifier]
-        # triangle_classifier.pred_value_names = [signsarray[x] for x in triangle_signs()]
-        # triangle_classifier.pred_value_names.append(triangle_none)
-        # circle_classifier.pred_value_names = [signsarray[x] for x in circle_signs()]
-        # circle_classifier.pred_value_names.append(circle_none)
+        root.pred_value_names = [circle_color_classifier, signsarray[12], signsarray[13], signsarray[14], triangle_road_classifier]
+        circle_color_classifier.pred_value_names = [blue_circular_classifier, circle_color_none,
+                                                    red_circular_classifier, white_circular_classifier]
+        triangle_road_classifier.pred_value_names = [triangle_road_false_classifier, triangle_road_true_classifier]
+
+        blue_circular_classifier.pred_value_names = [signsarray[x] for x in blue_circular_signs()]
+        blue_circular_classifier.pred_value_names.append(blue_circular_none)
+
+        red_circular_classifier.pred_value_names = [signsarray[x] for x in red_circular_signs()]
+        red_circular_classifier.pred_value_names.append(red_circular_none)
+
+        white_circular_classifier.pred_value_names = [signsarray[x] for x in white_circular_signs()]
+        white_circular_classifier.pred_value_names.append(white_circular_none)
+
+        triangle_road_false_classifier.pred_value_names = [signsarray[x] for x in triangular_road_false_signs()]
+        triangle_road_false_classifier.pred_value_names.append(triangle_road_false_none)
+
+        triangle_road_true_classifier.pred_value_names = [signsarray[x] for x in triangular_road_true_signs()]
+        triangle_road_true_classifier.pred_value_names.append(triangle_road_true_none)
 
     def prediction_vector(self, image, dict = True, path = True):
         # path (bool) indicates whether <image> is a path to an image or a tensor representing an image
@@ -388,9 +412,23 @@ class nndt_depth4_unweighted(tree):
         # triangular signs classified by road
         generate_classifier_dataset_2(triangle_signs(), "road", "triangle_road", "nndt4_unweighted")
 
-    def test(self, path = None, verbose=True, limit=None, startlimit = None, exclusive = None):
+    def test(self, testfolder = None, verbose=True, limit=None, startlimit = None, exclusive = None,
+             byclass=False, save = True, top_misclassifications = None):
+        if testfolder == None:
+            testfolder = os.path.join(os.getcwd(), "Test")
+        folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted")
+        # make filename
+        filename = None
+        if save:
+            fname = "exclusive_" if exclusive else ""
+            fname += os.path.split(testfolder)[1].lower() + "_acc"
+            fname += "_byclass" if byclass else ""
+            fname += "_" + str(top_misclassifications) + "top_misclass" if top_misclassifications else ""
+            fname += ".txt"
+            filename = os.path.join(folder, fname)
         test_model_manually(self, verbose=verbose, nndt=True, limit=limit, startlimit=startlimit,
-                            exclusive=exclusive, path=path)
+                            exclusive=exclusive, path=testfolder, byclass=byclass,
+                            top_misclassifications=top_misclassifications, save_file=filename)
 
     @staticmethod
     def test_sign_set():
@@ -444,9 +482,11 @@ class nndt_depth4_unweighted(tree):
         fc_dict = {"blue_circular": blue_circular_signs(),
                    "red_circular": red_circular_signs(),
                    "white_circular": white_circular_signs(),
-                   "white_circular_fc_augmented": white_circular_signs(),
+                   "white_circular_augmented": white_circular_signs(),
                    "triangular_road_false": triangular_road_false_signs(),
-                   "triangular_road_true": triangular_road_true_signs()}
+                   "triangular_road_true": triangular_road_true_signs(),
+                   "triangular_road_false_augmented": triangular_road_false_signs(),
+                   "triangular_road_true_augmented": triangular_road_true_signs()}
         for classifier in fc_dict:
             if subset is not None and classifier not in subset:
                 continue
@@ -688,6 +728,19 @@ def create_all_nndt4_unweighted_datasets():
     nndt_depth4_unweighted.generate_all_classifier_datasets()
     nndt_depth4_unweighted.generate_all_final_classifier_datasets()
 
+
+def test_nndts(byclass = False, top_misclassifications = None, exclusive = None, save = True, limit = None,
+               verbose = True, train = False):
+    testfolder = None
+    if train:
+        testfolder = os.path.join(os.getcwd(), "Train")
+    nndt3 = nndt_depth3_unweighted()
+    nndt3.test(byclass=byclass, top_misclassifications=top_misclassifications, exclusive=exclusive, save=save,
+               limit=limit, verbose=verbose, testfolder=testfolder)
+    nndt4 = nndt_depth4_unweighted()
+    nndt4.test(byclass=byclass, top_misclassifications=top_misclassifications, exclusive=exclusive, save=save,
+               limit=limit, verbose=verbose, testfolder=testfolder)
+
 if __name__ == '__main__':
     # testfolder = os.path.join(os.getcwd(), "Train")
     # nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
@@ -708,8 +761,6 @@ if __name__ == '__main__':
     # nndt_depth4_unweighted.generate_all_classifier_datasets()
     # nndt_depth4_unweighted.train_classifiers()
 
-    #generate_attribute_dataset_final_classifier(white_circular_signs(), "white_circular_fc_augmented", "nndt4_unweighted")
-    nndt_depth4_unweighted.test_final_classifiers(byclass=True, save=True, verbose=True,
-                                                  subset=["white_circular_fc_augmented"])
+    test_nndts(byclass=False, save=True, limit=4, exclusive=[6, 42])
 
     print()

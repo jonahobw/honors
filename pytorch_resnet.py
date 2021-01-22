@@ -427,7 +427,7 @@ def test_one_image(model, image, path = False):
 
 
 def test_model_manually(model, path = None, verbose = False, limit = None, startlimit = None, nndt = False,
-                        exclusive = None, top_misclassifications = None, byclass = False):
+                        exclusive = None, top_misclassifications = None, byclass = False, save_file = None):
     # tests the model on all images in the subfolders of path
     # limit and startlimit allow you to only test the model on a subset of all the images
     # limit specifies how many images to test
@@ -443,6 +443,24 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
         model.eval()
     if (path == None):
         path = os.path.join(os.getcwd(), "Test")
+
+    output_str = "Testing Parameters: \n"
+    output_str += "----------------------------------------\n"
+    output_str += "NNDT:            {}\n".format(str(nndt))
+    output_str += "Test_folder:     {}\n".format(path)
+    output_str += "Limit:           {}\n".format(str(limit))
+    output_str += "Exclusive:       {}\n".format(str(exclusive))
+    output_str += "By Class:        {}\n".format(str(byclass))
+    output_str += "Top Misclass:    {}\n".format(str(top_misclassifications))
+    output_str += "Save File:       {}\n\n".format(str(save_file))
+
+    save = save_file is not None
+    if save:
+        print(save_file)
+        f = open(save_file, "w+")
+        f.write(output_str)
+    else:
+        print(output_str)
 
     classes = os.listdir(path)
     if exclusive is not None:
@@ -485,13 +503,22 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
             total_images += class_images_count
 
             if verbose:
-                print("Class {}".format(key))
+                output_str = "Class {}\n".format(key)
+                if save:
+                    f.write(output_str)
+                else:
+                    print(output_str)
 
             for i, img in enumerate(imgs_labels[key]):
-                image = preprocess_image(img)
-                image = create_batch(image.clone().detach())
-                pred = get_model_prediction_probs(model, image)
-                class_pred = pred.index(max(pred))
+                if nndt:
+                    pred_vector = model.prediction_vector(img)
+                    pred = model.prediction(pred_vector)
+                    class_pred = int(pred[0])
+                else:
+                    image = preprocess_image(img)
+                    image = create_batch(image.clone().detach())
+                    pred = get_model_prediction_probs(model, image)
+                    class_pred = pred.index(max(pred))
                 if class_pred == int(key):
                     class_correct_count += 1
                 elif top_misclassifications is not None:
@@ -500,35 +527,58 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
                     else:
                         misclassified[key][class_pred] = 1
                 if (verbose):
-                    print('({}) Model prediction for image {} was {}, actual was {}'.format(str(i + 1),
+                    output_str = '({}) Model prediction for image {} was {}, actual was {}\n'.format(str(i + 1),
                                                                                             "..." + str(img[-30:]),
                                                                                             str(class_pred),
-                                                                                            str(key)))
+                                                                                            str(key))
+                    if save:
+                        f.write(output_str)
+                    else:
+                        print(output_str)
 
             if verbose:
-                print("\n\n")
+                output_str = "\n\n"
+                if save:
+                    f.write(output_str)
+                else:
+                    print(output_str)
 
             img_results.append((key, class_images_count, class_correct_count))
             total_correct += class_correct_count
 
         for i in range(len(img_results)):
             sign_class, count, correct = img_results[i]
-            print('\nClass {}: {}/{} images correct, {:4f}% accuracy'.format(sign_class, correct, count,
-                                                                             correct * 100 / count))
+            output_str = '\nClass {}: {}/{} images correct, {:4f}% accuracy\n'.format(sign_class, correct, count,
+                                                                             correct * 100 / count)
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
             if top_misclassifications is not None and count != correct:
                 sign_misclassifications = misclassified[sign_class]
                 sorted_misclassifications = sorted(sign_misclassifications.items(), key=lambda x: x[1], reverse=True)
                 sorted_misclassifications = sorted_misclassifications[:top_misclassifications]
-                print('    Top {} misclassifications:'.format(top_misclassifications))
+                output_str = '    Top {} misclassifications:\n'.format(top_misclassifications)
+                if save:
+                    f.write(output_str)
+                else:
+                    print(output_str)
                 for misclassified_class, freq in sorted_misclassifications:
-                    print('        Class {}, {} occurances, ({:4f}% of all misclassifications)'.format(
-                        misclassified_class,
-                        freq,
-                        100 * freq / (count - correct)))
+                    output_str = '        Class {}, {} occurances, ({:4f}% of all misclassifications)'.format(
+                        misclassified_class, freq, 100 * freq / (count - correct))
+                    if save:
+                        f.write(output_str)
+                    else:
+                        print(output_str)
 
         test_accuracy = total_correct / total_images
-        print('\n\nOverall test Accuracy: {:.7f}%'.format(test_accuracy * 100))
-        print("{}/{} images correct".format(total_correct, total_images))
+        output_str = '\n\nOverall test Accuracy: {:.7f}%\n'.format(test_accuracy * 100)
+        output_str += "{}/{} images correct".format(total_correct, total_images)
+        if save:
+            f.write(output_str)
+            f.close()
+        else:
+            print(output_str)
         return
     #----------------------------------------------------------------------------------
     imgs = []
@@ -547,7 +597,11 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
         labels = labels[start:limit+start]
         imgs = imgs[start:limit+start]
         if (len(labels)<1 or len(imgs)<1):
-            print("Error, invalid limit and startlimit parameters.")
+            output_str = "Error, invalid limit and startlimit parameters."
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
             return -1
 
     predictions = []
@@ -569,8 +623,12 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
 
     if (verbose):
         for i in range(len(imgs)):
-            print('Model prediction for image {} was {}, actual was {}'.format("..." + str(imgs[i][-30:]),
-                                                                               predictions[i], labels[i]))
+            output_str = 'Model prediction for image {} was {}, actual was {}\n'.format(str(imgs[i]),
+                                                                               predictions[i], labels[i])
+            if save:
+                f.write(output_str)
+            else:
+                print(output_str)
 
     # Accuracy with the test data
     total = len(labels)
@@ -580,8 +638,13 @@ def test_model_manually(model, path = None, verbose = False, limit = None, start
             correct +=1
 
     test_accuracy = correct/total
-    print('Test Accuracy: {:.7f}%'.format(test_accuracy*100))
-    print("Number of images tested: {}".format(str(total)))
+    output_str = 'Test Accuracy: {:.7f}%\n'.format(test_accuracy*100)
+    output_str += "Number of images tested: {}\n".format(str(total))
+    if save:
+        f.write(output_str)
+        f.close()
+    else:
+        print(output_str)
 
 
 def test_attribute_model_manually(model, attribute, correct_classes, mapping, path = None, verbose = False, limit = None,
@@ -606,10 +669,11 @@ def test_attribute_model_manually(model, attribute, correct_classes, mapping, pa
     output_str += "Exclusive:       {}\n".format(str(exclusive))
     output_str += "By Class:        {}\n".format(str(byclass))
     output_str += "Save File:        {}\n".format(str(save_file))
-    print(save_file)
+
 
     save = save_file is not None
     if save:
+        print(save_file)
         f = open(save_file, "w+")
         f.write(output_str)
     else:

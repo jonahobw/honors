@@ -82,6 +82,7 @@ class tree():
 # functions from pytorch_resnet.py repeated here to avoid circular import
 def get_model_prediction_probs(model, image):
     # feeds an image to a neural network and returns the predictions vector
+    model.eval()
     image = image.clone().detach().unsqueeze(0)
     if torch.cuda.is_available():
         image= image.to('cuda')
