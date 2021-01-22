@@ -108,16 +108,23 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
     return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt)
 
 
-def retrieve_attack_pairs(n, rand = False):
+def retrieve_attack_pairs(n, rand = False, across_classifiers = None):
     # if rand = False: gets n highest attack pairs by weight and returns an array of tuples
     # (startsign, endsign) in descending order of attack weight
     #
     # if rand = True, same as above except that the attack pairs are chosen randomly
+    # if across_classifiers is not none, it is a 2d array where the 1st dimension are final classifiers in an nndt
+    # and the second dimension is the signs in each final classifier.  If across_classifiers is not none, the function
+    # will return only attack pairs that span multiple final classifiers.
     attack_pairs = []
 
     for startsign in range(43):
         for endsign in range(43):
             if startsign != endsign:
+                if across_classifiers is not None:
+                    if spans_multiple_classifiers(across_classifiers, startsign, endsign):
+                        attack_pairs.append((startsign, endsign, attack_danger_weights(startsign, endsign)))
+                    continue
                 attack_pairs.append((startsign, endsign, attack_danger_weights(startsign, endsign)))
 
     #random case

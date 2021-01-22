@@ -156,7 +156,7 @@ class nndt_depth3_unweighted(tree):
 
     @staticmethod
     def leaf_classifier_groups():
-        # returns a 2d array for untargeted attack over multiple classifiers
+        # returns a 2d array for attack over multiple classifiers
         # 1st dimension represents the leaf classifiers for this nndt (circular signs, triangular signs, shape)
         # and 2nd dimension represents the classs classified by the leaf classifier
         return [circle_signs(), triangle_signs(), [12, 13, 14]]
@@ -538,6 +538,15 @@ class nndt_depth4_unweighted(tree):
         test_attribute_model_manually(model, "shape", correct, mapping, verbose=verbose, byclass=byclass,
                                       save_file=save_file if save else None)
 
+    @staticmethod
+    def leaf_classifier_groups():
+        # returns a 2d array for attack over multiple classifiers
+        # 1st dimension represents the leaf classifiers for this nndt:
+        # (red_circle, blue_circle, white_circle, triangle_road_true, triangle_road_false, [12, 13, 14])
+        # and 2nd dimension represents the classs classified by the leaf classifier
+        return [red_circular_signs(), blue_circular_signs(), white_circular_signs(),
+                triangular_road_true_signs(), triangular_road_false_signs(), [12, 13, 14]]
+
 
 def test_train_val_folders(folder_root):
     attribute_test_folder = os.path.join(folder_root, "Test")
@@ -741,6 +750,17 @@ def test_nndts(byclass = False, top_misclassifications = None, exclusive = None,
     nndt4.test(byclass=byclass, top_misclassifications=top_misclassifications, exclusive=exclusive, save=save,
                limit=limit, verbose=verbose, testfolder=testfolder)
 
+def test_leaf_classifier_groups(nndt4 = True):
+    a = nndt_depth4_unweighted.leaf_classifier_groups()
+    if not nndt4:
+        a = nndt_depth3_unweighted.leaf_classifier_groups()
+    b = [x for x in range(43)]
+    c = []
+    for i in a:
+        c.extend(i)
+    c.sort()
+    print(b==c)
+
 if __name__ == '__main__':
     # testfolder = os.path.join(os.getcwd(), "Train")
     # nndt_depth4_unweighted.test_classifiers(testfolder=testfolder, save=False, verbose=True, limit = 3)
@@ -761,6 +781,6 @@ if __name__ == '__main__':
     # nndt_depth4_unweighted.generate_all_classifier_datasets()
     # nndt_depth4_unweighted.train_classifiers()
 
-    test_nndts(byclass=False, save=True, limit=4, exclusive=[6, 42])
+    test_leaf_classifier_groups()
 
     print()
