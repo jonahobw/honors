@@ -36,17 +36,17 @@ LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = False
 # Targeted attack (bool)
-TARGETED = False
+TARGETED = True
 
 # Untargeted attack parameters
 #----------------------------------------------
 # number of pictures to attack (int)
-SAMPLES = 100
+SAMPLES = 1
 
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
-ATTACK_PAIRS = 3
+ATTACK_PAIRS = 100
 # Number of images to attack for each targeted pair (int)
 N = 1
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
@@ -55,7 +55,7 @@ RANDOM = True
 
 def setup_variables():
     globals()
-    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS
+    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
@@ -72,9 +72,12 @@ def setup_variables():
         ROOT_SAVE_FOLDER = os.path.join(root_folder_prefix, "{}_{}_{}_samples".format(save_date, MODEL_NAME, str(num_images)))
         os.mkdir(ROOT_SAVE_FOLDER)
         IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "imgs")
+        RAW_IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "raw_imgs")
         os.mkdir(IMG_FOLDER)
+        os.mkdir(RAW_IMG_FOLDER)
         for pix_count in PIXELS:
             os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
+            os.mkdir(os.path.join(RAW_IMG_FOLDER, str(pix_count) + "_pixels"))
         PLT_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "plots")
         os.mkdir(PLT_FOLDER)
         logfile = os.path.join(ROOT_SAVE_FOLDER, "attack.log")
@@ -244,8 +247,10 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
     if ((targeted_attack and predicted_class == target_class) or
             (not targeted_attack and predicted_class != target_class)):
         success = True
-        if verbose:
-            logger.debug("Success on image {}\n".format(img_file[1]))
+        if across_classifiers is not None and not spans_multiple_classifiers(across_classifiers, img_class, predicted_class):
+            success = False
+    if verbose and success:
+        logger.debug("Success on image {}\n".format(img_file[1]))
     elif(verbose):
         logger.debug("Reached max iterations, attack unsuccessful on image {}\n".format(img_file[1]))
 
@@ -263,7 +268,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
     if show_image:
         print_image(attack_image, path=False, title = annotation)
 
-    if SAVE: # and success:
+    if SAVE and success:
         # saving successfully perturbed images
         save_perturbed_image(attack_image, annotation, img_class, pixel_count, img_file[1])
 
@@ -290,6 +295,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
     since = time.time()
     img_samples = retrieve_valid_test_images(model, image_folder, samples, nndt = nndt)
+
+    logger.info("IMGS:          {}".format(str(img_samples)))
 
     # 1d array where index corresponds to pixel count, and the value of an element is the success of
     # an untargeted attack with that pixel count
@@ -357,6 +364,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
         logger.info("\n\n")
 
     since = time.time()
+    all_images = []
 
     # all_results is a dict of the form <attack pair> : <results of attack>
     # where <attack pair> is of the form (true_class, target_class)
@@ -372,6 +380,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     # loop over set of attack pairs
     for k, (true_class, target_class) in enumerate(attack_pairs):
         img_samples = retrieve_valid_test_images(model, image_folder, samples_per_pair, exclusive=true_class, nndt=nndt)
+        all_images.append(img_samples)
         logger.info("\nTargeted Attack from True Class {} to Target Class {}\n".format(str(true_class), str(target_class)))
 
         # 1d array where index corresponds to pixel count, and the value of an element is the success of
@@ -408,6 +417,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     time_elapsed = time.time() - since
     logger.info("\n\nAll results: ")
     logger.info(all_results)
+    logger.info("IMGs:      {}".format(str(all_images)))
     logger.info('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     return all_results, pixels, samples_per_pair, maxiter, popsize
 
@@ -514,7 +524,7 @@ def run_plot_attack(targeted = True):
 
 def save_perturbed_image(img, title = "", true_class = None, pixels = None, filename =None):
     # saves an image
-    global IMG_FOLDER
+    global IMG_FOLDER, RAW_IMG_FOLDER
     plt.imshow(img)
     plt.title(title)
     plt.tight_layout()
@@ -523,6 +533,11 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     fname = os.path.join(IMG_FOLDER, str(pixels) + "_pixels", fname)
     plt.savefig(fname)
 
+    # also save raw image
+    fname = "class_" + str(true_class) + "_" + str(filename)+".png"
+    fname = os.path.join(RAW_IMG_FOLDER, str(pixels) + "_pixels", fname)
+    im = Image.fromarray(img)
+    im.save(fname)
 
 if __name__ == '__main__':
     globals()
