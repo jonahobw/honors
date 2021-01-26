@@ -7,6 +7,10 @@ from general import str_date
 import logging
 from attack_helper import *
 
+# Whether or not to do a new attack (False) or test the transferability of a completed attack.  If this is a
+# transferability test, the model parameters below define the transfer model
+TRANSFER = True
+
 # Model parameters
 #-----------------------------------------------
 # neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
@@ -20,7 +24,7 @@ NNDT = nndt_depth3_unweighted()
 # static method leaf_classifier_groups() of the NNDT object.  For an untargeted attack: the attack
 # will only be called successful if the original class and misclassified class span multiple leaf classifiers.  For a
 # targeted attack: attack pairs will be sampled from the set of pairs that span multiple leaf classifiers
-ACROSS_CLASSIFIERS = nndt_depth3_unweighted.leaf_classifier_groups()
+ACROSS_CLASSIFIERS = None #nndt_depth3_unweighted.leaf_classifier_groups()
 
 # Attack parameters
 #-----------------------------------------------
@@ -52,18 +56,45 @@ N = 1
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
 RANDOM = True
 
+# Testing Transferability Property Parameters
+# These parameters are for taking the successful adversarial images from one attack and testing them on another model
+# to see if the adversarial images transfer from the attack model to the transfer model
+#----------------------------------------------
+# name of the root folder of the attack (not a full path, targeted or untargeted is decided by above global variable
+# TARGETED)
+ATTACK_FOLDER = "2021-01-22_nndt_depth3_unweighted_100_samples"
+
+
 
 def setup_variables():
     globals()
-    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER
+    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
+        TRANSFER_FOLDER
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
     logger.setLevel(LOG_LEVEL)
 
+    tar = "targeted" if TARGETED else "untargeted"
+
+    if TRANSFER:
+        ATTACK_FOLDER = os.path.join(os.getcwd(), "Outputs", "attacks", tar, ATTACK_FOLDER)
+
     if SAVE:
-        # unchangeable parameters
-        tar = "targeted" if TARGETED else "untargeted"
+        if TRANSFER:
+            transferability_dir = os.path.join(ATTACK_FOLDER, "transferability")
+            # make transferability folder if it does not exist
+            if "transferability" not in os.listdir(ATTACK_FOLDER):
+                os.mkdir(transferability_dir)
+            TRANSFER_FOLDER = os.path.join(transferability_dir, MODEL_NAME + "_transferability")
+            os.mkdir(TRANSFER_FOLDER)
+            for pix_count in os.listdir(os.path.join(ATTACK_FOLDER, "raw_imgs")):
+                os.mkdir(os.path.join(TRANSFER_FOLDER, pix_count))
+            logfile = os.path.join(TRANSFER_FOLDER, "transfer.log")
+            logging.basicConfig(filename=logfile, format='%(message)s')
+            logging.getLogger("attack_log").addHandler(logging.StreamHandler())
+            return
+
         root_folder_prefix = os.path.join(os.getcwd(), "Outputs", "attacks", tar)
         IMG_FOLDER = ""
         PLT_FOLDER = ""
@@ -270,7 +301,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
     if SAVE and success:
         # saving successfully perturbed images
-        save_perturbed_image(attack_image, annotation, img_class, pixel_count, img_file[1])
+        save_perturbed_image(attack_image, annotation, img_class, pixel_count, img_file[1], target = target)
 
     return success
 
@@ -522,8 +553,136 @@ def run_plot_attack(targeted = True):
         plot_untargeted(r, pix, s, m, p)
 
 
-def save_perturbed_image(img, title = "", true_class = None, pixels = None, filename =None):
+def transferability(transfer_model, nndt, img_folder, targeted, across_classifiers, save = True, save_folder = None):
+    # parameters:
+    # ------------------------------------
+    # transfer_model (pytorch object or nndt object):   model that predicts images
+    # nndt (boolean):   indicates if transfer_model is an nndt (True) or a pytorch model (False)
+    # img_folder (string path): path to the root folder containing raw images that successfully fooled the attack model
+    #                       during the attack; this folder is organized into subfolders by pixel count
+    # save_folder (string path):    where to save successful adversarial images on the transfer model.  The path to the
+    #                               root folder orgainized by subfolders by pixel count
+    # targeted (bool): if the attack was targeted or not
+    # across_classifiers (2d array):    if not None, then a 2d array where the first dimension are final classifiers in
+    #                                   an nndt and the second dimension are the classes in that final classifier,
+    #                                   restricts what is called a successful adversarial image in untargeted attacks
+
+    logger.info("-----Attacking Parameters:-----")
+    logger.info("Transfer model:        {}".format(str(transfer_model)))
+    logger.info("NNDT:                  {}".format("False" if nndt is None else "True"))
+    logger.info("Targeted:              {}".format(str(targeted)))
+    logger.info("Original images:       {}".format(str(img_folder[-100:])))
+    logger.info("Transfer images:       {}".format(str(save_folder[-100:])))
+    logger.info("Across Classifers:     {}\n\n".format(str(across_classifiers)))
+
+    # results is a dict where the keys are the number of pixels and the values are a tuple of the form
+    # (# of successful transferable adversarial images for that pixel count,
+    #  total # of adversarial images for that pixel count)
+    results = {}
+    total_imgs = 0
+    total_transf = 0
+
+    pixels = [x for x in os.listdir(img_folder)]
+    for pix_count in pixels:
+        pix_folder = os.path.join(img_folder, pix_count)
+        adv_imgs = os.listdir(pix_folder)
+        adv_img_count = len(adv_imgs)
+        total_imgs += adv_img_count
+        logger.info("\nTesting {} {} images:".format(str(adv_img_count), str(pix_count)))
+
+        success_count = 0
+
+        for adv_img in adv_imgs:
+            logger.info("Image {}".format(adv_img))
+            adv_im_path = os.path.join(pix_folder, adv_img)
+            filename = adv_img.split("_")
+            true_class = int(filename[1])
+            target_class = int(filename[3])
+            target = target_class if targeted else true_class
+
+            im = Image.open(adv_im_path)
+
+            if not nndt:
+                predicted_probs = test_one_image(transfer_model, im)
+            else:
+                predicted_probs = transfer_model.prediction_vector(im, dict=False, path=False)
+
+            predicted_class = predicted_probs.index(max(predicted_probs))
+            predicted_class_confidence = predicted_probs[predicted_class]
+            true_class_confidence = predicted_probs[int(true_class)]
+            target_class_confidence = predicted_probs[int(target_class)]
+
+            success = False
+            if ((targeted and predicted_class == target_class) or
+                    (not targeted and predicted_class != target_class)):
+                success = True
+                if across_classifiers is not None and not spans_multiple_classifiers(across_classifiers,
+                                                                                     true_class, predicted_class):
+                    success = False
+
+            annotation = '   Model Confidence in true class   {}:     {:4f}%'.format(str(true_class),
+                                                                                  true_class_confidence * 100)
+            if targeted:
+                annotation += '\n   Model confidence in target class {}:     {:4f}%'.format(str(target),
+                                                                                         target_class_confidence * 100)
+            else:
+                annotation += '\n   Model prediction was class    {} with {:4f}% confidence'.format(str(predicted_class),
+                                                                                                 predicted_class_confidence * 100)
+            annotation += '\n   Transfer {}'.format("successful" if success else "unsuccessful")
+
+            logger.info(annotation + "\n")
+
+            if success:
+                success_count +=1
+                if save:
+                    plt.imshow(np.array(im))
+                    plt.title(annotation)
+                    plt.tight_layout()
+                    fname = os.path.join(save_folder, pix_count, adv_img)
+                    plt.savefig(fname)
+        results[pix_count] = (success_count, adv_img_count)
+        total_transf += success_count
+
+    for result in results:
+        transf, total = results[result]
+        if total >0:
+            logger.info("\n{} pixels: {}/{} adversarial images transferred, {:4f}%".format(str(result),
+                                                                                         str(transf),
+                                                                                         str(total),
+                                                                                         100*transf/total))
+    if total_imgs >0:
+        logger.info("\n\nTotal: {}/{} images successfully transferred ({:4f}%)".format(str(total_transf),
+                                                                                       str(total_imgs),
+                                                                                       100*total_transf/total_imgs))
+    else:
+        logger.info("No successful adversarial images on original attack.")
+
+    return
+
+
+def run_transfer():
+    globals()
+    save_folder = TRANSFER_FOLDER if SAVE else None
+
+    if NNDT is None:
+        model = load_model(MODEL_PATH)
+        nndt = False
+    else:
+        model = NNDT
+        nndt = True
+
+    img_folder = os.path.join(ATTACK_FOLDER, "raw_imgs")
+    transferability(transfer_model=model, nndt=nndt, img_folder=img_folder, targeted=TARGETED,
+                    across_classifiers=ACROSS_CLASSIFIERS, save=SAVE, save_folder=save_folder)
+    return
+
+
+def save_perturbed_image(img, title = "", true_class = None, pixels = None, filename =None, target = None):
     # saves an image
+
+    # target        (int):  if None, this is an untargeted attack, otherwise, this is the class we want to
+    #                           try to get the network to predict
+
     global IMG_FOLDER, RAW_IMG_FOLDER
     plt.imshow(img)
     plt.title(title)
@@ -534,15 +693,37 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     plt.savefig(fname)
 
     # also save raw image
-    fname = "class_" + str(true_class) + "_" + str(filename)+".png"
+    tar = target if target is not None else true_class
+    fname = "trueclass_" + str(true_class) + "_target_" + tar + "_" + str(filename)+".png"
     fname = os.path.join(RAW_IMG_FOLDER, str(pixels) + "_pixels", fname)
     im = Image.fromarray(img)
     im.save(fname)
 
-if __name__ == '__main__':
+def test_plot():
+    im_path = os.path.join(os.getcwd(), "Debug", "00", "03922.png")
+    im = Image.open(im_path)
+    plt.imshow(np.array(im))
+    plt.title("Random title")
+    plt.tight_layout()
+    fname = os.path.join(os.getcwd(), "DELETE_ME.png")
+    plt.savefig(fname)
+
+    im.save(os.path.join(os.getcwd(), "DELETE_ME_2.png"))
+
+
+def run():
     globals()
     starttime = time.time()
     setup_variables()
-    run_plot_attack(TARGETED)
+    if not TRANSFER:
+        run_plot_attack(TARGETED)
+    else:
+        run_transfer()
 
     logger.info('That took {} seconds'.format(time.time() - starttime))
+
+
+
+if __name__ == '__main__':
+    #run()
+    test_plot()
