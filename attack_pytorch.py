@@ -694,7 +694,7 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
 
     # also save raw image
     tar = target if target is not None else true_class
-    fname = "trueclass_" + str(true_class) + "_target_" + tar + "_" + str(filename)+".png"
+    fname = "trueclass_" + str(true_class) + "_target_" + str(tar) + "_" + str(filename)+".png"
     fname = os.path.join(RAW_IMG_FOLDER, str(pixels) + "_pixels", fname)
     im = Image.fromarray(img)
     im.save(fname)
