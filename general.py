@@ -1,5 +1,6 @@
 import datetime
 import os
+os.environ['QT_QPA_PLATFORM']='offscreen'
 
 def str_date():
     # returns the date as a string formatted as <year>-<month>-<day>

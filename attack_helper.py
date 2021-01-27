@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import os
 from PIL import Image
 from pytorch_resnet import test_one_image
 from general import *

@@ -9,22 +9,22 @@ from attack_helper import *
 
 # Whether or not to do a new attack (False) or test the transferability of a completed attack.  If this is a
 # transferability test, the model parameters below define the transfer model
-TRANSFER = True
+TRANSFER = False
 
 # Model parameters
 #-----------------------------------------------
 # neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
 # ./Models folder in string format.  If this is an nndt, this should be the name of the nndt class in string format
-MODEL_NAME = "nndt_depth3_unweighted"
+MODEL_NAME = "pytorch_resnet_saved_11_9_20"
 # this should be none if the model is a regular resnet.  If the model is an nndt, then this should be an instance of
 # the nndt class
-NNDT = nndt_depth3_unweighted()
+NNDT = None #nndt_depth3_unweighted()
 # If none, no change.  If not none, should be a 2d array where the first dimension are the leaf classifiers of the nndt
 # and the second dimension are the classes classified by the leaf classifiers.  This 2d array is obtained by calling the
 # static method leaf_classifier_groups() of the NNDT object.  For an untargeted attack: the attack
 # will only be called successful if the original class and misclassified class span multiple leaf classifiers.  For a
 # targeted attack: attack pairs will be sampled from the set of pairs that span multiple leaf classifiers
-ACROSS_CLASSIFIERS = None #nndt_depth3_unweighted.leaf_classifier_groups()
+ACROSS_CLASSIFIERS = nndt_depth3_unweighted.leaf_classifier_groups()
 
 # Attack parameters
 #-----------------------------------------------
@@ -700,7 +700,7 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     im.save(fname)
 
 def test_plot():
-    im_path = os.path.join(os.getcwd(), "Debug", "00", "03922.png")
+    im_path = os.path.join(os.getcwd(), "Train", "00", "00000_00000_00000.png")
     im = Image.open(im_path)
     plt.imshow(np.array(im))
     plt.title("Random title")
