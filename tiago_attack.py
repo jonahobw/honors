@@ -25,6 +25,7 @@ def num_ascent(f, x, delta = 1):
     conf = f(x)
     print("Conf is {}".format(conf))
     count = 0
+    prev_conf = conf
     while conf < 0.4:
         grad = num_grad(f, x, delta = delta)
 
@@ -36,6 +37,15 @@ def num_ascent(f, x, delta = 1):
         x += grad
         conf = f(x)
         print("Conf {}".format(conf))
+        if conf == prev_conf:
+            count +=1
+        else:
+            count = 0
+        if count >10:
+            print("confidence not increased for 10 iterations")
+            break
+
+        prev_conf = conf
     return x
 
 
