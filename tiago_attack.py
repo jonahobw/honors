@@ -27,6 +27,10 @@ def num_ascent(f, x, delta = 1):
     count = 0
     while conf < 0.4:
         grad = num_grad(f, x, delta = delta)
+
+        zeroes = np.zeros(len(grad))
+        if grad == zeroes:
+            delta +=1
         # grad = ndGradient(f)(x)
         print("Grad: {}".format(grad))
         x += grad
