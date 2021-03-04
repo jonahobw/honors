@@ -52,6 +52,8 @@ def preprocess_image(image, path = True, INPUT_SIZE = 224):
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
     ])
     input_tensor = preprocess(image)
+    if torch.cuda.is_available():
+        input_tensor = input_tensor.to('cuda')
     return input_tensor
 
 
@@ -81,7 +83,7 @@ def linearize_pixels(img):
 
 if __name__ == '__main__':
     print("starting")
-    net = load_model('pytorch_resnet_saved_11_9_20')
+    net = load_model(os.path.join(os.getcwd(), "Models", 'pytorch_resnet_saved_11_9_20'))
     impath = os.path.join(os.getcwd(), "small_test_dataset","Test", "0", "00000_00002_00001.png")
     img = Image.open(impath)
     h, w, imgarray = linearize_pixels(img)
