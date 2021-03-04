@@ -195,7 +195,9 @@ def plot_accuracy_and_loss(train_acc, train_loss, test_acc, test_loss):
     path = os.path.join(os.getcwd(), "ML", "Outputs", "loss.png")
     plt.savefig(path)
 
-csv = os.path.join(os.getcwd(), "Image_features", "img_features_GTSRB_ResNet_2020-12-29_normalized.csv")
-#csv = os.path.join(os.getcwd(), "Image_features", "img_features_small_test_dataset_2020-12-29.csv")
-#train(csv)
-create_train_save_print_model(csv)
+
+if __name__ == '__main__':
+    csv = os.path.join(os.getcwd(), "Image_features", "img_features_GTSRB_ResNet_2020-12-29_normalized.csv")
+    #csv = os.path.join(os.getcwd(), "Image_features", "img_features_small_test_dataset_2020-12-29.csv")
+    #train(csv)
+    create_train_save_print_model(csv)

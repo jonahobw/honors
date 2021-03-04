@@ -225,5 +225,5 @@ def construct_tree(signsarray):
     return Tree
 
 
-Tree = find_optimal_tree(4, False)
+Tree = find_optimal_tree(3, True)
 Tree_stats(Tree, False)
