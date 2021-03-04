@@ -30,7 +30,7 @@ def num_ascent(f, x, delta = 1):
         grad = num_grad(f, x, delta = delta)
 
         zeroes = np.zeros(len(grad))
-        if grad == zeroes:
+        if grad.all() == zeroes.all():
             delta +=1
         # grad = ndGradient(f)(x)
         print("Grad: {}".format(grad))
@@ -70,21 +70,53 @@ def preprocess_image(image, path = True, INPUT_SIZE = 224):
         input_tensor = input_tensor.to('cuda')
     return input_tensor
 
+def test_one_image(model, image, path = False):
+    # gets the neural network prediction vector for a single image
+    model.eval()
+    if(isinstance(image, np.ndarray)):
+        image = Image.fromarray(image)
+    image = preprocess_image(image, path = path)
+    image = create_batch(image.clone().detach())
+    preds = get_model_prediction_probs(model, image)
+    return preds
 
-def save_transform(h, w, x, save_img = None):
+def create_batch(list_of_tensors):
+    input_batch = list_of_tensors.unsqueeze(0)  # create a mini-batch as expected by the model
+    return input_batch
+
+def get_model_prediction_probs(model, input):
+    # feeds an image to a neural network and returns the predictions vector
+    if torch.cuda.is_available():
+        input = input.to('cuda')
+        model.to('cuda')
+
+    with torch.no_grad():
+        output = model(input)
+
+    # The output has unnormalized scores. To get probabilities, you can run a softmax on it.
+    sm = torch.nn.functional.softmax(output[0], dim=0)
+    sm_list = sm.tolist()
+
+    return sm_list
+
+def save_transform(h, w, x):
     img = x.reshape((h,w, 3)).astype('uint8')
     img = Image.fromarray(img, mode='RGB')
     img.save('output.jpg')
-    img = preprocess_image('output.jpg')
+    #img = preprocess_image('output.jpg')
     return img
 
 
 def create_f(h, w, target):
-    def f(x, save_img=None):
-        pixels = save_transform(h, w, x, save_img)
-        output = net(pixels.unsqueeze(dim=0))
-        output = F.softmax(output[0], dim=0)
-        return output[target].item()
+    def f(x):
+        #pixels = save_transform(h, w, x, save_img)
+        #output = net(pixels.unsqueeze(dim=0))
+        # output = F.softmax(output[0], dim=0)
+        img = save_transform(h, w, x)
+        output = test_one_image(net, img)
+        pred = output[target]
+        #return output[target].item()
+        return pred
     #return lambda x: f(x, target)
     return f
 
@@ -108,7 +140,7 @@ if __name__ == '__main__':
     impath = os.path.join(os.getcwd(), "small_test_dataset","Test", "0", "00000_00002_00001.png")
     img = Image.open(impath)
     h, w, imgarray = linearize_pixels(img)
-    target_class = 1
+    target_class = 0
     delta = 10
 
     f = create_f(h, w, target_class)
@@ -116,7 +148,7 @@ if __name__ == '__main__':
     x = num_ascent(f, imgarray)
     time_elapsed = time.time() - since
     print('Attack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    #save_im(x, h , w)
+    save_transform(h, w, x)
 
 
 
