@@ -1,7 +1,7 @@
 import numpy as np
 from pytorch_resnet import load_model, test_one_image, NUM_CLASSES
 from scipy.optimize import differential_evolution
-from nndt import nndt_depth3_unweighted
+from nndt import nndt_depth3_unweighted, nndt_depth4_unweighted
 import time
 from general import str_date
 import logging
@@ -15,24 +15,24 @@ TRANSFER = False
 #-----------------------------------------------
 # neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
 # ./Models folder in string format.  If this is an nndt, this should be the name of the nndt class in string format
-MODEL_NAME = "pytorch_resnet_saved_11_9_20"
+MODEL_NAME = "nndt_depth3_unweighted()" #"pytorch_resnet_saved_11_9_20" #
 # this should be none if the model is a regular resnet.  If the model is an nndt, then this should be an instance of
 # the nndt class
-NNDT = None #nndt_depth3_unweighted()
+NNDT = nndt_depth3_unweighted()
 # If none, no change.  If not none, should be a 2d array where the first dimension are the leaf classifiers of the nndt
 # and the second dimension are the classes classified by the leaf classifiers.  This 2d array is obtained by calling the
 # static method leaf_classifier_groups() of the NNDT object.  For an untargeted attack: the attack
 # will only be called successful if the original class and misclassified class span multiple leaf classifiers.  For a
 # targeted attack: attack pairs will be sampled from the set of pairs that span multiple leaf classifiers
-ACROSS_CLASSIFIERS = nndt_depth3_unweighted.leaf_classifier_groups()
+ACROSS_CLASSIFIERS = None #nndt_depth4_unweighted.leaf_classifier_groups()
 
 # Attack parameters
 #-----------------------------------------------
 # Differential Evolution parameters (ints)
-POP_SIZE = 500
-MAX_ITER = 30
+POP_SIZE = 1#500
+MAX_ITER = 1#30
 # Number of pixels to attack (array of ints)
-PIXELS = [1, 3, 5]
+PIXELS = [1]#[1, 3, 5]
 # Save into a folder (bool)
 SAVE = True
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
@@ -40,21 +40,31 @@ LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = False
 # Targeted attack (bool)
-TARGETED = True
+TARGETED = False
+
 
 # Untargeted attack parameters
 #----------------------------------------------
 # number of pictures to attack (int)
 SAMPLES = 1
+# (OPTIONAL, use None if not specifying)
+# images to use in attack.  Used if you want to run an attack on the same images for different models.  The format is
+# an array of tuples (img path, img class)
+UNTAR_IMGS = None
 
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
-ATTACK_PAIRS = 100
+ATTACK_PAIRS = 1
 # Number of images to attack for each targeted pair (int)
 N = 1
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
 RANDOM = True
+# (OPTIONAL, use None if not specifying)
+# images and attack pairs to use in attack.  Used if you want to run an attack on the same images and attack pairs for
+# different models.  The format is dict {attack pair: imgs for that attack pair}, where attack pair is a
+# tuple of (true class, target class) and imgs for that attack pair is an array of img paths
+TAR_IMGS = None
 
 # Testing Transferability Property Parameters
 # These parameters are for taking the successful adversarial images from one attack and testing them on another model
@@ -62,20 +72,21 @@ RANDOM = True
 #----------------------------------------------
 # name of the root folder of the attack (not a full path, targeted or untargeted is decided by above global variable
 # TARGETED)
-ATTACK_FOLDER = "2021-01-22_nndt_depth3_unweighted_100_samples"
+ATTACK_FOLDER = "2021-02-24_nndt_depth4_unweighted()_100_samples"
 
 
 
 def setup_variables():
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
-        TRANSFER_FOLDER
+        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
     logger.setLevel(LOG_LEVEL)
 
     tar = "targeted" if TARGETED else "untargeted"
+    across = "acr" if ACROSS_CLASSIFIERS is not None else ""
 
     if TRANSFER:
         ATTACK_FOLDER = os.path.join(os.getcwd(), "Outputs", "attacks", tar, ATTACK_FOLDER)
@@ -100,7 +111,7 @@ def setup_variables():
         PLT_FOLDER = ""
         save_date = str_date()
         num_images = ATTACK_PAIRS * N if TARGETED else SAMPLES
-        ROOT_SAVE_FOLDER = os.path.join(root_folder_prefix, "{}_{}_{}_samples".format(save_date, MODEL_NAME, str(num_images)))
+        ROOT_SAVE_FOLDER = os.path.join(root_folder_prefix, "{}_{}_{}_imgs_{}".format(save_date, MODEL_NAME, str(num_images), across))
         os.mkdir(ROOT_SAVE_FOLDER)
         IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "imgs")
         RAW_IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "raw_imgs")
@@ -307,7 +318,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), across_classifiers = None,
-               maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False):
+               maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False, untar_imgs = None):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
@@ -325,7 +336,12 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
         logger.info("\n\n")
 
     since = time.time()
-    img_samples = retrieve_valid_test_images(model, image_folder, samples, nndt = nndt)
+    if untar_imgs is None:
+        img_samples = retrieve_valid_test_images(model, image_folder, samples, nndt = nndt)
+
+    #overwrite img samples if imgs have been specified in UNTAR_IMGS global variable
+    else:
+        img_samples = untar_imgs
 
     logger.info("IMGS:          {}".format(str(img_samples)))
 
@@ -364,7 +380,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
 def attack_all_targeted(model, random = False, image_folder = None, samples_per_pair=500, pixels=(1, 3, 5), maxiter=75,
                         popsize=400, verbose=False, show_image = False, nndt = False, num_attack_pairs = 10,
-                        across_classifiers = None):
+                        across_classifiers = None, tar_imgs = None):
     # if random = false, attacks the <samples> highest attack pairs by danger weight, else,
     #   chooses attack pairs randomly
     # num_attack_pairs (int) is a global variable that determines how many pairs to attack
@@ -372,12 +388,17 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     #   multiple classifiers on the nndt
     # samples_per_pair (int) determines how many images to attack for each attack pair
     # so the total number of samples is samples_per_pair * num_attack_pairs
+    # tar_imgs: optional variable from the global variable TAR_IMGS to specify the attack pairs and imgs before attack
 
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
     # get N attack pairs from global variable N
     attack_pairs = retrieve_attack_pairs(num_attack_pairs, random, across_classifiers=across_classifiers)
+
+    # if attack pairs are specified through global variable TAR_IMGS
+    if tar_imgs is not None:
+        attack_pairs = list(tar_imgs.keys())
 
     logger.info("-----Attacking Parameters:-----")
     logger.info("Test folder:           {}".format(image_folder))
@@ -395,7 +416,10 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
         logger.info("\n\n")
 
     since = time.time()
-    all_images = []
+
+    # dict of length <attack pairs> where keys are the attack pair and values are arrays of images tested
+    # for this attack pair)
+    all_images = {}
 
     # all_results is a dict of the form <attack pair> : <results of attack>
     # where <attack pair> is of the form (true_class, target_class)
@@ -410,8 +434,20 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
 
     # loop over set of attack pairs
     for k, (true_class, target_class) in enumerate(attack_pairs):
-        img_samples = retrieve_valid_test_images(model, image_folder, samples_per_pair, exclusive=true_class, nndt=nndt)
-        all_images.append(img_samples)
+
+        if tar_imgs is None:
+            img_samples = retrieve_valid_test_images(model, image_folder,
+                                                     samples_per_pair, exclusive=true_class, nndt=nndt)
+        else:
+            img_samps = tar_imgs[(true_class, target_class)]
+            img_samples = [(x, true_class) for x in img_samps]
+
+
+
+        # bookkeeping for all_images variable
+        current_attack_pair = (true_class, target_class)
+        current_imgs = [x[0] for x in img_samples]
+        all_images[current_attack_pair] = current_imgs
         logger.info("\nTargeted Attack from True Class {} to Target Class {}\n".format(str(true_class), str(target_class)))
 
         # 1d array where index corresponds to pixel count, and the value of an element is the success of
@@ -448,7 +484,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     time_elapsed = time.time() - since
     logger.info("\n\nAll results: ")
     logger.info(all_results)
-    logger.info("IMGs:      {}".format(str(all_images)))
+    logger.info("\n\nIMGs:      {}".format(all_images))
     logger.info('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     return all_results, pixels, samples_per_pair, maxiter, popsize
 
@@ -544,12 +580,12 @@ def run_plot_attack(targeted = True):
         res, pix, sam, mxi, pop = attack_all_targeted(model, random=RANDOM, samples_per_pair=N, pixels=PIXELS,
                                                       maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
                                                       show_image=SHOW_IMAGE, nndt=nndt, num_attack_pairs=ATTACK_PAIRS,
-                                                      across_classifiers=ACROSS_CLASSIFIERS)
+                                                      across_classifiers=ACROSS_CLASSIFIERS, tar_imgs=TAR_IMGS)
         plot_targeted(res, pix, mxi, pop)
     else:
         r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
                                                 popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE, nndt=nndt,
-                                                across_classifiers=ACROSS_CLASSIFIERS)
+                                                across_classifiers=ACROSS_CLASSIFIERS, untar_imgs=UNTAR_IMGS)
         plot_untargeted(r, pix, s, m, p)
 
 
@@ -725,5 +761,5 @@ def run():
 
 
 if __name__ == '__main__':
-    #run()
-    test_plot()
+    run()
+    #test_plot()
