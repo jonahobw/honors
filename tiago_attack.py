@@ -4,10 +4,10 @@ import torchvision.transforms as transforms
 import torch
 import os
 import torch.nn.functional as F
+import time
 
 
-def num_grad(f, x):
-    delta = 1
+def num_grad(f, x, delta = 1):
     grad = np.zeros(len(x))
     a = np.copy(x)
     print(len(x))
@@ -15,21 +15,21 @@ def num_grad(f, x):
         a[i] = x[i] + delta
         grad[i] = (f(a) - f(x)) / delta
         a[i] -= delta
-        print(i)
+        if(i%200 == 0):
+            print(i)
 
     return grad
 
 
-def num_ascent(f, x):
+def num_ascent(f, x, delta = 1):
     conf = f(x)
     print("Conf is {}".format(conf))
     count = 0
     while conf < 0.4:
-        grad = num_grad(f, x)
+        grad = num_grad(f, x, delta = delta)
         # grad = ndGradient(f)(x)
-        print(grad)
+        print("Grad: {}".format(grad))
         x += grad
-
         conf = f(x)
         print("Conf {}".format(conf))
     return x
@@ -81,16 +81,28 @@ def linearize_pixels(img):
     #img_array /= 255
     return h, w, img_array
 
+def save_im(img, h, w):
+    img = np.reshape(img, (h,w,3))
+    print(type(img))
+    img = Image.fromarray(img)
+    img.save('adversarial.jpg')
+
 if __name__ == '__main__':
     print("starting")
+    since = time.time()
     net = load_model(os.path.join(os.getcwd(), "Models", 'pytorch_resnet_saved_11_9_20'))
     impath = os.path.join(os.getcwd(), "small_test_dataset","Test", "0", "00000_00002_00001.png")
     img = Image.open(impath)
     h, w, imgarray = linearize_pixels(img)
-    target_class = 3
+    target_class = 1
+    delta = 10
 
     f = create_f(h, w, target_class)
     print(f(imgarray))
-    num_ascent(f, imgarray)
+    x = num_ascent(f, imgarray)
+    time_elapsed = time.time() - since
+    print('Attack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    #save_im(x, h , w)
+
 
 
