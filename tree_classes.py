@@ -31,7 +31,7 @@ class node:
             return prediction_vector
 
         if(isinstance(self, classifier) or isinstance(self, final_classifier)):
-            prediction = get_model_prediction_probs(self.neuralnet, image)
+            prediction = get_model_prediction_probs(self.neuralnet, image, gpu_id=gpu_id)
 
             # map prediction output to child nodes and recursively call predict()
             for i, child in enumerate(self.pred_value_names):
@@ -85,11 +85,7 @@ def get_model_prediction_probs(model, image, gpu_id = None):
     model.eval()
     image = image.clone().detach().unsqueeze(0)
     if torch.cuda.is_available():
-        image= image.to('cuda')
-        model.to('cuda')
-    if torch.cuda.is_available():
         if gpu_id is not None:
-            torch.cuda.set_device(gpu_id)
             model.cuda(gpu_id)
             image = image.to(gpu_id)
         else:

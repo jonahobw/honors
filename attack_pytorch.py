@@ -1,5 +1,5 @@
 import numpy as np
-from pytorch_resnet import load_model, test_one_image, NUM_CLASSES
+from pytorch_resnet import load_model, test_one_image, NUM_CLASSES, set_cuda
 from scipy.optimize import differential_evolution
 from nndt import nndt_depth3_unweighted, nndt_depth4_unweighted
 import time
@@ -574,6 +574,7 @@ def plot_targeted(results, pixels, maxiter, popsize):
 
 def run_plot_attack(targeted = True):
     globals()
+    set_cuda(GPU_ID)
     if NNDT is None:
         model = load_model(MODEL_PATH)
         nndt = False

@@ -22,6 +22,10 @@ INPUT_SIZE = 224
 NUM_CLASSES = 43
 EPOCHS = 10
 
+def set_cuda(gpu_id = None):
+    if torch.cuda.is_available() and gpu_id is not None:
+        torch.cuda.set_device(gpu_id)
+
 # most of this code is adapted from the PyTorch documentation on resnet
 # found here: https://pytorch.org/hub/pytorch_vision_resnet/
 
@@ -219,7 +223,6 @@ def get_model_prediction_probs(model, input, gpu_id = None):
     # gpu_id: integer of the gpu to use (if available)
     if torch.cuda.is_available():
         if gpu_id is not None:
-            torch.cuda.set_device(gpu_id)
             model.cuda(gpu_id)
             input = input.to(gpu_id)
         else:
