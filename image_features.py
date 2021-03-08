@@ -14,6 +14,7 @@ import math
 from PIL import Image
 from general import *
 import pandas as pd
+from tree_helper import split_all
 
 # length of feature vector
 FEATURE_LENGTH = 22
@@ -271,6 +272,126 @@ def classes_in_clusters(csv_file, savefile = None):
 
 
     fd.close()
+
+
+def shapes_in_clusters(csv_file, savefile = None):
+    if savefile is None:
+        root_folder = csv_file.split(".")[0]
+        fname = root_folder + "_shape_stats.csv"
+        savefile = os.path.join(os.getcwd(), "Image_features", "HOG", root_folder, fname)
+
+    fd = open(savefile, "w+")
+    df = load_hog_df(csv_file)
+
+    shapes = ["circle", "triangle", "diamond", "inverted_triangle", "octagon"]
+
+    # array where each index represents a class, and the value at that index represents the shape for that class
+    class_shape = split_all("shape")
+
+    classes = df['img_class']
+    class_counts = classes.value_counts()  # can get the number of images in a class using class_counts.loc[<class>]
+
+    # get number of images of each shape
+    shape_counts = {"circle": 0, "triangle": 0, "diamond": 0, "inverted_triangle": 0, "octagon": 0}
+
+    # dict where keys are shapes and values are arrays representing classes (as integers) of that shape
+    shape_classes = {"circle": [], "triangle": [], "diamond": [], "inverted_triangle": [], "octagon": []}
+
+    for class_name in range(43):
+        shape = class_shape[class_name]
+        shape_counts[shape] += class_counts.loc[class_name]
+        shape_classes[shape].append(class_name)
+
+    #all data of union_over_shape (discussed below)
+    all_shape_data = {}
+
+    # iterate over different k values
+    for i in range(2, 44):
+        num_clusters = i
+        col_name = "{} clusters".format(i)
+        clusters = df[col_name]
+        cluster_counts = clusters.value_counts()    #number of images in a cluster = cluster_counts.loc[<cluster>]
+
+        # dict representing % of total shape images in a cluster.  Labels are shapes as strings and values are dicts
+        # where the label is the cluster name and the value is the percent of all shape images in a that cluster. For
+        # a given shape A and cluster B, the value union_over_classes[A][B] represents
+        # (# of imgs of shape A and cluster B)/(# of images of shape A)
+        union_over_shape = {"circle": {}, "triangle": {}, "diamond": {}, "inverted_triangle": {}, "octagon": {}}
+
+        # dict representing % of total cluster images that are a certain shape.  Labels are cluster names as ints and
+        # values are dicts where the label is the shape and the value is the percent of all cluster images of that shape
+        # For a given shape A and cluster B, the value unison_over_cluster[B][A] represents
+        # (# of imgs of shape A and cluster B)/(# of imgs in cluster B)
+        union_over_cluster = {}
+        for j in range(num_clusters):
+            union_over_cluster[j] = {}
+
+        # iterate over shapes
+        for shape_name in shapes:
+            #rows with this shape
+            shape_df = df[df['img_class'].isin(shape_classes[shape_name])]
+
+            # iterate over clusters
+            for cluster_name in range(num_clusters):
+                # find # of images in shape A and cluster B
+                union_df = shape_df[shape_df[col_name] == cluster_name]
+                union_count = len(union_df.index)
+                percent_of_total_shape_in_cluster = union_count/shape_counts[shape_name]
+                percent_of_cluster_comprised_of_shape = union_count/cluster_counts.loc[cluster_name]
+                union_over_shape[shape_name][cluster_name] = percent_of_total_shape_in_cluster
+                union_over_cluster[cluster_name][shape_name] = percent_of_cluster_comprised_of_shape
+
+        all_shape_data[num_clusters] = union_over_shape
+
+        # write to file
+        fd.write(col_name + "\n")
+        fd.write("% of total shape images in cluster\n")
+        fd.write("shape/cluster")
+        for j in range(num_clusters):
+            fd.write(",cluster " + str(j))
+        fd.write("\n")
+        for shape in shapes:
+            fd.write(shape)
+            for cluster in union_over_shape[shape]:
+                fd.write("," + str(union_over_shape[shape][cluster]))
+            fd.write("\n")
+
+        fd.write("\n")
+
+        fd.write("% of cluster made up of shape\n")
+        fd.write("cluster/shape")
+        for shape in shapes:
+            fd.write("," + shape)
+        fd.write("\n")
+        for key in union_over_cluster:
+            fd.write("cluster " + str(key))
+            for shape in union_over_cluster[key]:
+                fd.write("," + str(union_over_cluster[key][shape]))
+            fd.write("\n")
+
+        fd.write("\n\n")
+
+    # calculate metrics by number of clusters
+    cluster_metrics = {}
+
+    # iterate over number of clusters (43)
+    for num_clusters in range(2, 44):
+        total_metric = 0
+        for shape in shapes:
+            shape_vector = list(all_shape_data[num_clusters][shape].values())
+            max_ind = shape_vector.index(max(shape_vector))
+            ideal = [0 if x!=max_ind else 1 for x in range(len(shape_vector))]
+            diff = sum([abs(shape_vector[x] - ideal[x])**2 for x in range(len(shape_vector))])
+            # average diff by number of clusters
+            total_metric +=diff/num_clusters
+        cluster_metrics[num_clusters] = total_metric
+
+    fd.write("Metrics\n")
+    for key in cluster_metrics:
+        fd.write("{} clusters, {}\n".format(key, cluster_metrics[key]))
+
+    fd.close()
+
 
 
 
@@ -709,7 +830,8 @@ if __name__ == '__main__':
     #kmeans_hog("12hog_img_features_Train_2021-02-23.csv", 3)
     #hog_kmeans_linear(2, 10, "12hog_img_features_Train_2021-02-23.csv")
     #hog_kmeans_linear(43, 43, "12hog_img_features_train_val_2021-02-22.csv")
-    classes_in_clusters("12hog_img_features_train_val_2021-02-22.csv")
+    #classes_in_clusters("12hog_img_features_train_val_2021-02-22.csv")
+    shapes_in_clusters("12hog_img_features_train_val_2021-02-22.csv")
     #print(gather_test_data(test_folder))
     #test_store_csv()
     # csv = os.path.join(os.getcwd(), "Image_features", "img_features_GTSRB_ResNet_2020-12-29.csv")
