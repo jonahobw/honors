@@ -13,7 +13,7 @@ class node:
     def delete_child(self, name):
         self.children.remove(x for x in self.children if x.name ==name)
 
-    def predict(self, prev_edge_weight, image, prediction_vector=None):
+    def predict(self, prev_edge_weight, image, prediction_vector=None, gpu_id = None):
         # previous edge weight is the probability of getting to the current node, the node's prediction vector
         # will be multiplied by this
         # function will return a dict of the format {<class name> : <probability that input image is <class name>>}
@@ -36,7 +36,7 @@ class node:
             # map prediction output to child nodes and recursively call predict()
             for i, child in enumerate(self.pred_value_names):
                 next_prev_edge_weight = prev_edge_weight * prediction[i]
-                child.predict(next_prev_edge_weight, image, prediction_vector)
+                child.predict(next_prev_edge_weight, image, prediction_vector, gpu_id = gpu_id)
 
         return prediction_vector
 
@@ -80,13 +80,21 @@ class tree():
 
 
 # functions from pytorch_resnet.py repeated here to avoid circular import
-def get_model_prediction_probs(model, image):
+def get_model_prediction_probs(model, image, gpu_id = None):
     # feeds an image to a neural network and returns the predictions vector
     model.eval()
     image = image.clone().detach().unsqueeze(0)
     if torch.cuda.is_available():
         image= image.to('cuda')
         model.to('cuda')
+    if torch.cuda.is_available():
+        if gpu_id is not None:
+            torch.cuda.set_device(gpu_id)
+            model.cuda(gpu_id)
+            image = image.to(gpu_id)
+        else:
+            image = image.to('cuda')
+            model.to('cuda')
 
     with torch.no_grad():
         output = model(image)

@@ -7,6 +7,9 @@ from general import str_date
 import logging
 from attack_helper import *
 
+# the GPU ID to use.  Purpose is for when you want to run multiple attacks simultaneously on different GPUs
+GPU_ID = 0
+
 # Whether or not to do a new attack (False) or test the transferability of a completed attack.  If this is a
 # transferability test, the model parameters below define the transfer model
 TRANSFER = False
@@ -164,13 +167,13 @@ def perturb_image(xs, img_path):
     return imgs
 
 
-def predict_classes(xs, img, target_class, model, minimize=True, nndt = False):
+def predict_classes(xs, img, target_class, model, minimize=True, nndt = False, gpu_id = None):
     # Perturb the image with the given pixel(s) x and get the prediction of the model
     attack_image = perturb_image(xs, img)[0]
     if not nndt:
-        preds = test_one_image(model, attack_image)
+        preds = test_one_image(model, attack_image, gpu_id=gpu_id)
     else:
-        preds = model.prediction_vector(attack_image, dict=False, path=False)
+        preds = model.prediction_vector(attack_image, dict=False, path=False, gpu_id=gpu_id)
     target_class_confidence = preds[target_class]
 
     # This function should always be minimized, so return its complement if needed
@@ -178,7 +181,7 @@ def predict_classes(xs, img, target_class, model, minimize=True, nndt = False):
 
 
 def attack_success(xs, img, img_class, target_class, model, targeted_attack=False, verbose=False, nndt=False,
-                   across_classifiers = None):
+                   across_classifiers = None, gpu_id = None):
     # evaluates the success of an attack.
     # input a perturbed image to the model and get it's prediction vector
     # if this is a targeted attack, return true if the model predicted the image to be of target_class
@@ -191,9 +194,9 @@ def attack_success(xs, img, img_class, target_class, model, targeted_attack=Fals
     # Perturb the image with the given pixel(s) and get the prediction of the model
     attack_image = perturb_image(xs, img)[0]
     if not nndt:
-        preds= test_one_image(model,attack_image)
+        preds= test_one_image(model,attack_image, gpu_id=gpu_id)
     else:
-        preds = model.prediction_vector(attack_image, dict=False, path=False)
+        preds = model.prediction_vector(attack_image, dict=False, path=False, gpu_id=gpu_id)
 
     target_class_confidence = preds[target_class]
     predicted_class = preds.index(max(preds))
@@ -219,7 +222,7 @@ def attack_success(xs, img, img_class, target_class, model, targeted_attack=Fals
 
 
 def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
-           maxiter=75, popsize=400, verbose=False, show_image = False, across_classifiers = None):
+           maxiter=75, popsize=400, verbose=False, show_image = False, across_classifiers = None, gpu_id = None):
     # performs an attack on a model using possible perturbations on 1 input image
     # uses differential evolution to try to find an image that succeeds in fooling the network
     # parameters:
@@ -262,11 +265,11 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
     # Format the predict/callback functions for the differential evolution algorithm
     def predict_fn(xs):
-        return predict_classes(xs, img_id, target_class, model, minimize= not targeted_attack, nndt=nndt)
+        return predict_classes(xs, img_id, target_class, model, minimize= not targeted_attack, nndt=nndt, gpu_id=gpu_id)
 
     def callback_fn(xs, convergence):
         return attack_success(xs, img_id, img_class, target_class, model, targeted_attack, verbose, nndt=nndt,
-                              across_classifiers=across_classifiers)
+                              across_classifiers=across_classifiers, gpu_id=gpu_id)
 
     # Call Scipy's Implementation of Differential Evolution
     attack_result = differential_evolution(
@@ -276,9 +279,9 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
     # Calculate some useful statistics to return from this function
     attack_image = perturb_image(attack_result.x, img_id)[0]
     if not nndt:
-        predicted_probs = test_one_image(model, attack_image)
+        predicted_probs = test_one_image(model, attack_image, gpu_id=gpu_id)
     else:
-        predicted_probs = model.prediction_vector(attack_image, dict=False, path=False)
+        predicted_probs = model.prediction_vector(attack_image, dict=False, path=False, gpu_id=gpu_id)
 
     predicted_class = predicted_probs.index(max(predicted_probs))
     predicted_class_confidence = predicted_probs[predicted_class]
@@ -318,7 +321,8 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), across_classifiers = None,
-               maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False, untar_imgs = None):
+               maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False, untar_imgs = None,
+                          gpu_id = None):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
@@ -337,7 +341,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
     since = time.time()
     if untar_imgs is None:
-        img_samples = retrieve_valid_test_images(model, image_folder, samples, nndt = nndt)
+        img_samples = retrieve_valid_test_images(model, image_folder, samples, nndt = nndt, gpu_id=gpu_id)
 
     #overwrite img samples if imgs have been specified in UNTAR_IMGS global variable
     else:
@@ -359,7 +363,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
             if((j+1)%10 == 0 and (j+1) != 0):
                 logger.info("{} samples tested so far".format(str(j)))
             success = attack(img, int(label), model, pixel_count=pixel_count, across_classifiers=across_classifiers,
-                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image, nndt = nndt)
+                             maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image, nndt = nndt,
+                             gpu_id=gpu_id)
             if success:
                 total_success +=1
                 items_to_remove.append(img_samples[j])
@@ -380,7 +385,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
 def attack_all_targeted(model, random = False, image_folder = None, samples_per_pair=500, pixels=(1, 3, 5), maxiter=75,
                         popsize=400, verbose=False, show_image = False, nndt = False, num_attack_pairs = 10,
-                        across_classifiers = None, tar_imgs = None):
+                        across_classifiers = None, tar_imgs = None, gpu_id = None):
     # if random = false, attacks the <samples> highest attack pairs by danger weight, else,
     #   chooses attack pairs randomly
     # num_attack_pairs (int) is a global variable that determines how many pairs to attack
@@ -389,6 +394,9 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     # samples_per_pair (int) determines how many images to attack for each attack pair
     # so the total number of samples is samples_per_pair * num_attack_pairs
     # tar_imgs: optional variable from the global variable TAR_IMGS to specify the attack pairs and imgs before attack
+    # gpu_id: integer of the gpu to use (if available)
+
+
 
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
@@ -436,8 +444,8 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     for k, (true_class, target_class) in enumerate(attack_pairs):
 
         if tar_imgs is None:
-            img_samples = retrieve_valid_test_images(model, image_folder,
-                                                     samples_per_pair, exclusive=true_class, nndt=nndt)
+            img_samples = retrieve_valid_test_images(model, image_folder, samples_per_pair, exclusive=true_class,
+                                                     nndt=nndt, gpu_id = gpu_id)
         else:
             img_samps = tar_imgs[(true_class, target_class)]
             img_samples = [(x, true_class) for x in img_samps]
@@ -463,7 +471,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
                 logger.debug("Image {}".format(str(j + 1)))
                 success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
                                  maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image,
-                                 nndt = nndt)
+                                 nndt = nndt, gpu_id = gpu_id)
                 if success:
                     total_success +=1
                     items_to_remove.append(img_samples[j])
@@ -580,12 +588,14 @@ def run_plot_attack(targeted = True):
         res, pix, sam, mxi, pop = attack_all_targeted(model, random=RANDOM, samples_per_pair=N, pixels=PIXELS,
                                                       maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
                                                       show_image=SHOW_IMAGE, nndt=nndt, num_attack_pairs=ATTACK_PAIRS,
-                                                      across_classifiers=ACROSS_CLASSIFIERS, tar_imgs=TAR_IMGS)
+                                                      across_classifiers=ACROSS_CLASSIFIERS, tar_imgs=TAR_IMGS,
+                                                      gpu_id = GPU_ID)
         plot_targeted(res, pix, mxi, pop)
     else:
         r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
                                                 popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE, nndt=nndt,
-                                                across_classifiers=ACROSS_CLASSIFIERS, untar_imgs=UNTAR_IMGS)
+                                                across_classifiers=ACROSS_CLASSIFIERS, untar_imgs=UNTAR_IMGS,
+                                                gpu_id = GPU_ID)
         plot_untargeted(r, pix, s, m, p)
 
 

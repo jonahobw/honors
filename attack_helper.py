@@ -37,7 +37,7 @@ def spans_multiple_classifiers(array, class1, class2):
 
 
 
-def get_correctly_classified_imgs(model, imgs, samples, nndt = False):
+def get_correctly_classified_imgs(model, imgs, samples, nndt = False, gpu_id = None):
     # This function takes an array of image files and returns a subset of that array of size <samples> where
     # every image in the subset is correctly classified by the <model>
     #
@@ -46,15 +46,16 @@ def get_correctly_classified_imgs(model, imgs, samples, nndt = False):
     # nndt (bool) indicates whether or not the model is an nndt
     # imgs (list): array of tuples (image file name, image true class)
     # samples (int): the number of images desired who classify correctly
+    # gpu_id: integer of the gpu to use (if available)
 
     valid_imgs = []
     for i in range(len(imgs)):
         image, true_class = imgs.pop()
         if not nndt:
             im = Image.open(image)
-            preds = test_one_image(model, im)
+            preds = test_one_image(model, im, gpu_id = gpu_id)
         else:
-            preds = model.prediction_vector(image, dict=False)
+            preds = model.prediction_vector(image, dict=False, gpu_id = gpu_id)
         class_pred = preds.index(max(preds))
         if(int(class_pred)==int(true_class)):
             valid_imgs.append((image, true_class))
@@ -69,7 +70,8 @@ def get_correctly_classified_imgs(model, imgs, samples, nndt = False):
         return valid_imgs
 
 
-def retrieve_valid_test_images(model, image_folder, samples, targeted = None, exclusive = None, nndt = False):
+def retrieve_valid_test_images(model, image_folder, samples, targeted = None, exclusive = None, nndt = False,
+                               gpu_id = None):
     # returns a set of images who classify correctly of size <samples>
     #
     # if <targeted> is not none, it should be an integer representing one of the classes, and
@@ -77,6 +79,7 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
     #
     # if <exclusive> is not none, it should be an integer representing one of the classes, and
     # the function will only include images with a true class of <exclusive>
+    # gpu_id = integer of gpu to use
 
     imgs = []
 
@@ -89,7 +92,7 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
             file_path = os.path.join(sign_folder, file)
             # tuple of (image filename, label of image)
             imgs.append((file_path, exclusive))
-        return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt)
+        return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt, gpu_id = gpu_id)
 
     classes = os.listdir(image_folder)
 
@@ -104,7 +107,7 @@ def retrieve_valid_test_images(model, image_folder, samples, targeted = None, ex
             # tuple of (image filename, label of image)
             imgs.append((file_path, sign))
     random.shuffle(imgs)
-    return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt)
+    return get_correctly_classified_imgs(model, imgs, samples, nndt=nndt, gpu_id = gpu_id)
 
 
 def retrieve_attack_pairs(n, rand = False, across_classifiers = None):

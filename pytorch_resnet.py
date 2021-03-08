@@ -214,11 +214,17 @@ def generate_testing_dataloaders(test_path = None):
     return dataloaders_dict
 
 
-def get_model_prediction_probs(model, input):
+def get_model_prediction_probs(model, input, gpu_id = None):
     # feeds an image to a neural network and returns the predictions vector
+    # gpu_id: integer of the gpu to use (if available)
     if torch.cuda.is_available():
-        input = input.to('cuda')
-        model.to('cuda')
+        if gpu_id is not None:
+            torch.cuda.set_device(gpu_id)
+            model.cuda(gpu_id)
+            input = input.to(gpu_id)
+        else:
+            input = input.to('cuda')
+            model.to('cuda')
 
     with torch.no_grad():
         output = model(input)
@@ -415,14 +421,15 @@ def test_model_using_dataloader(model, path = None, verbose = False):
     print('Total number of images tested: {}'.format(str(total)))
 
 
-def test_one_image(model, image, path = False):
+def test_one_image(model, image, path = False, gpu_id = None):
     # gets the neural network prediction vector for a single image
+    # gpu_id: integer of the gpu to use (if available)
     model.eval()
     if(isinstance(image, np.ndarray)):
         image = Image.fromarray(image)
     image = preprocess_image(image, path = path)
     image = create_batch(image.clone().detach())
-    preds = get_model_prediction_probs(model, image)
+    preds = get_model_prediction_probs(model, image, gpu_id = gpu_id)
     return preds
 
 

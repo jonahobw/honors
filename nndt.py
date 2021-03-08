@@ -105,7 +105,7 @@ class nndt_depth3_unweighted(tree):
         circle_classifier.pred_value_names = [signsarray[x] for x in circle_signs()]
         circle_classifier.pred_value_names.append(circle_none)
 
-    def prediction_vector(self, image, dict = True, path = True):
+    def prediction_vector(self, image, dict = True, path = True, gpu_id = None):
         # path (bool) indicates whether <image> is a path to an image or a tensor representing an image
         # image (tensor or string) image in tensor form or full path to an image
         # dict indicates whether or not to return a dictionary or array
@@ -113,7 +113,7 @@ class nndt_depth3_unweighted(tree):
         if (isinstance(image, np.ndarray)):
             image = Image.fromarray(image)
         image = preprocess_image(image, path = path)
-        pred = self.root.predict(1, image)
+        pred = self.root.predict(1, image, gpu_id = gpu_id)
 
         # normalize the vector and format as 2 digits
         total_prob = 0
@@ -335,7 +335,7 @@ class nndt_depth4_unweighted(tree):
         triangle_road_true_classifier.pred_value_names = [signsarray[x] for x in triangular_road_true_signs()]
         triangle_road_true_classifier.pred_value_names.append(triangle_road_true_none)
 
-    def prediction_vector(self, image, dict = True, path = True):
+    def prediction_vector(self, image, dict = True, path = True, gpu_id = None):
         # path (bool) indicates whether <image> is a path to an image or a tensor representing an image
         # image (tensor or string) image in tensor form or full path to an image
         # dict indicates whether or not to return a dictionary or array
@@ -343,7 +343,7 @@ class nndt_depth4_unweighted(tree):
         if (isinstance(image, np.ndarray)):
             image = Image.fromarray(image)
         image = preprocess_image(image, path = path)
-        pred = self.root.predict(1, image)
+        pred = self.root.predict(1, image, gpu_id = gpu_id)
 
         # normalize the vector and format as 2 digits
         total_prob = 0
