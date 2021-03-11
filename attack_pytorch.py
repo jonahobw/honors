@@ -138,7 +138,9 @@ def setup_variables_cmdline(args):
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
         TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, MODEL_NAME, TARGETED, ATTACK_PAIRS, SAMPLES, \
-        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME
+        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID
+
+    GPU_ID = args.gpu_id
 
     use_nndt = args.model.find('nndt')>=0 #boolean if model is nndt or not
     if use_nndt:
