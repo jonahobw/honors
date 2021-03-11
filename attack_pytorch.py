@@ -6,6 +6,7 @@ import time
 from general import str_date
 import logging
 from attack_helper import *
+from attack_parser import *
 
 # the GPU ID to use.  Purpose is for when you want to run multiple attacks simultaneously on different GPUs
 GPU_ID = 0
@@ -130,6 +131,143 @@ def setup_variables():
         logging.getLogger("attack_log").addHandler(logging.StreamHandler())
     else:
         logging.basicConfig(format='%(message)s')
+
+    logger.info("Model Name: {}".format(MODEL_NAME))
+
+def setup_variables_cmdline(args):
+    globals()
+    global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
+        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, MODEL_NAME, TARGETED, ATTACK_PAIRS, SAMPLES, \
+        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME
+
+    use_nndt = args.model.find('nndt')>=0 #boolean if model is nndt or not
+    if use_nndt:
+        if args.model.find('3')>=0:
+            NNDT = nndt_depth3_unweighted()
+            MODEL_NAME = "nndt3"
+        elif args.model.find('4')>=0:
+            NNDT = nndt_depth4_unweighted()
+            MODEL_NAME = "nndt4"
+        else:
+            print("Invalid nndt name")
+            exit(-1)
+    else: #model is not an nndt
+        if args.model.find('resnet')>=0:
+            args.model = "pytorch_resnet_saved_11_9_20"
+        MODEL_PATH = os.path.join(os.getcwd(), "Models", args.model)
+        MODEL_NAME = args.model
+        NNDT = None
+
+    verbose = args.verbose
+    if verbose:
+        LOG_LEVEL = logging.DEBUG
+    else:
+        LOG_LEVEL = logging.INFO
+
+    logger = logging.getLogger("attack_log")
+    logger.setLevel(LOG_LEVEL)
+
+    tar = ""
+    if args.targeted and not args.untargeted:
+        TARGETED = True
+        tar = "targeted"
+        if args.attack_pairs>0:
+            ATTACK_PAIRS = args.attack_pairs
+        else:
+            print("Attack pairs must be greater than 0")
+            exit(-1)
+        if args.n>0:
+            N = args.n
+        else:
+            print("Samples per attack pair (N) must be greater than 0")
+            exit(-1)
+        if args.tar_imgs is not None:
+            TAR_IMGS = parse_img_files(args.tar_imgs, True)
+            ATTACK_PAIRS = len(list(TAR_IMGS.keys()))
+            N = len(list(TAR_IMGS.values())[0])
+    elif not args.targeted and args.untargeted:
+        TARGETED = False
+        tar = "untargeted"
+        if args.samples>0:
+            SAMPLES = args.samples
+        else:
+            print("Samples must be greater than 0")
+            exit(-1)
+        if args.untar_imgs is not None:
+            UNTAR_IMGS = parse_img_files(args.untar_imgs, False)
+            SAMPLES = len(UNTAR_IMGS)
+    else:
+        print("Exactly one of -targeted or -untargeted must be specified")
+        exit(-1)
+
+    if args.across_classifiers is not None:
+        across = "acr"
+        if args.across_classifiers.find('3')>=0:
+            ACROSS_CLASSIFIERS = nndt_depth3_unweighted.leaf_classifier_groups()
+            ACR_NAME = "nndt3"
+        elif args.across_classifiers.find('4')>=0:
+            ACROSS_CLASSIFIERS = nndt_depth4_unweighted.leaf_classifier_groups()
+            ACR_NAME = "nndt4"
+        else:
+            print("Invalid across_classifiers name")
+            exit(-1)
+    else:
+        ACROSS_CLASSIFIERS = None
+        ACR_NAME = "none"
+        across = ""
+
+    if args.transfer:
+        TRANSFER = True
+        ATTACK_FOLDER = os.path.join(os.getcwd(), "Outputs", "attacks", tar, args.attack_folder)
+    else:
+        TRANSFER = False
+        ATTACK_FOLDER = None
+        PIXELS = [int(x) for x in args.pixels]
+
+    POP_SIZE = args.pop_size
+    MAX_ITER = args.max_iter
+
+    if args.save:
+        SAVE = True
+        if TRANSFER:
+            transferability_dir = os.path.join(ATTACK_FOLDER, "transferability")
+            # make transferability folder if it does not exist
+            if "transferability" not in os.listdir(ATTACK_FOLDER):
+                os.mkdir(transferability_dir)
+            TRANSFER_FOLDER = os.path.join(transferability_dir, MODEL_NAME + "_transferability")
+            os.mkdir(TRANSFER_FOLDER)
+            for pix_count in os.listdir(os.path.join(ATTACK_FOLDER, "raw_imgs")):
+                os.mkdir(os.path.join(TRANSFER_FOLDER, pix_count))
+            logfile = os.path.join(TRANSFER_FOLDER, "transfer.log")
+            logging.basicConfig(filename=logfile, format='%(message)s')
+            logging.getLogger("attack_log").addHandler(logging.StreamHandler())
+            return
+
+        root_folder_prefix = os.path.join(os.getcwd(), "Outputs", "attacks", tar)
+        IMG_FOLDER = ""
+        PLT_FOLDER = ""
+        save_date = str_date()
+        num_images = ATTACK_PAIRS * N if TARGETED else SAMPLES
+        ROOT_SAVE_FOLDER = os.path.join(root_folder_prefix,
+                                        "{}_{}_{}_imgs_{}".format(save_date, MODEL_NAME, str(num_images), across))
+        while(os.path.exists(ROOT_SAVE_FOLDER)):
+            ROOT_SAVE_FOLDER += "_"
+        os.mkdir(ROOT_SAVE_FOLDER)
+        IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "imgs")
+        RAW_IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "raw_imgs")
+        os.mkdir(IMG_FOLDER)
+        os.mkdir(RAW_IMG_FOLDER)
+        for pix_count in PIXELS:
+            os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
+            os.mkdir(os.path.join(RAW_IMG_FOLDER, str(pix_count) + "_pixels"))
+        PLT_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "plots")
+        os.mkdir(PLT_FOLDER)
+        logfile = os.path.join(ROOT_SAVE_FOLDER, "attack.log")
+        logging.basicConfig(filename=logfile, format='%(message)s')
+        logging.getLogger("attack_log").addHandler(logging.StreamHandler())
+    else:
+        logging.basicConfig(format='%(message)s')
+        SAVE = False
 
     logger.info("Model Name: {}".format(MODEL_NAME))
 
@@ -322,7 +460,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), across_classifiers = None,
                maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False, untar_imgs = None,
-                          gpu_id = None):
+                          gpu_id = None, acr_name = None):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
@@ -335,7 +473,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     logger.info("NNDT:               {}".format(nndt))
 
     if across_classifiers is not None:
-        logger.info("Across classifiers: True\n\n")
+        logger.info("Across classifiers: {}\n\n".format(acr_name))
     else:
         logger.info("\n\n")
 
@@ -346,6 +484,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     #overwrite img samples if imgs have been specified in UNTAR_IMGS global variable
     else:
         img_samples = untar_imgs
+
+    save_img_files(img_samples, False)
 
     logger.info("IMGS:          {}".format(str(img_samples)))
 
@@ -385,12 +525,13 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
 def attack_all_targeted(model, random = False, image_folder = None, samples_per_pair=500, pixels=(1, 3, 5), maxiter=75,
                         popsize=400, verbose=False, show_image = False, nndt = False, num_attack_pairs = 10,
-                        across_classifiers = None, tar_imgs = None, gpu_id = None):
+                        across_classifiers = None, tar_imgs = None, gpu_id = None, acr_name = None):
     # if random = false, attacks the <samples> highest attack pairs by danger weight, else,
     #   chooses attack pairs randomly
     # num_attack_pairs (int) is a global variable that determines how many pairs to attack
     # across_classifiers can only be true if nndt is true, and it filters the sampled attack pairs so that they span
     #   multiple classifiers on the nndt
+    # if across_classifiers is not none, acr_name is the name of the nndt for which the across_classifiers represents
     # samples_per_pair (int) determines how many images to attack for each attack pair
     # so the total number of samples is samples_per_pair * num_attack_pairs
     # tar_imgs: optional variable from the global variable TAR_IMGS to specify the attack pairs and imgs before attack
@@ -419,7 +560,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     logger.info("Attack pairs:          {}".format(str(attack_pairs)))
 
     if across_classifiers is not None:
-        logger.info("Across classifiers:    True\n\n")
+        logger.info("Across classifiers:    {}\n\n".format(acr_name))
     else:
         logger.info("\n\n")
 
@@ -488,6 +629,9 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
         logger.info("Results vector:")
         logger.info(results)
         all_results[attack_pairs[k]] = results
+
+    save_img_files(all_images, True)
+
 
     time_elapsed = time.time() - since
     logger.info("\n\nAll results: ")
@@ -590,13 +734,13 @@ def run_plot_attack(targeted = True):
                                                       maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
                                                       show_image=SHOW_IMAGE, nndt=nndt, num_attack_pairs=ATTACK_PAIRS,
                                                       across_classifiers=ACROSS_CLASSIFIERS, tar_imgs=TAR_IMGS,
-                                                      gpu_id = GPU_ID)
+                                                      gpu_id = GPU_ID, acr_name = ACR_NAME)
         plot_targeted(res, pix, mxi, pop)
     else:
         r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
                                                 popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE, nndt=nndt,
                                                 across_classifiers=ACROSS_CLASSIFIERS, untar_imgs=UNTAR_IMGS,
-                                                gpu_id = GPU_ID)
+                                                gpu_id = GPU_ID, acr_name = ACR_NAME)
         plot_untargeted(r, pix, s, m, p)
 
 
@@ -757,6 +901,79 @@ def test_plot():
 
     im.save(os.path.join(os.getcwd(), "DELETE_ME_2.png"))
 
+def save_img_files(imgs, targeted):
+    global ROOT_SAVE_FOLDER, SAVE
+    if not SAVE:
+        return
+    # saves the list of images as "img_files.txt for the attack, so that future attacks can use these same images
+    # for targeted = False (untargeted): imgs is an array of tuples (img path, img class) and img_files.txt is stored
+    # with imgpath,imgclass on each line
+
+    # for targeted = True (targeted): imgs is a dict of length <attack pairs> where keys are the attack pair
+    # and values are arrays of images tested for this attack pair) and img_files.text is stored as
+    # startclass,endclass:array_item0,array_item1,array_item2... on each line
+
+    path = os.path.join(ROOT_SAVE_FOLDER, "img_files.txt")
+    f = open(path, 'w+')
+
+    if not targeted:
+        for i in range(len(imgs)):
+            img_path, img_class = imgs[i]
+            f.write("{},{}".format(img_path,img_class))
+            if i != (len(imgs) - 1):
+                f.write('\n')
+        f.close()
+        return
+    else:
+        attack_pairs = list(imgs.keys())
+        for i in range(len(attack_pairs)):
+            start_class, end_class = attack_pairs[i]
+            f.write("{},{}::".format(start_class, end_class))
+            attack_pair_imgs = imgs[attack_pairs[i]]
+            for j in range(len(attack_pair_imgs)):
+                f.write("{}".format(attack_pair_imgs[j]))
+                if j != (len(attack_pair_imgs) - 1):
+                    f.write(",")
+            if i!= (len(attack_pairs) - 1):
+               f.write('\n')
+
+        f.close()
+        return
+
+
+def parse_img_files(filepath, targeted):
+    # parses an img_files.txt file from an attack and retrieves attack imgs
+    # for targeted = False (untargeted): returns imgs as an array of tuples (img path, img class) and
+    # img_files.txt is stored with imgpath,imgclass on each line
+
+    # for targeted = True (targeted): returns imgs as a dict of length <attack pairs> where keys are the attack pair
+    # and values are arrays of images tested for this attack pair) and img_files.text is stored as
+    # startclass,endclass:array_item0,array_item1,array_item2... on each line
+
+    if not os.path.exists(filepath):
+        print("invalid img_files.txt path, does not exits")
+        return(-1)
+
+    f = open(filepath, 'r+')
+    lines = [line.rstrip() for line in f]
+
+    if not targeted: #untargeted attack
+        imgs = [] # array of tuples (img path, img class)
+        for line in lines:
+            spl = line.split(",")
+            path = spl[0]
+            img_class = int(spl[1])
+            imgs.append((path, img_class))
+    else: # targeted attack
+        imgs = {}
+        for line in lines:
+            colon = line.split("::")
+            atk_pair = colon[0].split(",")
+            attack_pair = (int(atk_pair[0]), int(atk_pair[1]))
+            atk_imgs = colon[1].split(",")
+            imgs[attack_pair] = atk_imgs
+    f.close()
+    return imgs
 
 def run():
     globals()
@@ -769,8 +986,22 @@ def run():
 
     logger.info('That took {} seconds'.format(time.time() - starttime))
 
+def run_cmdline():
+    parser_obj = getParser()
+    args = parser_obj.parse_args()
+    print(args)
+    setup_variables_cmdline(args)
+    if not TRANSFER:
+        run_plot_attack(TARGETED)
+    else:
+        run_transfer()
 
 
 if __name__ == '__main__':
-    run()
+    run_cmdline()
+    #run()
     #test_plot()
+    # path = os.path.join(os.getcwd(), "Outputs", "attacks", "targeted",
+    #                     "2021-03-11_pytorch_resnet_saved_11_9_20_4_imgs_", "img_files.txt")
+    # a = parse_img_files(path, True)
+    # print(a)

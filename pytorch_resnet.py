@@ -6,6 +6,7 @@ import torch.nn as nn
 from PIL import Image
 from torchvision import datasets, transforms
 from torchsummary import summary
+from torch.backends import cudnn
 import torch.optim as optim
 import random
 import matplotlib.pyplot as plt
@@ -25,6 +26,7 @@ EPOCHS = 10
 def set_cuda(gpu_id = None):
     if torch.cuda.is_available() and gpu_id is not None:
         torch.cuda.set_device(gpu_id)
+        cudnn.benchmark = True
 
 # most of this code is adapted from the PyTorch documentation on resnet
 # found here: https://pytorch.org/hub/pytorch_vision_resnet/
@@ -316,6 +318,7 @@ def train_model(model, dataloaders, folder, num_epochs=EPOCHS, lr = 0.001, save 
                 # statistics
                 running_loss += loss.item() * inputs.size(0)
                 running_corrects += torch.sum(preds == labels.data)
+                #running_corrects += preds.eq(labels.view_as(preds)).sum().item()
 
             epoch_loss = running_loss / len(dataloaders[phase].dataset)
             epoch_acc = running_corrects.double() / len(dataloaders[phase].dataset)
