@@ -48,7 +48,7 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
             return True, x
         grad = targeted_num_grad(f, x, delta = delta)
         zeroes = np.zeros(len(grad))
-        if grad.all() == zeroes.all():
+        if np.array_equal(grad, zeroes):
             delta *= 1.5
             logger.debug("\nzero gradient, incrementing delta to {}".format(delta))
         # grad = ndGradient(f)(x)

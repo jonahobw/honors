@@ -491,6 +491,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
         logger.info("Population size:    {}".format(str(popsize)))
     else:
         logger.info("Delta               {}".format(delta))
+        pixels = [0]
 
     if across_classifiers is not None:
         logger.info("Across classifiers: {}\n\n".format(acr_name))
@@ -516,7 +517,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     total_success = 0
 
     for i, pixel_count in enumerate(pixels):
-        logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
+        if not tiago:
+            logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
         items_to_remove = []
         for j, (img, label) in enumerate(img_samples):
             logger.debug("Image {}".format(str(j+1)))
@@ -541,8 +543,11 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
             img_samples.remove(item)
         success_percent = 100*total_success/samples
         results[i] = success_percent
-        logger.info("Attack success for {}-pixel attack on {} "
+        if not tiago:
+            logger.info("Attack success for {}-pixel attack on {} "
               "samples is {:4f}%".format(str(pixel_count), str(samples), success_percent))
+        else:
+            logger.info("Attack success on {} samples is {:4f}%".format(str(samples), success_percent))
         logger.info("{} images were successfully perturbed to trick the model".format(str(total_success)))
 
     logger.info("Results vector:")
