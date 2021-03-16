@@ -18,7 +18,7 @@ TRANSFER = False
 #whether or not to use an N-pixel attack or Tiago's attack
 TIAGO = True
 #if TIAGO is true, can specify the delta
-DELTA = 1
+DELTA = 200
 
 # Model parameters
 #-----------------------------------------------
@@ -45,13 +45,13 @@ MAX_ITER = 1#30
 # Number of pixels to attack (array of ints)
 PIXELS = [1]#[1, 3, 5]
 # Save into a folder (bool)
-SAVE = True
+SAVE = False
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = False
 # Targeted attack (bool)
-TARGETED = True
+TARGETED = False
 
 
 # Untargeted attack parameters
@@ -1084,8 +1084,8 @@ def run_cmdline():
 
 
 if __name__ == '__main__':
-    run_cmdline()
-    #run()
+    #run_cmdline()
+    run()
     #test_plot()
     # path = os.path.join(os.getcwd(), "Outputs", "attacks", "targeted",
     #                     "2021-03-11_pytorch_resnet_saved_11_9_20_4_imgs_", "img_files.txt")

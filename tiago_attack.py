@@ -15,9 +15,9 @@ def targeted_num_grad(f, x, delta = 1):
     a = np.copy(x)
     #for i in range(len(x)):
     for i in range(2):
-        target_pred_a, _, _, _ = f(a)
         target_pred_x, _, _, _ = f(x)
         a[i] = x[i] + delta
+        target_pred_a, _, _, _ = f(a)
         grad[i] = (target_pred_a - target_pred_x) / delta
         a[i] -= delta
         if(i%2000 == 0):
@@ -26,7 +26,7 @@ def targeted_num_grad(f, x, delta = 1):
     return grad
 
 
-def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 10, max_iter = 100):
+def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 3, max_iter = 100):
     target_conf, true_conf, pred_conf, pred_class = f(x)
 
     logger.debug('\nInitial confidences:\nModel Confidence in true class   {}:     {:4f}%'.format(str(true_class),
@@ -49,7 +49,7 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         grad = targeted_num_grad(f, x, delta = delta)
         zeroes = np.zeros(len(grad))
         if grad.all() == zeroes.all():
-            delta += 1
+            delta *= 1.5
             logger.debug("\nzero gradient, incrementing delta to {}".format(delta))
         # grad = ndGradient(f)(x)
         #print("Grad: {}".format(grad))
