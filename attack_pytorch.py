@@ -7,6 +7,7 @@ from general import str_date
 import logging
 from attack_helper import *
 from attack_parser import *
+import tiago_attack
 
 # the GPU ID to use.  Purpose is for when you want to run multiple attacks simultaneously on different GPUs
 GPU_ID = 0
@@ -14,21 +15,27 @@ GPU_ID = 0
 # Whether or not to do a new attack (False) or test the transferability of a completed attack.  If this is a
 # transferability test, the model parameters below define the transfer model
 TRANSFER = False
+#whether or not to use an N-pixel attack or Tiago's attack
+TIAGO = True
+#if TIAGO is true, can specify the delta
+DELTA = 1
 
 # Model parameters
 #-----------------------------------------------
 # neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
 # ./Models folder in string format.  If this is an nndt, this should be the name of the nndt class in string format
-MODEL_NAME = "nndt_depth3_unweighted()" #"pytorch_resnet_saved_11_9_20" #
+MODEL_NAME = "pytorch_resnet_saved_11_9_20" #"nndt_depth3_unweighted()"
 # this should be none if the model is a regular resnet.  If the model is an nndt, then this should be an instance of
 # the nndt class
-NNDT = nndt_depth3_unweighted()
+NNDT = None #nndt_depth3_unweighted()
 # If none, no change.  If not none, should be a 2d array where the first dimension are the leaf classifiers of the nndt
 # and the second dimension are the classes classified by the leaf classifiers.  This 2d array is obtained by calling the
 # static method leaf_classifier_groups() of the NNDT object.  For an untargeted attack: the attack
 # will only be called successful if the original class and misclassified class span multiple leaf classifiers.  For a
 # targeted attack: attack pairs will be sampled from the set of pairs that span multiple leaf classifiers
 ACROSS_CLASSIFIERS = None #nndt_depth4_unweighted.leaf_classifier_groups()
+# this string represents a name of a model for across_classifiers and its only use is to be printed to a log file
+ACR_NAME = None
 
 # Attack parameters
 #-----------------------------------------------
@@ -44,7 +51,7 @@ LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = False
 # Targeted attack (bool)
-TARGETED = False
+TARGETED = True
 
 
 # Untargeted attack parameters
@@ -83,7 +90,7 @@ ATTACK_FOLDER = "2021-02-24_nndt_depth4_unweighted()_100_samples"
 def setup_variables():
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
-        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS
+        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, TIAGO
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
@@ -121,9 +128,10 @@ def setup_variables():
         RAW_IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "raw_imgs")
         os.mkdir(IMG_FOLDER)
         os.mkdir(RAW_IMG_FOLDER)
-        for pix_count in PIXELS:
-            os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
-            os.mkdir(os.path.join(RAW_IMG_FOLDER, str(pix_count) + "_pixels"))
+        if not TIAGO:
+            for pix_count in PIXELS:
+                os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
+                os.mkdir(os.path.join(RAW_IMG_FOLDER, str(pix_count) + "_pixels"))
         PLT_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "plots")
         os.mkdir(PLT_FOLDER)
         logfile = os.path.join(ROOT_SAVE_FOLDER, "attack.log")
@@ -138,9 +146,13 @@ def setup_variables_cmdline(args):
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
         TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, MODEL_NAME, TARGETED, ATTACK_PAIRS, SAMPLES, \
-        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID
+        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID, TIAGO, DELTA
 
     GPU_ID = args.gpu_id
+
+    TIAGO = args.tiago
+    if TIAGO:
+        DELTA = args.delta
 
     use_nndt = args.model.find('nndt')>=0 #boolean if model is nndt or not
     if use_nndt:
@@ -259,9 +271,10 @@ def setup_variables_cmdline(args):
         RAW_IMG_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "raw_imgs")
         os.mkdir(IMG_FOLDER)
         os.mkdir(RAW_IMG_FOLDER)
-        for pix_count in PIXELS:
-            os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
-            os.mkdir(os.path.join(RAW_IMG_FOLDER, str(pix_count) + "_pixels"))
+        if not TIAGO:
+            for pix_count in PIXELS:
+                os.mkdir(os.path.join(IMG_FOLDER, str(pix_count) + "_pixels"))
+                os.mkdir(os.path.join(RAW_IMG_FOLDER, str(pix_count) + "_pixels"))
         PLT_FOLDER = os.path.join(ROOT_SAVE_FOLDER, "plots")
         os.mkdir(PLT_FOLDER)
         logfile = os.path.join(ROOT_SAVE_FOLDER, "attack.log")
@@ -462,17 +475,22 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), across_classifiers = None,
                maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False, untar_imgs = None,
-                          gpu_id = None, acr_name = None):
+                          gpu_id = None, acr_name = None, tiago = False, delta = 1, save = False):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
     logger.info("-----Attacking Parameters:-----")
     logger.info("Test folder:        {}".format(image_folder))
     logger.info("Samples:            {}".format(str(samples)))
-    logger.info("Pixels:             {}".format(pixels))
-    logger.info("Max iterations:     {}".format(str(maxiter)))
-    logger.info("Population size:    {}".format(str(popsize)))
     logger.info("NNDT:               {}".format(nndt))
+    logger.info("Attack:             {}".format("N-pixel" if not tiago else "Tiago"))
+    logger.info("Max iterations:     {}".format(str(maxiter)))
+
+    if not tiago:
+        logger.info("Pixels:             {}".format(pixels))
+        logger.info("Population size:    {}".format(str(popsize)))
+    else:
+        logger.info("Delta               {}".format(delta))
 
     if across_classifiers is not None:
         logger.info("Across classifiers: {}\n\n".format(acr_name))
@@ -504,9 +522,18 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
             logger.debug("Image {}".format(str(j+1)))
             if((j+1)%10 == 0 and (j+1) != 0):
                 logger.info("{} samples tested so far".format(str(j)))
-            success = attack(img, int(label), model, pixel_count=pixel_count, across_classifiers=across_classifiers,
+            if not tiago:
+                success = attack(img, int(label), model, pixel_count=pixel_count, across_classifiers=across_classifiers,
                              maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image, nndt = nndt,
                              gpu_id=gpu_id)
+            else:
+                success, attack_img, annotation = tiago_attack.attack_one(model=model, img_path=img,
+                                                                          trueclass=int(label),
+                                                                          targetclass=int(label), targeted=False,
+                                                                          delta=delta,
+                                                                          max_iter=maxiter, nndt=nndt, gpu_id=gpu_id)
+                if save and success:
+                    save_tiago_im(attack_img, annotation, int(label), img)
             if success:
                 total_success +=1
                 items_to_remove.append(img_samples[j])
@@ -527,7 +554,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 
 def attack_all_targeted(model, random = False, image_folder = None, samples_per_pair=500, pixels=(1, 3, 5), maxiter=75,
                         popsize=400, verbose=False, show_image = False, nndt = False, num_attack_pairs = 10,
-                        across_classifiers = None, tar_imgs = None, gpu_id = None, acr_name = None):
+                        across_classifiers = None, tar_imgs = None, gpu_id = None, acr_name = None, tiago = False,
+                        delta = 1, save = False):
     # if random = false, attacks the <samples> highest attack pairs by danger weight, else,
     #   chooses attack pairs randomly
     # num_attack_pairs (int) is a global variable that determines how many pairs to attack
@@ -538,6 +566,8 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     # so the total number of samples is samples_per_pair * num_attack_pairs
     # tar_imgs: optional variable from the global variable TAR_IMGS to specify the attack pairs and imgs before attack
     # gpu_id: integer of the gpu to use (if available)
+    # tiago (bool) represents if you should use tiago's attack
+    # delta (int) parameter for tiago's attack that is the step size in the direction of the gradient at each iteration
 
 
 
@@ -553,9 +583,16 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
 
     logger.info("-----Attacking Parameters:-----")
     logger.info("Test folder:           {}".format(image_folder))
-    logger.info("Pixels:                {}".format(pixels))
+    logger.info("NNDT:                  {}".format(nndt))
+    logger.info("Attack:                {}".format("N-pixel" if not tiago else "Tiago"))
+    if not tiago:
+        logger.info("Pixels:                {}".format(pixels))
+        logger.info("Population size:       {}".format(str(popsize)))
+    else:
+        logger.info("Delta                  {}".format(delta))
+        pixels = [0]
+
     logger.info("Max iterations:        {}".format(str(maxiter)))
-    logger.info("Population size:       {}".format(str(popsize)))
     logger.info("# of attack pairs:     {}".format(str(num_attack_pairs)))
     logger.info("Random attack pairs:   {}".format(str(random)))
     logger.info("Samples per pair:      {}".format(str(samples_per_pair)))
@@ -583,6 +620,9 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     # attack
     all_results = {}
 
+    #count of how many of all imgs are successful
+    total_success = 0
+
     # loop over set of attack pairs
     for k, (true_class, target_class) in enumerate(attack_pairs):
 
@@ -605,26 +645,40 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
         # a targeted attack from <true_class> to <target_class> with that pixel count
         results = [0] * len(pixels)
 
-        total_success = 0
+        attack_pair_success = 0
 
         for i, pixel_count in enumerate(pixels):
-            logger.info("\n\nAttacking with {} pixels\n".format(pixel_count))
+            if not tiago:
+                logger.info("\n\nAttacking with {} pixels".format(pixel_count))
             items_to_remove = []
             for j, (img, label) in enumerate(img_samples):
-                logger.debug("Image {}".format(str(j + 1)))
-                success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
+                logger.debug("\nImage {}".format(str(j + 1)))
+                if not tiago:
+                    success = attack(img, int(label), model, pixel_count=pixel_count, target=target_class,
                                  maxiter = maxiter, popsize= popsize, verbose=verbose, show_image = show_image,
                                  nndt = nndt, gpu_id = gpu_id)
+                else:
+                    success, attack_img, annotation = tiago_attack.attack_one(model=model, img_path=img, trueclass=true_class,
+                                                                  targetclass=target_class, targeted=True, delta=delta,
+                                                                  max_iter=maxiter, nndt = nndt, gpu_id=gpu_id)
+                    if save and success:
+                        save_tiago_im(attack_img, annotation, true_class, img, target=target_class)
                 if success:
                     total_success +=1
+                    attack_pair_success+=1
                     items_to_remove.append(img_samples[j])
             for item in items_to_remove:
                 img_samples.remove(item)
-            success_percent = 100*total_success/samples_per_pair
+            success_percent = 100*attack_pair_success/samples_per_pair
             results[i] = success_percent
             logger.info("From true class {} to target class {}:".format(str(true_class), str(target_class)))
-            logger.info("Attack success for {}-pixel attack on {} "
-                  "samples is {:4f}%".format(str(pixel_count), str(samples_per_pair), success_percent))
+            if not tiago:
+                logger.info("Attack success for attack pair ({},{}) for {}-pixel attack on {} "
+                  "samples is {:4f}%".format(true_class, target_class, str(pixel_count), str(samples_per_pair),
+                                             success_percent))
+            else:
+                logger.info("Attack success for attack pair ({},{}) on {} "
+                            "samples is {:4f}%".format(true_class, target_class, str(samples_per_pair),success_percent))
             logger.info("{} images were successfully perturbed to trick the model".format(str(total_success)))
 
         logger.info("From true class {} to target class {}:".format(str(true_class), str(target_class)))
@@ -639,6 +693,11 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     logger.info("\n\nAll results: ")
     logger.info(all_results)
     logger.info("\n\nIMGs:      {}".format(all_images))
+
+    total_imgs = len(attack_pairs) * samples_per_pair
+    logger.info("\n\nIn total:\n{}/{} images successful, {:4f}%".format(total_success, total_imgs,
+                                                                    100*total_success/total_imgs))
+
     logger.info('\nAttack complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
     return all_results, pixels, samples_per_pair, maxiter, popsize
 
@@ -736,13 +795,15 @@ def run_plot_attack(targeted = True):
                                                       maxiter=MAX_ITER, popsize=POP_SIZE, verbose=verbose,
                                                       show_image=SHOW_IMAGE, nndt=nndt, num_attack_pairs=ATTACK_PAIRS,
                                                       across_classifiers=ACROSS_CLASSIFIERS, tar_imgs=TAR_IMGS,
-                                                      gpu_id = GPU_ID, acr_name = ACR_NAME)
+                                                      gpu_id = GPU_ID, acr_name = ACR_NAME, tiago = TIAGO,
+                                                      delta = DELTA, save=SAVE)
         plot_targeted(res, pix, mxi, pop)
     else:
         r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
                                                 popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE, nndt=nndt,
                                                 across_classifiers=ACROSS_CLASSIFIERS, untar_imgs=UNTAR_IMGS,
-                                                gpu_id = GPU_ID, acr_name = ACR_NAME)
+                                                gpu_id = GPU_ID, acr_name = ACR_NAME, tiago=TIAGO, delta=DELTA,
+                                                save=SAVE)
         plot_untargeted(r, pix, s, m, p)
 
 
@@ -892,6 +953,29 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     im = Image.fromarray(img)
     im.save(fname)
 
+
+def save_tiago_im(img, title = "", true_class = None, filename =None, target = None):
+    # saves an image
+
+    # target        (int):  if None, this is an untargeted attack, otherwise, this is the class we want to
+    #                           try to get the network to predict
+
+    global IMG_FOLDER, RAW_IMG_FOLDER
+    plt.imshow(img)
+    plt.title(title)
+    plt.tight_layout()
+    filename = os.path.split(filename)[1].split(".")[0]
+    fname = 'img_{}_class_{}'.format(filename, str(true_class))
+    fname = os.path.join(IMG_FOLDER, fname)
+    plt.savefig(fname)
+
+    # also save raw image
+    tar = target if target is not None else true_class
+    fname = "trueclass_" + str(true_class) + "_target_" + str(tar) + "_" + str(filename)+".png"
+    fname = os.path.join(RAW_IMG_FOLDER, fname)
+    img.save(fname)
+
+
 def test_plot():
     im_path = os.path.join(os.getcwd(), "Train", "00", "00000_00000_00000.png")
     im = Image.open(im_path)
@@ -950,7 +1034,7 @@ def parse_img_files(filepath, targeted):
 
     # for targeted = True (targeted): returns imgs as a dict of length <attack pairs> where keys are the attack pair
     # and values are arrays of images tested for this attack pair) and img_files.text is stored as
-    # startclass,endclass:array_item0,array_item1,array_item2... on each line
+    # startclass,endclass::array_item0,array_item1,array_item2... on each line
 
     if not os.path.exists(filepath):
         print("invalid img_files.txt path, does not exits")

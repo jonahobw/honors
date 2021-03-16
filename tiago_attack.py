@@ -5,48 +5,80 @@ import torch
 import os
 import torch.nn.functional as F
 import time
+import logging
+
+logger = logging.getLogger("attack_log")
 
 
-def num_grad(f, x, delta = 1):
+def targeted_num_grad(f, x, delta = 1):
     grad = np.zeros(len(x))
     a = np.copy(x)
-    print(len(x))
-    for i in range(len(x)):
+    #for i in range(len(x)):
+    for i in range(2):
+        target_pred_a, _, _, _ = f(a)
+        target_pred_x, _, _, _ = f(x)
         a[i] = x[i] + delta
-        grad[i] = (f(a) - f(x)) / delta
+        grad[i] = (target_pred_a - target_pred_x) / delta
         a[i] -= delta
-        if(i%200 == 0):
-            print(i)
+        if(i%2000 == 0):
+            logger.debug("  Calculating grad, {} pixels to go".format(str(len(x)-i)))
 
     return grad
 
 
-def num_ascent(f, x, delta = 1):
-    conf = f(x)
-    print("Conf is {}".format(conf))
-    count = 0
-    prev_conf = conf
-    while conf < 0.4:
-        grad = num_grad(f, x, delta = delta)
+def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 10, max_iter = 100):
+    target_conf, true_conf, pred_conf, pred_class = f(x)
 
+    logger.debug('\nInitial confidences:\nModel Confidence in true class   {}:     {:4f}%'.format(str(true_class),
+                                                                            true_conf * 100))
+    if targeted:
+        logger.debug('Model confidence in target class {}:     {:4f}%'.format(str(target_class),
+                                                                                 target_conf * 100))
+    else:
+        logger.debug('Model prediction was class    {} with {:4f}% confidence'.format(str(pred_class),
+                                                                                         pred_conf * 100))
+
+
+    count = 0
+    prev_conf = target_conf
+    for i in range(max_iter):
+        if targeted and (pred_class == target_class):
+            return True, x
+        if not targeted and (pred_class != true_class):
+            return True, x
+        grad = targeted_num_grad(f, x, delta = delta)
         zeroes = np.zeros(len(grad))
         if grad.all() == zeroes.all():
-            delta +=1
+            delta += 1
+            logger.debug("\nzero gradient, incrementing delta to {}".format(delta))
         # grad = ndGradient(f)(x)
-        print("Grad: {}".format(grad))
-        x += grad
-        conf = f(x)
-        print("Conf {}".format(conf))
-        if conf == prev_conf:
+        #print("Grad: {}".format(grad))
+        if targeted:
+            x += grad
+        else:
+            x -= grad
+
+        target_conf, true_conf, pred_conf, pred_class = f(x)
+
+        logger.debug('\nIteration {}:\nModel Confidence in true class   {}:     {:4f}%'.format(i+1, str(true_class),
+                                                                                true_conf * 100))
+        if targeted:
+            logger.debug('Model confidence in target class {}:     {:4f}%'.format(str(target_class),
+                                                                                    target_conf * 100))
+        else:
+            logger.debug('Model prediction was class    {} with {:4f}% confidence'.format(str(pred_class),
+                                                                                            pred_conf * 100))
+
+        if target_conf == prev_conf:
             count +=1
         else:
             count = 0
-        if count >10:
-            print("confidence not increased for 10 iterations")
+        if count > threshold:
+            logger.debug("confidence not increased for {} iterations, terminating".format(threshold))
             break
 
-        prev_conf = conf
-    return x
+        prev_conf = target_conf
+    return False, x
 
 
 def load_model(filename):
@@ -99,7 +131,7 @@ def get_model_prediction_probs(model, input):
 
     return sm_list
 
-def save_transform(h, w, x):
+def save_transform(h, w, x, filname = None):
     img = x.reshape((h,w, 3)).astype('uint8')
     img = Image.fromarray(img, mode='RGB')
     img.save('output.jpg')
@@ -107,16 +139,26 @@ def save_transform(h, w, x):
     return img
 
 
-def create_f(h, w, target):
+def create_f(model, h, w, target, true, nndt, gpu_id = 0):
     def f(x):
         #pixels = save_transform(h, w, x, save_img)
         #output = net(pixels.unsqueeze(dim=0))
         # output = F.softmax(output[0], dim=0)
         img = save_transform(h, w, x)
-        output = test_one_image(net, img)
-        pred = output[target]
+        if not nndt:
+            output = test_one_image(model, img)
+        else:
+            output = model.prediction_vector(img, dict=False, path=False, gpu_id=gpu_id)
+
+        # confidence in target class
+        target_pred = output[target]
+        # confidence in true class
+        true_pred = output[true]
+        # model's predicted class (integer)
+        pred_conf = max(output)
+        model_pred = output.index(pred_conf)
         #return output[target].item()
-        return pred
+        return target_pred, true_pred, pred_conf, model_pred
     #return lambda x: f(x, target)
     return f
 
@@ -132,6 +174,32 @@ def save_im(img, h, w):
     print(type(img))
     img = Image.fromarray(img)
     img.save('adversarial.jpg')
+
+def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, delta = 5, max_iter = 100, gpu_id = 0):
+    logger.info("---------------Testing image {}---------------".format(img_path))
+    img = Image.open(img_path)
+    h, w, imgarray = linearize_pixels(img)
+    f = create_f(model, h, w, targetclass, trueclass, nndt, gpu_id=gpu_id)
+    success, x = num_ascent(f, imgarray, trueclass, targetclass, targeted, delta=delta, max_iter=max_iter)
+
+    logger.info("Attack {}".format("successful" if success else "unsuccessful"))
+
+    target_conf, true_conf, pred_conf, model_pred = f(x)
+
+    annotation = 'Model Confidence in true class   {}:     {:4f}%'.format(str(trueclass),
+                                                                          true_conf * 100)
+    if targeted:
+        annotation += '\nModel confidence in target class {}:     {:4f}%'.format(str(targetclass),
+                                                                                 target_conf * 100)
+    else:
+        annotation += '\nModel prediction was class    {} with {:4f}% confidence'.format(str(model_pred),
+                                                                                         pred_conf * 100)
+    annotation += '\nAttack was {}\n'.format("successful" if success else "unsuccessful")
+
+    img = x.reshape((h,w, 3)).astype('uint8')
+    img = Image.fromarray(img, mode='RGB')
+    return success, img, annotation
+
 
 if __name__ == '__main__':
     print("starting")

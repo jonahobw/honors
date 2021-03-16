@@ -14,6 +14,13 @@ def getParser():
                              ' model in the ./Models folder in string format. If this is an nndt, this should be the'
                              ' name of the nndt class in string format')
 
+    parser.add_argument('-tiago', required=False, default=False, action='store_true',
+                        help='run Tiago\'s black box attack instead of n-pixel attack')
+
+    parser.add_argument('-delta', required=False, default=1, type=int,
+                        help='For Tiago\'s attack, the delta to move in the direction of the gradient at each '
+                             'iteration')
+
     parser.add_argument('-gpu_id', '-gpu', type=int, default=0, required=False,
                         help='The GPU ID to use. Purpose is for when you want to run multiple attacks simultaneously on'
                              ' different GPUs')
