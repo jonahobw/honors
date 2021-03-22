@@ -36,6 +36,40 @@ def spans_multiple_classifiers(array, class1, class2):
             return True
 
 
+def classifies_correctly(model, img, true_class, nndt, gpu_id):
+    if not nndt:
+        im = Image.open(img)
+        preds = test_one_image(model, im, gpu_id=gpu_id)
+    else:
+        preds = model.prediction_vector(img, dict=False, gpu_id=gpu_id)
+    class_pred = preds.index(max(preds))
+    if (int(class_pred) == int(true_class)):
+        return True
+    else:
+        return False
+
+
+def validate_img_samples(model, img_samples, gpu_id, img_folder, targeted = True, nndt = False):
+    # called to ensure that the tar_imgs or untar_imgs classify correctly on a new model, because
+    # you should not attack an image that classifies incorrectly.  If an image classifies incorrectly,
+    # it gets replaced with another image of the same true class that does classify correctly.
+    # img_samples is an array of tuples (img_path, img_class)
+    paths = [x[0] for x in img_samples]
+    for i, (img_path, img_class) in enumerate(img_samples):
+        if classifies_correctly(model=model, img = img_path, gpu_id=gpu_id, nndt=nndt, true_class=img_class):
+            continue
+        else:
+            replaced = False
+            while (not replaced):
+                new_im_path = retrieve_valid_test_images(model=model, image_folder=img_folder, samples=1,
+                                                         exclusive=img_class, nndt=nndt, gpu_id=gpu_id)
+                if new_im_path[0] not in paths:
+                    img_samples[i] = new_im_path[0]
+                    replaced = True
+                    logger.debug("Img {} incorrectly classified, "
+                                 "replacing it with a new image {}".format(img_path, new_im_path[0]))
+    return img_samples
+
 
 def get_correctly_classified_imgs(model, imgs, samples, nndt = False, gpu_id = None):
     # This function takes an array of image files and returns a subset of that array of size <samples> where

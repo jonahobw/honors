@@ -16,7 +16,7 @@ GPU_ID = 0
 # transferability test, the model parameters below define the transfer model
 TRANSFER = False
 #whether or not to use an N-pixel attack or Tiago's attack
-TIAGO = True
+TIAGO = False
 #if TIAGO is true, can specify the delta
 DELTA = 200
 
@@ -24,7 +24,7 @@ DELTA = 200
 #-----------------------------------------------
 # neural net to use.  If this is a regular resnet model, this should be the filename of the model in the
 # ./Models folder in string format.  If this is an nndt, this should be the name of the nndt class in string format
-MODEL_NAME = "pytorch_resnet_saved_11_9_20" #"nndt_depth3_unweighted()"
+MODEL_NAME = "pytorch_resnet_saved_11_9_20"#"nndt_depth3_unweighted()" #"nndt_depth3_unweighted()"
 # this should be none if the model is a regular resnet.  If the model is an nndt, then this should be an instance of
 # the nndt class
 NNDT = None #nndt_depth3_unweighted()
@@ -41,11 +41,11 @@ ACR_NAME = None
 #-----------------------------------------------
 # Differential Evolution parameters (ints)
 POP_SIZE = 1#500
-MAX_ITER = 1#30
+MAX_ITER = 0#30
 # Number of pixels to attack (array of ints)
 PIXELS = [1]#[1, 3, 5]
 # Save into a folder (bool)
-SAVE = False
+SAVE = True
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
@@ -57,25 +57,29 @@ TARGETED = False
 # Untargeted attack parameters
 #----------------------------------------------
 # number of pictures to attack (int)
-SAMPLES = 1
+SAMPLES = 100
 # (OPTIONAL, use None if not specifying)
 # images to use in attack.  Used if you want to run an attack on the same images for different models.  The format is
-# an array of tuples (img path, img class)
-UNTAR_IMGS = None
+# a path to an img_files.txt file which encodes an array of tuples (img path, img class) that is parsed by the
+# function parse_img_files()
+UNTAR_IMGS = os.path.join(os.getcwd(), "Outputs", "attacks", "untargeted",
+                        "2021-03-22_nndt_depth3_unweighted()_100_imgs_", "img_files.txt")
 
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
-ATTACK_PAIRS = 1
+ATTACK_PAIRS = 300
 # Number of images to attack for each targeted pair (int)
 N = 1
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
 RANDOM = True
 # (OPTIONAL, use None if not specifying)
 # images and attack pairs to use in attack.  Used if you want to run an attack on the same images and attack pairs for
-# different models.  The format is dict {attack pair: imgs for that attack pair}, where attack pair is a
-# tuple of (true class, target class) and imgs for that attack pair is an array of img paths
-TAR_IMGS = None
+# different models.  The format is a path to a img_files.txt file which encodes a dict
+# {attack pair: imgs for that attack pair}, where attack pair is a tuple of (true class, target class)
+# and imgs for that attack pair is an array of img paths.  The file is parsed by parse_img_files()
+TAR_IMGS = os.path.join(os.getcwd(), "Outputs", "attacks", "targeted",
+                        "2021-03-21_pytorch_resnet_saved_11_9_20_300_imgs_", "img_files.txt")
 
 # Testing Transferability Property Parameters
 # These parameters are for taking the successful adversarial images from one attack and testing them on another model
@@ -90,7 +94,7 @@ ATTACK_FOLDER = "2021-02-24_nndt_depth4_unweighted()_100_samples"
 def setup_variables():
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
-        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, TIAGO
+        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, TIAGO, SAMPLES
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
@@ -98,6 +102,17 @@ def setup_variables():
 
     tar = "targeted" if TARGETED else "untargeted"
     across = "acr" if ACROSS_CLASSIFIERS is not None else ""
+
+
+    if TAR_IMGS is not None and TARGETED:
+        TAR_IMGS = parse_img_files(TAR_IMGS, True)
+        ATTACK_PAIRS = len(list(TAR_IMGS.keys()))
+        N = len(list(TAR_IMGS.values())[0])
+
+    if UNTAR_IMGS is not None:
+        UNTAR_IMGS = parse_img_files(UNTAR_IMGS, False)
+        SAMPLES = len(UNTAR_IMGS)
+
 
     if TRANSFER:
         ATTACK_FOLDER = os.path.join(os.getcwd(), "Outputs", "attacks", tar, ATTACK_FOLDER)
@@ -505,6 +520,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     #overwrite img samples if imgs have been specified in UNTAR_IMGS global variable
     else:
         img_samples = untar_imgs
+        img_samples = validate_img_samples(model, img_samples, gpu_id, img_folder = image_folder,
+                                           nndt=nndt)
 
     save_img_files(img_samples, False)
 
@@ -637,6 +654,8 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
         else:
             img_samps = tar_imgs[(true_class, target_class)]
             img_samples = [(x, true_class) for x in img_samps]
+            img_samples = validate_img_samples(model, img_samples, gpu_id, img_folder=image_folder,
+                                               nndt=nndt)
 
 
 
