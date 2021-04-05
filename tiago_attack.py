@@ -26,7 +26,7 @@ def targeted_num_grad(f, x, delta = 1):
     return grad
 
 
-def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 3, max_iter = 100):
+def num_ascent(f, x, true_class, target_class, targeted, step_size = 1, delta = 1, threshold = 3, max_iter = 100):
     target_conf, true_conf, pred_conf, pred_class = f(x)
 
     logger.debug('\nInitial confidences:\nModel Confidence in true class   {}:     {:4f}%'.format(str(true_class),
@@ -40,6 +40,7 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
 
 
     count = 0
+    best_pred_value = None
     prev_conf = target_conf
     for i in range(max_iter):
         if targeted and (pred_class == target_class):
@@ -73,10 +74,16 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
             count +=1
         else:
             count = 0
+        if targeted and (best_pred_value is None or target_conf > best_pred_value):
+            best_pred_value = target_conf
+        elif not targeted and (best_pred_value is None or target_conf < best_pred_value):
+            best_pred_value = target_conf
+        else:
+            count +=1
         if count > threshold:
             logger.debug("confidence not increased for {} iterations, terminating".format(threshold))
             break
-
+        logger.debug("Best confidence so far: {}".format(target_conf))
         prev_conf = target_conf
     return False, x
 
