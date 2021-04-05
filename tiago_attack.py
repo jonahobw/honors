@@ -13,8 +13,8 @@ logger = logging.getLogger("attack_log")
 def targeted_num_grad(f, x, delta = 1):
     grad = np.zeros(len(x))
     a = np.copy(x)
-    #for i in range(len(x)):
-    for i in range(2):
+    for i in range(len(x)):
+    #for i in range(2):
         target_pred_x, _, _, _ = f(x)
         a[i] = x[i] + delta
         target_pred_a, _, _, _ = f(a)

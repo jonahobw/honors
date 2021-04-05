@@ -16,9 +16,9 @@ GPU_ID = 0
 # transferability test, the model parameters below define the transfer model
 TRANSFER = False
 #whether or not to use an N-pixel attack or Tiago's attack
-TIAGO = False
+TIAGO = True
 #if TIAGO is true, can specify the delta
-DELTA = 200
+DELTA = 1
 
 # Model parameters
 #-----------------------------------------------
@@ -41,11 +41,11 @@ ACR_NAME = None
 #-----------------------------------------------
 # Differential Evolution parameters (ints)
 POP_SIZE = 1#500
-MAX_ITER = 0#30
+MAX_ITER = 3#30
 # Number of pixels to attack (array of ints)
 PIXELS = [1]#[1, 3, 5]
 # Save into a folder (bool)
-SAVE = True
+SAVE = False
 # Verbose output (logging.DEBUG for verbose, else logging.INFO)
 LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
@@ -57,13 +57,13 @@ TARGETED = False
 # Untargeted attack parameters
 #----------------------------------------------
 # number of pictures to attack (int)
-SAMPLES = 100
+SAMPLES = 1
 # (OPTIONAL, use None if not specifying)
 # images to use in attack.  Used if you want to run an attack on the same images for different models.  The format is
 # a path to an img_files.txt file which encodes an array of tuples (img path, img class) that is parsed by the
 # function parse_img_files()
-UNTAR_IMGS = os.path.join(os.getcwd(), "Outputs", "attacks", "untargeted",
-                        "2021-03-22_nndt_depth3_unweighted()_100_imgs_", "img_files.txt")
+UNTAR_IMGS = None #os.path.join(os.getcwd(), "Outputs", "attacks", "untargeted",
+                   #     "2021-03-22_nndt_depth3_unweighted()_100_imgs_", "img_files.txt")
 
 # Targeted attack parameters
 #----------------------------------------------
@@ -214,6 +214,8 @@ def setup_variables_cmdline(args):
             TAR_IMGS = parse_img_files(args.tar_imgs, True)
             ATTACK_PAIRS = len(list(TAR_IMGS.keys()))
             N = len(list(TAR_IMGS.values())[0])
+        else:
+            TAR_IMGS = None
     elif not args.targeted and args.untargeted:
         TARGETED = False
         tar = "untargeted"
@@ -225,6 +227,8 @@ def setup_variables_cmdline(args):
         if args.untar_imgs is not None:
             UNTAR_IMGS = parse_img_files(args.untar_imgs, False)
             SAMPLES = len(UNTAR_IMGS)
+        else:
+            UNTAR_IMGS = None
     else:
         print("Exactly one of -targeted or -untargeted must be specified")
         exit(-1)
@@ -1108,8 +1112,8 @@ def run_cmdline():
 
 
 if __name__ == '__main__':
-    #run_cmdline()
-    run()
+    run_cmdline()
+    #run()
     #test_plot()
     # path = os.path.join(os.getcwd(), "Outputs", "attacks", "targeted",
     #                     "2021-03-11_pytorch_resnet_saved_11_9_20_4_imgs_", "img_files.txt")
