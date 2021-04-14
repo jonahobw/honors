@@ -21,6 +21,9 @@ def getParser():
                         help='For Tiago\'s attack, the delta to move in the direction of the gradient at each '
                              'iteration')
 
+    parser.add_argument('-speedup', required=False, default=200, type=int,
+                        help='For Tiago\'s attack, the number of pixels to change (on average) for each iteration')
+
     parser.add_argument('-gpu_id', '-gpu', type=int, default=0, required=False,
                         help='The GPU ID to use. Purpose is for when you want to run multiple attacks simultaneously on'
                              ' different GPUs')

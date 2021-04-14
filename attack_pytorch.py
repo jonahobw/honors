@@ -19,6 +19,8 @@ TRANSFER = False
 TIAGO = True
 #if TIAGO is true, can specify the delta
 DELTA = 1
+# how many pixels to change per iteration (on average) using tiago's attack
+SPEEDUP = 100
 
 # Model parameters
 #-----------------------------------------------
@@ -41,7 +43,7 @@ ACR_NAME = None
 #-----------------------------------------------
 # Differential Evolution parameters (ints)
 POP_SIZE = 1#500
-MAX_ITER = 3#30
+MAX_ITER = 10#30
 # Number of pixels to attack (array of ints)
 PIXELS = [1]#[1, 3, 5]
 # Save into a folder (bool)
@@ -94,7 +96,7 @@ ATTACK_FOLDER = "2021-02-24_nndt_depth4_unweighted()_100_samples"
 def setup_variables():
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
-        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, TIAGO, SAMPLES
+        TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, TIAGO, SAMPLES, SPEEDUP
     if NNDT is None:
         MODEL_PATH = os.path.join(os.getcwd(), "Models", MODEL_NAME)
     logger = logging.getLogger("attack_log")
@@ -161,13 +163,14 @@ def setup_variables_cmdline(args):
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
         TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, MODEL_NAME, TARGETED, ATTACK_PAIRS, SAMPLES, \
-        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID, TIAGO, DELTA
+        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID, TIAGO, DELTA, SPEEDUP
 
     GPU_ID = args.gpu_id
 
     TIAGO = args.tiago
     if TIAGO:
         DELTA = args.delta
+        SPEEDUP = args.speedup
 
     use_nndt = args.model.find('nndt')>=0 #boolean if model is nndt or not
     if use_nndt:
@@ -494,7 +497,7 @@ def attack(img_id, img_class, model, target=None, pixel_count=1, nndt=False,
 
 def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3, 5), across_classifiers = None,
                maxiter=25, popsize=200, verbose=False, show_image = False, nndt = False, untar_imgs = None,
-                          gpu_id = None, acr_name = None, tiago = False, delta = 1, save = False):
+                          gpu_id = None, acr_name = None, tiago = False, delta = 1, save = False, speedup = 100):
     if image_folder == None:
         image_folder = os.path.join(os.getcwd(), "Test")
 
@@ -554,7 +557,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
                                                                           trueclass=int(label),
                                                                           targetclass=int(label), targeted=False,
                                                                           delta=delta,
-                                                                          max_iter=maxiter, nndt=nndt, gpu_id=gpu_id)
+                                                                          max_iter=maxiter, nndt=nndt, gpu_id=gpu_id,
+                                                                          speedup=speedup)
                 if save and success:
                     save_tiago_im(attack_img, annotation, int(label), img)
             if success:
@@ -581,7 +585,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
 def attack_all_targeted(model, random = False, image_folder = None, samples_per_pair=500, pixels=(1, 3, 5), maxiter=75,
                         popsize=400, verbose=False, show_image = False, nndt = False, num_attack_pairs = 10,
                         across_classifiers = None, tar_imgs = None, gpu_id = None, acr_name = None, tiago = False,
-                        delta = 1, save = False):
+                        delta = 1, save = False, speedup = 100):
     # if random = false, attacks the <samples> highest attack pairs by danger weight, else,
     #   chooses attack pairs randomly
     # num_attack_pairs (int) is a global variable that determines how many pairs to attack
@@ -688,7 +692,8 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
                 else:
                     success, attack_img, annotation = tiago_attack.attack_one(model=model, img_path=img, trueclass=true_class,
                                                                   targetclass=target_class, targeted=True, delta=delta,
-                                                                  max_iter=maxiter, nndt = nndt, gpu_id=gpu_id)
+                                                                  max_iter=maxiter, nndt = nndt, gpu_id=gpu_id,
+                                                                              speedup=speedup)
                     if save and success:
                         save_tiago_im(attack_img, annotation, true_class, img, target=target_class)
                 if success:
@@ -824,14 +829,14 @@ def run_plot_attack(targeted = True):
                                                       show_image=SHOW_IMAGE, nndt=nndt, num_attack_pairs=ATTACK_PAIRS,
                                                       across_classifiers=ACROSS_CLASSIFIERS, tar_imgs=TAR_IMGS,
                                                       gpu_id = GPU_ID, acr_name = ACR_NAME, tiago = TIAGO,
-                                                      delta = DELTA, save=SAVE)
+                                                      delta = DELTA, save=SAVE, speedup = SPEEDUP)
         plot_targeted(res, pix, mxi, pop)
     else:
         r, pix, s, m, p = attack_all_untargeted(model, samples=SAMPLES, pixels=PIXELS, maxiter=MAX_ITER,
                                                 popsize=POP_SIZE, verbose=verbose, show_image=SHOW_IMAGE, nndt=nndt,
                                                 across_classifiers=ACROSS_CLASSIFIERS, untar_imgs=UNTAR_IMGS,
                                                 gpu_id = GPU_ID, acr_name = ACR_NAME, tiago=TIAGO, delta=DELTA,
-                                                save=SAVE)
+                                                save=SAVE, speedup = SPEEDUP)
         plot_untargeted(r, pix, s, m, p)
 
 

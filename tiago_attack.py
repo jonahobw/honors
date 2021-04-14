@@ -6,27 +6,53 @@ import os
 import torch.nn.functional as F
 import time
 import logging
+import random
 
 logger = logging.getLogger("attack_log")
 
 
-def targeted_num_grad(f, x, delta = 1):
+def calculate_new_momentum(grad, prev_grad, momentum, factor = 2):
+    # momentum - array of same size as grad and prev_grad indicating how large to step for each value of x
+    # if the sign of grad and prev grad is the same, increase momentum by a factor of <factor>.  Else set momentum to 1.
+    for i in range(len(grad)):
+        if (grad[i] > 0 and prev_grad[i] > 0) or (grad[i] < 0 and prev_grad[i] < 0):
+            momentum[i] *= factor
+        else:
+            momentum[i] = 1
+    return momentum
+
+
+def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = None):
+    # momentum - array of the same size as x indicating how large to step for each value of x
+    # speedup - if not None, then an integer representing how many pixels to change per iteration, will randomly skip
+    #           pixels for each iteration that should average out to <speedup> pixels per iteration
     grad = np.zeros(len(x))
     a = np.copy(x)
     for i in range(len(x)):
-    #for i in range(2):
+        if (i % 2000 == 0):
+            logger.debug("  Calculating grad, {} pixels to go".format(str(len(x) - i)))
+        if speedup is not None:
+            # speed up the attack by introducing random skips that should average out to 100 pixels per iteration
+            threshold = speedup/len(x)
+            r = random.random()
+            if r > threshold:
+                continue
         target_pred_x, _, _, _ = f(x)
         a[i] = x[i] + delta
         target_pred_a, _, _, _ = f(a)
-        grad[i] = (target_pred_a - target_pred_x) / delta
+        if momentum is None:
+            momentum = [1] * len(x)
+        else:
+            grad[i] = momentum[i] * (target_pred_a - target_pred_x) / delta
         a[i] -= delta
-        if(i%2000 == 0):
-            logger.debug("  Calculating grad, {} pixels to go".format(str(len(x)-i)))
 
-    return grad
+    momentum = calculate_new_momentum(grad, prev_grad, momentum)
+
+    return grad, momentum
 
 
-def num_ascent(f, x, true_class, target_class, targeted, step_size = 1, delta = 1, threshold = 3, max_iter = 100):
+def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 3, max_iter = 100, speedup = 100,
+               step_size = 1):
     target_conf, true_conf, pred_conf, pred_class = f(x)
 
     logger.debug('\nInitial confidences:\nModel Confidence in true class   {}:     {:4f}%'.format(str(true_class),
@@ -42,18 +68,21 @@ def num_ascent(f, x, true_class, target_class, targeted, step_size = 1, delta = 
     count = 0
     best_pred_value = None
     prev_conf = target_conf
+    momentum = [1] * len(x) # set to 1s
+    prev_grad = [0] * len(x) # set to 0s
     for i in range(max_iter):
         if targeted and (pred_class == target_class):
             return True, x
         if not targeted and (pred_class != true_class):
             return True, x
-        grad = targeted_num_grad(f, x, delta = delta)
+        grad, momentum = targeted_num_grad(f, x, prev_grad, delta = delta, momentum=momentum, speedup=speedup)
         zeroes = np.zeros(len(grad))
         if np.array_equal(grad, zeroes):
             delta *= 1.5
             logger.debug("\nzero gradient, incrementing delta to {}".format(delta))
         # grad = ndGradient(f)(x)
         #print("Grad: {}".format(grad))
+        grad = [x*step_size for x in grad]
         if targeted:
             x += grad
         else:
@@ -81,10 +110,11 @@ def num_ascent(f, x, true_class, target_class, targeted, step_size = 1, delta = 
         else:
             count +=1
         if count > threshold:
-            logger.debug("confidence not increased for {} iterations, terminating".format(threshold))
+            logger.debug("confidence not changed for {} iterations, terminating".format(threshold))
             break
-        logger.debug("Best confidence so far: {}".format(target_conf))
+        logger.debug("Best confidence so far: {:4f}".format(100*target_conf))
         prev_conf = target_conf
+        prev_grad = grad
     return False, x
 
 
@@ -141,7 +171,7 @@ def get_model_prediction_probs(model, input):
 def save_transform(h, w, x, filname = None):
     img = x.reshape((h,w, 3)).astype('uint8')
     img = Image.fromarray(img, mode='RGB')
-    img.save('output.jpg')
+    #img.save('output.jpg')
     #img = preprocess_image('output.jpg')
     return img
 
@@ -182,12 +212,14 @@ def save_im(img, h, w):
     img = Image.fromarray(img)
     img.save('adversarial.jpg')
 
-def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, delta = 5, max_iter = 100, gpu_id = 0):
+def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, delta = 5, max_iter = 100, gpu_id = 0,
+               speedup = 100):
     logger.info("---------------Testing image {}---------------".format(img_path))
     img = Image.open(img_path)
     h, w, imgarray = linearize_pixels(img)
     f = create_f(model, h, w, targetclass, trueclass, nndt, gpu_id=gpu_id)
-    success, x = num_ascent(f, imgarray, trueclass, targetclass, targeted, delta=delta, max_iter=max_iter)
+    success, x = num_ascent(f, imgarray, trueclass, targetclass, targeted, delta=delta, max_iter=max_iter,
+                            speedup=speedup)
 
     logger.info("Attack {}".format("successful" if success else "unsuccessful"))
 
