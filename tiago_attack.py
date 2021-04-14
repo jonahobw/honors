@@ -101,6 +101,10 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
 
         if target_conf == prev_conf:
             count +=1
+        if (not targeted and target_conf >= prev_conf) or (targeted and target_conf <= pred_conf):
+            step_size *= 2
+            logger.debug("Target confidence did not {},"
+                         " multiplying step size by 2".format("decrease" if not targeted else "increase"))
         else:
             count = 0
         if targeted and (best_pred_value is None or target_conf > best_pred_value):
