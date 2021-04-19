@@ -514,6 +514,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
     else:
         logger.info("Delta               {}".format(delta))
         pixels = [0]
+        logger.info("Speedup                {}".format(speedup))
 
     if across_classifiers is not None:
         logger.info("Across classifiers: {}\n\n".format(acr_name))
@@ -560,7 +561,7 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
                                                                           max_iter=maxiter, nndt=nndt, gpu_id=gpu_id,
                                                                           speedup=speedup)
                 if save and success:
-                    save_tiago_im(attack_img, annotation, int(label), img)
+                    save_tiago_im(attack_img, annotation, int(label), original_img=img, filename=img)
             if success:
                 total_success +=1
                 items_to_remove.append(img_samples[j])
@@ -621,6 +622,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
     else:
         logger.info("Delta                  {}".format(delta))
         pixels = [0]
+        logger.info("Speedup                {}".format(speedup))
 
     logger.info("Max iterations:        {}".format(str(maxiter)))
     logger.info("# of attack pairs:     {}".format(str(num_attack_pairs)))
@@ -694,8 +696,9 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
                                                                   targetclass=target_class, targeted=True, delta=delta,
                                                                   max_iter=maxiter, nndt = nndt, gpu_id=gpu_id,
                                                                               speedup=speedup)
-                    if save and success:
-                        save_tiago_im(attack_img, annotation, true_class, img, target=target_class)
+                    if save:# and success:
+                        save_tiago_im(attack_img, annotation, true_class, img, target=target_class,
+                                      original_img=img)
                 if success:
                     total_success +=1
                     attack_pair_success+=1
@@ -987,20 +990,29 @@ def save_perturbed_image(img, title = "", true_class = None, pixels = None, file
     im.save(fname)
 
 
-def save_tiago_im(img, title = "", true_class = None, filename =None, target = None):
+def save_tiago_im(img, title = "", true_class = None, filename =None, target = None, original_img=None):
     # saves an image
 
     # target        (int):  if None, this is an untargeted attack, otherwise, this is the class we want to
     #                           try to get the network to predict
 
     global IMG_FOLDER, RAW_IMG_FOLDER
-    plt.imshow(img)
-    plt.title(title)
-    plt.tight_layout()
+    fig = plt.figure()
+    #plt.rcParams['axes.titlepad'] = -14
+    ax = fig.add_subplot(121)
+    original_img = Image.open(original_img)
+    ax.imshow(original_img)
+    ax.axis('off')
+    ax2 = fig.add_subplot(122)
+    ax2.imshow(img)
+    ax2.axis('off')
+    plt.suptitle(title)
     filename = os.path.split(filename)[1].split(".")[0]
     fname = 'img_{}_class_{}'.format(filename, str(true_class))
     fname = os.path.join(IMG_FOLDER, fname)
     plt.savefig(fname)
+
+
 
     # also save raw image
     tar = target if target is not None else true_class
@@ -1068,6 +1080,9 @@ def parse_img_files(filepath, targeted):
     # for targeted = True (targeted): returns imgs as a dict of length <attack pairs> where keys are the attack pair
     # and values are arrays of images tested for this attack pair) and img_files.text is stored as
     # startclass,endclass::array_item0,array_item1,array_item2... on each line
+
+    filepath = os.path.join(os.getcwd(), "Outputs", "attacks", "targeted" if targeted else "untargeted",
+                            filepath, "img_files.txt")
 
     if not os.path.exists(filepath):
         print("invalid img_files.txt path, does not exits")

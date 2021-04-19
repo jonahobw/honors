@@ -7,6 +7,7 @@ import torch.nn.functional as F
 import time
 import logging
 import random
+import math
 
 logger = logging.getLogger("attack_log")
 
@@ -43,7 +44,10 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
         if momentum is None:
             momentum = [1] * len(x)
         else:
-            grad[i] = momentum[i] * (target_pred_a - target_pred_x) / delta
+            grad_float = momentum[i] * (target_pred_a - target_pred_x) / delta
+            # round to next integer, up if positive, down if negative
+            grad_int = math.floor(grad_float) if grad_float < 0 else math.ceil(grad_float)
+            grad[i] = grad_int
         a[i] -= delta
 
     momentum = calculate_new_momentum(grad, prev_grad, momentum)
@@ -51,7 +55,7 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
     return grad, momentum
 
 
-def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 3, max_iter = 100, speedup = 100,
+def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 5, max_iter = 100, speedup = 100,
                step_size = 1):
     target_conf, true_conf, pred_conf, pred_class = f(x)
 
@@ -101,12 +105,17 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
 
         if target_conf == prev_conf:
             count +=1
-        if (not targeted and target_conf >= prev_conf) or (targeted and target_conf <= pred_conf):
-            step_size *= 2
-            logger.debug("Target confidence did not {},"
-                         " multiplying step size by 2".format("decrease" if not targeted else "increase"))
         else:
             count = 0
+        if (not targeted and target_conf >= prev_conf) or (targeted and target_conf <= prev_conf):
+            step_size *= 2
+            logger.debug("Target confidence did not {},"
+                         " setting step size to {}".format("decrease" if not targeted else "increase",
+                                                           step_size))
+        elif(abs(target_conf - prev_conf) < 0.005):
+            step_size *=2
+            logger.debug("Target confidence did not change by at least 0.5%, "
+                         "setting step size to {}".format(step_size))
         if targeted and (best_pred_value is None or target_conf > best_pred_value):
             best_pred_value = target_conf
         elif not targeted and (best_pred_value is None or target_conf < best_pred_value):
@@ -119,6 +128,12 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         logger.debug("Best confidence so far: {:4f}".format(100*target_conf))
         prev_conf = target_conf
         prev_grad = grad
+
+    if targeted and (pred_class == target_class):
+        return True, x
+    if not targeted and (pred_class != true_class):
+        return True, x
+
     return False, x
 
 
