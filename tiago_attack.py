@@ -68,7 +68,7 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         logger.debug('Model prediction was class    {} with {:4f}% confidence'.format(str(pred_class),
                                                                                          pred_conf * 100))
 
-
+    step_size_cnt = 1
     count = 0
     best_pred_value = None
     prev_conf = target_conf
@@ -108,12 +108,14 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         else:
             count = 0
         if (not targeted and target_conf >= prev_conf) or (targeted and target_conf <= prev_conf):
-            step_size *= 2
+            step_size_cnt +=1
+            step_size = 256/(1+math.e**(-1*(0.5*step_size_cnt - 5)))
             logger.debug("Target confidence did not {},"
                          " setting step size to {}".format("decrease" if not targeted else "increase",
                                                            step_size))
         elif(abs(target_conf - prev_conf) < 0.005):
-            step_size *=2
+            step_size_cnt +=1
+            step_size = 256 / (1 + math.e ** (-1 * (0.5 * step_size_cnt - 5)))
             logger.debug("Target confidence did not change by at least 0.5%, "
                          "setting step size to {}".format(step_size))
         if targeted and (best_pred_value is None or target_conf > best_pred_value):
