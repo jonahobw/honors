@@ -9,8 +9,38 @@ import logging
 import random
 import math
 
+from attack_helper import print_image
+
 logger = logging.getLogger("attack_log")
 
+def l_infinity(adversarial_image, original_image, epsilon):
+    # iterates through each pixel/rgb value in the adversarial image and if it differs from that same pixel/rgb value
+    # in the original image by more than epsilon, then it changes the adversarial image to only differ by epsilon
+    # this is the same as restricting the adversarial image to have an L-infinity bound of epsilon
+    # returns - the new adversarial image after the L-infinity bound and an array of indices where the pixels are
+    # saturated
+
+    diffs = [abs(adversarial_image[i] - original_image[i]) for i in range(len(adversarial_image))]
+    max_diff = max(diffs)
+    logger.debug("Max value of diffs before L-infinity: {}".format(max_diff))
+    if max_diff == 0:
+        return adversarial_image
+
+    saturated_indices = []
+
+    for i in range(len(adversarial_image)):
+        diff = adversarial_image[i] - original_image[i]
+        if abs(diff) > epsilon:
+            saturated_indices.append(i)
+            if diff > 0:    #adversarial image at i is more than <epsilon> greater than original image at i
+                adversarial_image[i] = original_image[i] + epsilon
+            else:           #adversarial image at i is less than <epsilon> greater than original image at i
+                adversarial_image[i] = original_image[i] - epsilon
+
+    diffs = [abs(adversarial_image[i] - original_image[i]) for i in range(len(adversarial_image))]
+    logger.debug("Max value of diffs after L-infinity: {}".format(max(diffs)))
+
+    return adversarial_image, saturated_indices
 
 def calculate_new_momentum(grad, prev_grad, momentum, factor = 2):
     # momentum - array of same size as grad and prev_grad indicating how large to step for each value of x
@@ -23,15 +53,22 @@ def calculate_new_momentum(grad, prev_grad, momentum, factor = 2):
     return momentum
 
 
-def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = None):
+def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = None, round_grad = False,
+                      saturated_indices = None):
     # momentum - array of the same size as x indicating how large to step for each value of x
     # speedup - if not None, then an integer representing how many pixels to change per iteration, will randomly skip
     #           pixels for each iteration that should average out to <speedup> pixels per iteration
+    # round_grad = if true, will round gradient to nearest integer in the direction that maximizes the absolute value
+    # of the gradient
+    # saturated_indices is a set of indexes in the adversarial image that have already saturated they will be skipped
+    # in this function in favor of other pixels
     grad = np.zeros(len(x))
     a = np.copy(x)
     for i in range(len(x)):
         if (i % 2000 == 0):
             logger.debug("  Calculating grad, {} pixels to go".format(str(len(x) - i)))
+        if (i in saturated_indices):
+            continue
         if speedup is not None:
             # speed up the attack by introducing random skips that should average out to 100 pixels per iteration
             threshold = speedup/len(x)
@@ -45,9 +82,10 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
             momentum = [1] * len(x)
         else:
             grad_float = momentum[i] * (target_pred_a - target_pred_x) / delta
-            # round to next integer, up if positive, down if negative
-            grad_int = math.floor(grad_float) if grad_float < 0 else math.ceil(grad_float)
-            grad[i] = grad_int
+            if round_grad:
+                # round to next integer, up if positive, down if negative
+                grad_float = math.floor(grad_float) if grad_float < 0 else math.ceil(grad_float)
+            grad[i] = grad_float
         a[i] -= delta
 
     momentum = calculate_new_momentum(grad, prev_grad, momentum)
@@ -56,7 +94,11 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
 
 
 def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 5, max_iter = 100, speedup = 100,
-               step_size = 1):
+               step_size = 1, epsilon = 15, round_grad = True):
+    # round_grad = if true, will round gradient to nearest integer in the direction that maximizes the absolute value
+    # of the gradient
+
+    original_image = np.copy(x)
     target_conf, true_conf, pred_conf, pred_class = f(x)
 
     logger.debug('\nInitial confidences:\nModel Confidence in true class   {}:     {:4f}%'.format(str(true_class),
@@ -67,6 +109,9 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
     else:
         logger.debug('Model prediction was class    {} with {:4f}% confidence'.format(str(pred_class),
                                                                                          pred_conf * 100))
+
+    #set of all indices which are saturated based on the L-infinity norm
+    all_saturated_indices = set()
 
     step_size_cnt = 1
     count = 0
@@ -79,7 +124,8 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
             return True, x
         if not targeted and (pred_class != true_class):
             return True, x
-        grad, momentum = targeted_num_grad(f, x, prev_grad, delta = delta, momentum=momentum, speedup=speedup)
+        grad, momentum = targeted_num_grad(f, x, prev_grad, delta = delta, momentum=momentum, speedup=speedup,
+                                           round_grad = round_grad, saturated_indices = all_saturated_indices)
         zeroes = np.zeros(len(grad))
         if np.array_equal(grad, zeroes):
             delta *= 1.5
@@ -91,6 +137,14 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
             x += grad
         else:
             x -= grad
+
+        # modify adversarial image to be consistent with L-infinity norm
+        x, saturated_indices = l_infinity(adversarial_image=x, original_image=original_image, epsilon=epsilon)
+        all_saturated_indices.update(saturated_indices)
+
+        # if there are too few pixels for the next iteration, set saturated indices set to empty
+        if len(x) - len(all_saturated_indices) < speedup:
+            all_saturated_indices = set()
 
         target_conf, true_conf, pred_conf, pred_class = f(x)
 
@@ -234,13 +288,13 @@ def save_im(img, h, w):
     img.save('adversarial.jpg')
 
 def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, delta = 5, max_iter = 100, gpu_id = 0,
-               speedup = 100):
+               speedup = 100, epsilon = 15, show_image = False):
     logger.info("---------------Testing image {}---------------".format(img_path))
     img = Image.open(img_path)
     h, w, imgarray = linearize_pixels(img)
     f = create_f(model, h, w, targetclass, trueclass, nndt, gpu_id=gpu_id)
     success, x = num_ascent(f, imgarray, trueclass, targetclass, targeted, delta=delta, max_iter=max_iter,
-                            speedup=speedup)
+                            speedup=speedup, epsilon=epsilon)
 
     logger.info("Attack {}".format("successful" if success else "unsuccessful"))
 
@@ -258,6 +312,10 @@ def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, 
 
     img = x.reshape((h,w, 3)).astype('uint8')
     img = Image.fromarray(img, mode='RGB')
+    # Show the best attempt at a solution (successful or not)
+    if show_image:
+        print_image(img, path=False, title=annotation)
+
     return success, img, annotation
 
 

@@ -21,6 +21,9 @@ def getParser():
                         help='For Tiago\'s attack, the delta to move in the direction of the gradient at each '
                              'iteration')
 
+    parser.add_argument('-epsilon', required=False, default=15, type=int,
+                        help='The bound for the L-infinity norm on adversarial images in Tiago\'s attack')
+
     parser.add_argument('-speedup', required=False, default=200, type=int,
                         help='For Tiago\'s attack, the number of pixels to change (on average) for each iteration')
 
