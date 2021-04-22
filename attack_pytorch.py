@@ -169,8 +169,7 @@ def setup_variables_cmdline(args):
 
     GPU_ID = args.gpu_id
 
-    if args.show_image:
-        SHOW_IMAGE = True
+    SHOW_IMAGE = args.show_image
 
     TIAGO = args.tiago
     if TIAGO:

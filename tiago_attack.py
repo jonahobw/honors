@@ -181,7 +181,7 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         if count > threshold:
             logger.debug("confidence not changed for {} iterations, terminating".format(threshold))
             break
-        logger.debug("Best confidence so far: {:4f}".format(100*target_conf))
+        logger.debug("Best confidence so far: {:4f}".format(100*best_pred_value))
         prev_conf = target_conf
         prev_grad = grad
 
