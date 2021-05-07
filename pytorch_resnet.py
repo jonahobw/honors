@@ -22,6 +22,10 @@ BATCH_SIZE = 64
 INPUT_SIZE = 224
 NUM_CLASSES = 43
 EPOCHS = 10
+GPU_ID = 0
+
+def set_gpu_id(gpu_id):
+    GPU_ID = gpu_id
 
 def set_cuda(gpu_id = None):
     if torch.cuda.is_available() and gpu_id is not None:
@@ -58,9 +62,9 @@ def save_model(model, path=None):
     return path
 
 
-def load_model(filename):
+def load_model(filename, gpu_id = GPU_ID):
     # load a model from a file
-    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:{}".format(gpu_id) if torch.cuda.is_available() else "cpu")
     model = torch.load(filename, map_location=device)
     model.eval()
     return model
