@@ -24,7 +24,7 @@ def l_infinity(adversarial_image, original_image, epsilon):
     max_diff = max(diffs)
     logger.debug("Max value of diffs before L-infinity: {}".format(max_diff))
     if max_diff == 0:
-        return adversarial_image
+        return adversarial_image, []
 
     saturated_indices = []
 
@@ -94,9 +94,11 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
 
 
 def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 5, max_iter = 100, speedup = 100,
-               step_size = 1, epsilon = 15, round_grad = True):
+               step_size = 1, epsilon = 10, round_grad = True, max_step_size = 128):
     # round_grad = if true, will round gradient to nearest integer in the direction that maximizes the absolute value
     # of the gradient
+    # max_step_size - will increase step size in a sigmoidal fashion if attack is not succeeding, maxing out at
+    #                   max_step_size
 
     original_image = np.copy(x)
     target_conf, true_conf, pred_conf, pred_class = f(x)
@@ -134,9 +136,24 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         #print("Grad: {}".format(grad))
         grad = [x*step_size for x in grad]
         if targeted:
-            x += grad
+            for j in range(len(grad)):
+                if grad[j] > 0:
+                    x[j] = x[j] + grad[j] if x[j] + grad[j] < 255 else 255
+                if grad[j] < 0:
+                    x[j] = x[j] + grad[j] if x[j] + grad[j] > 0 else 0
+            #x += grad
         else:
-            x -= grad
+            for j in range(len(grad)):
+                if grad[j] > 0:
+                    x[j] = x[j] - grad[j] if x[j] - grad[j] > 0 else 0
+                if grad[j] < 0:
+                    x[j] = x[j] - grad[j] if x[j] - grad[j] < 255 else 255
+        # double check that x only has values between 0 and 255:
+        for j in range(len(x)):
+            if x[j] < 0:
+                x[j] = 0
+            if x[j] > 255:
+                x[j] = 255
 
         # modify adversarial image to be consistent with L-infinity norm
         x, saturated_indices = l_infinity(adversarial_image=x, original_image=original_image, epsilon=epsilon)
@@ -163,13 +180,13 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
             count = 0
         if (not targeted and target_conf >= prev_conf) or (targeted and target_conf <= prev_conf):
             step_size_cnt +=1
-            step_size = 256/(1+math.e**(-1*(0.5*step_size_cnt - 5)))
+            step_size = max_step_size/(1+math.e**(-1*(0.5*step_size_cnt - 5)))
             logger.debug("Target confidence did not {},"
                          " setting step size to {}".format("decrease" if not targeted else "increase",
                                                            step_size))
         elif(abs(target_conf - prev_conf) < 0.005):
             step_size_cnt +=1
-            step_size = 256 / (1 + math.e ** (-1 * (0.5 * step_size_cnt - 5)))
+            step_size = max_step_size / (1 + math.e ** (-1 * (0.5 * step_size_cnt - 5)))
             logger.debug("Target confidence did not change by at least 0.5%, "
                          "setting step size to {}".format(step_size))
         if targeted and (best_pred_value is None or target_conf > best_pred_value):
@@ -315,7 +332,7 @@ def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, 
     # Show the best attempt at a solution (successful or not)
     if show_image:
         print_image(img, path=False, title=annotation)
-
+    logger.debug("SUCCESS at end of tiago.attack_one = {}".format(success))
     return success, img, annotation
 
 

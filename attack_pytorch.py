@@ -22,7 +22,7 @@ DELTA = 1
 # how many pixels to change per iteration (on average) using tiago's attack
 SPEEDUP = 50
 #The bound for the L-infinity norm on adversarial images in Tiago\'s attack
-EPSILON = 10
+EPSILON = 255
 
 # Model parameters
 #-----------------------------------------------
@@ -45,7 +45,7 @@ ACR_NAME = None
 #-----------------------------------------------
 # Differential Evolution parameters (ints)
 POP_SIZE = 1#500
-MAX_ITER = 15#30
+MAX_ITER = 10#30
 # Number of pixels to attack (array of ints)
 PIXELS = [1]#[1, 3, 5]
 # Save into a folder (bool)
@@ -55,7 +55,7 @@ LOG_LEVEL = logging.DEBUG
 # Show each attempt at an adversarial image (bool)
 SHOW_IMAGE = True
 # Targeted attack (bool)
-TARGETED = False
+TARGETED = True
 
 
 # Untargeted attack parameters
@@ -72,7 +72,7 @@ UNTAR_IMGS = None #os.path.join(os.getcwd(), "Outputs", "attacks", "untargeted",
 # Targeted attack parameters
 #----------------------------------------------
 # Number of targeted pairs to attack (int)
-ATTACK_PAIRS = 300
+ATTACK_PAIRS = 1
 # Number of images to attack for each targeted pair (int)
 N = 1
 # Either attack the pairs with the highest danger weight (False) or random pairs (True)
@@ -82,8 +82,7 @@ RANDOM = True
 # different models.  The format is a path to a img_files.txt file which encodes a dict
 # {attack pair: imgs for that attack pair}, where attack pair is a tuple of (true class, target class)
 # and imgs for that attack pair is an array of img paths.  The file is parsed by parse_img_files()
-TAR_IMGS = os.path.join(os.getcwd(), "Outputs", "attacks", "targeted",
-                        "2021-03-21_pytorch_resnet_saved_11_9_20_300_imgs_", "img_files.txt")
+TAR_IMGS = "0000_tiago_debug"
 
 # Testing Transferability Property Parameters
 # These parameters are for taking the successful adversarial images from one attack and testing them on another model
@@ -704,7 +703,8 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
                                                                   max_iter=maxiter, nndt = nndt, gpu_id=gpu_id,
                                                                   show_image=show_image, speedup=speedup,
                                                                               epsilon=epsilon)
-                    if save:# and success:
+                    logger.debug("IN TARGETED_ATTACK: SAVE: {},  SUCCESS: {}".format(save, success))
+                    if save and success:
                         save_tiago_im(attack_img, annotation, true_class, img, target=target_class,
                                       original_img=img)
                 if success:
@@ -1003,7 +1003,7 @@ def save_tiago_im(img, title = "", true_class = None, filename =None, target = N
 
     # target        (int):  if None, this is an untargeted attack, otherwise, this is the class we want to
     #                           try to get the network to predict
-
+    logger.debug("IN SAVE_TIAGO_IM: \nTITLE: {}\nFILENAME: {}".format(title, filename))
     global IMG_FOLDER, RAW_IMG_FOLDER
     fig = plt.figure()
     #plt.rcParams['axes.titlepad'] = -14
@@ -1016,14 +1016,14 @@ def save_tiago_im(img, title = "", true_class = None, filename =None, target = N
     ax2.axis('off')
     plt.suptitle(title)
     filename = os.path.split(filename)[1].split(".")[0]
-    fname = 'img_{}_class_{}'.format(filename, str(true_class))
+    tar = target if target is not None else true_class
+    fname = 'img_{}_class_{}_target_{}'.format(filename, str(true_class), str(tar))
     fname = os.path.join(IMG_FOLDER, fname)
     plt.savefig(fname)
 
 
 
     # also save raw image
-    tar = target if target is not None else true_class
     fname = "trueclass_" + str(true_class) + "_target_" + str(tar) + "_" + str(filename)+".png"
     fname = os.path.join(RAW_IMG_FOLDER, fname)
     img.save(fname)

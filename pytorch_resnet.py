@@ -1095,7 +1095,11 @@ if __name__ == '__main__':
     # train_and_test_model_from_scratch()
     # model_path = os.path.join(os.getcwd(), "nndt_data", "nndt3_unweighted", "triangle_final_classifier",
     #                           "triangle_final_classifier_resnet_2021-01-05")
-    # model = load_model(model_path)
+    model_path = os.path.join(os.getcwd(), "Models", "pytorch_resnet_saved_11_9_20")
+    model = load_model(model_path)
     # print(summary(model, input_size=(3, INPUT_SIZE, INPUT_SIZE)))
     path = os.path.join(os.getcwd(), "small_test_dataset")
-    create_and_train_model(path = path, filename="TEST_RESNET_DELETEME", num_classes=2)
+    #create_and_train_model(path = path, filename="TEST_RESNET_DELETEME", num_classes=2)
+    image = os.path.join(os.getcwd(), "test_images", "pxArt.png")
+    a = test_one_image(model, image, path=True)
+    print(a)
