@@ -24,7 +24,7 @@ def getParser():
     parser.add_argument('-epsilon', required=False, default=15, type=int,
                         help='The bound for the L-infinity norm on adversarial images in Tiago\'s attack')
 
-    parser.add_argument('-speedup', required=False, default=2000, type=int,
+    parser.add_argument('-speedup', required=False, default=1000, type=int,
                         help='For Tiago\'s attack, the number of pixels to change (on average) for each iteration')
 
     parser.add_argument('-gpu_id', '-gpu', type=int, default=0, required=False,
