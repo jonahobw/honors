@@ -94,8 +94,8 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
     return grad, momentum
 
 
-def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 5, max_iter = 100, speedup = 100,
-               step_size = 1, epsilon = 15, round_grad = True, max_step_size = 16, across_classifiers = None):
+def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 5, max_iter = 100, speedup = 400,
+               step_size = 1, epsilon = 10, round_grad = True, max_step_size = 16, across_classifiers = None):
     # round_grad = if true, will round gradient to nearest integer in the direction that maximizes the absolute value
     # of the gradient
     # max_step_size - will increase step size in a sigmoidal fashion if attack is not succeeding, maxing out at
