@@ -54,4 +54,5 @@ def num_images(folder = None, show_output = True):
 
 if __name__ == '__main__':
     folder = os.path.join(os.getcwd(), "nndt_data", "nndt4_unweighted", "white_circular_fc_augmented", "Train")
+    folder = os.path.join(os.getcwd(), "Train")
     num_images(folder)
