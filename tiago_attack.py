@@ -8,6 +8,7 @@ import time
 import logging
 import random
 import math
+from attack_helper import spans_multiple_classifiers
 
 from attack_helper import print_image
 
@@ -94,7 +95,7 @@ def targeted_num_grad(f, x, prev_grad, delta = 1, momentum = None, speedup = Non
 
 
 def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 5, max_iter = 100, speedup = 100,
-               step_size = 1, epsilon = 10, round_grad = True, max_step_size = 128):
+               step_size = 1, epsilon = 10, round_grad = True, max_step_size = 128, across_classifiers = None):
     # round_grad = if true, will round gradient to nearest integer in the direction that maximizes the absolute value
     # of the gradient
     # max_step_size - will increase step size in a sigmoidal fashion if attack is not succeeding, maxing out at
@@ -125,6 +126,9 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
         if targeted and (pred_class == target_class):
             return True, x
         if not targeted and (pred_class != true_class):
+            if (across_classifiers is not None and not spans_multiple_classifiers(across_classifiers, int(true_class),
+                                                                                  int(pred_class))):
+                continue
             return True, x
         grad, momentum = targeted_num_grad(f, x, prev_grad, delta = delta, momentum=momentum, speedup=speedup,
                                            round_grad = round_grad, saturated_indices = all_saturated_indices)
@@ -205,6 +209,9 @@ def num_ascent(f, x, true_class, target_class, targeted, delta = 1, threshold = 
     if targeted and (pred_class == target_class):
         return True, x
     if not targeted and (pred_class != true_class):
+        if (across_classifiers is not None and not spans_multiple_classifiers(across_classifiers, int(true_class),
+                                                                              int(pred_class))):
+            return False, x
         return True, x
 
     return False, x
@@ -305,13 +312,13 @@ def save_im(img, h, w):
     img.save('adversarial.jpg')
 
 def attack_one(model, img_path, trueclass, targetclass, targeted, nndt = False, delta = 5, max_iter = 100, gpu_id = 0,
-               speedup = 100, epsilon = 15, show_image = False):
+               speedup = 100, epsilon = 15, show_image = False, across_classifiers = None):
     logger.info("---------------Testing image {}---------------".format(img_path))
     img = Image.open(img_path)
     h, w, imgarray = linearize_pixels(img)
     f = create_f(model, h, w, targetclass, trueclass, nndt, gpu_id=gpu_id)
     success, x = num_ascent(f, imgarray, trueclass, targetclass, targeted, delta=delta, max_iter=max_iter,
-                            speedup=speedup, epsilon=epsilon)
+                            speedup=speedup, epsilon=epsilon, across_classifiers = across_classifiers)
 
     logger.info("Attack {}".format("successful" if success else "unsuccessful"))
 

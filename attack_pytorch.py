@@ -164,7 +164,7 @@ def setup_variables_cmdline(args):
     globals()
     global logger, IMG_FOLDER, PLT_FOLDER, ROOT_SAVE_FOLDER, MODEL_PATH, NNDT, PIXELS, RAW_IMG_FOLDER, ATTACK_FOLDER, \
         TRANSFER_FOLDER, UNTAR_IMGS, TAR_IMGS, ACROSS_CLASSIFIERS, MODEL_NAME, TARGETED, ATTACK_PAIRS, SAMPLES, \
-        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID, TIAGO, DELTA, SPEEDUP, EPSILON, SHOW_IMAGE
+        N, SAVE, POP_SIZE, MAX_ITER, ACR_NAME, GPU_ID, TIAGO, DELTA, SPEEDUP, EPSILON, SHOW_IMAGE, TRANSFER
 
     GPU_ID = args.gpu_id
 
@@ -177,23 +177,24 @@ def setup_variables_cmdline(args):
         SPEEDUP = args.speedup
         EPSILON = args.epsilon
 
-    use_nndt = args.model.find('nndt')>=0 #boolean if model is nndt or not
-    if use_nndt:
-        if args.model.find('3')>=0:
-            NNDT = nndt_depth3_unweighted()
-            MODEL_NAME = "nndt3"
-        elif args.model.find('4')>=0:
-            NNDT = nndt_depth4_unweighted()
-            MODEL_NAME = "nndt4"
-        else:
-            print("Invalid nndt name")
-            exit(-1)
-    else: #model is not an nndt
-        if args.model.find('resnet')>=0:
-            args.model = "pytorch_resnet_saved_11_9_20"
-        MODEL_PATH = os.path.join(os.getcwd(), "Models", args.model)
-        MODEL_NAME = args.model
-        NNDT = None
+    if args.model is not None:
+        use_nndt = args.model.find('nndt')>=0 #boolean if model is nndt or not
+        if use_nndt:
+            if args.model.find('3')>=0:
+                NNDT = nndt_depth3_unweighted()
+                MODEL_NAME = "nndt3"
+            elif args.model.find('4')>=0:
+                NNDT = nndt_depth4_unweighted()
+                MODEL_NAME = "nndt4"
+            else:
+                print("Invalid nndt name")
+                exit(-1)
+        else: #model is not an nndt
+            if args.model.find('resnet')>=0:
+                args.model = "pytorch_resnet_saved_11_9_20"
+            MODEL_PATH = os.path.join(os.getcwd(), "Models", args.model)
+            MODEL_NAME = args.model
+            NNDT = None
 
     verbose = args.verbose
     if verbose:
@@ -260,6 +261,7 @@ def setup_variables_cmdline(args):
     if args.transfer:
         TRANSFER = True
         ATTACK_FOLDER = os.path.join(os.getcwd(), "Outputs", "attacks", tar, args.attack_folder)
+        SAVE = True
     else:
         TRANSFER = False
         ATTACK_FOLDER = None
@@ -268,9 +270,31 @@ def setup_variables_cmdline(args):
     POP_SIZE = args.pop_size
     MAX_ITER = args.max_iter
 
-    if args.save:
+
+    if args.save or SAVE:
         SAVE = True
         if TRANSFER:
+
+            #setup transfer model
+            use_nndt = args.transfer_model.find('nndt') >= 0  # boolean if model is nndt or not
+            if use_nndt:
+                if args.transfer_model.find('3') >= 0:
+                    NNDT = nndt_depth3_unweighted()
+                    MODEL_NAME = "nndt3"
+                elif args.transfer_model.find('4') >= 0:
+                    NNDT = nndt_depth4_unweighted()
+                    MODEL_NAME = "nndt4"
+                else:
+                    print("Invalid nndt name")
+                    exit(-1)
+            else:  # model is not an nndt
+                if args.transfer_model.find('resnet') >= 0:
+                    args.transfer_model = "pytorch_resnet_saved_11_9_20"
+                MODEL_PATH = os.path.join(os.getcwd(), "Models", args.transfer_model)
+                MODEL_NAME = args.transfer_model
+                NNDT = None
+
+            # setup folders
             transferability_dir = os.path.join(ATTACK_FOLDER, "transferability")
             # make transferability folder if it does not exist
             if "transferability" not in os.listdir(ATTACK_FOLDER):
@@ -278,7 +302,11 @@ def setup_variables_cmdline(args):
             TRANSFER_FOLDER = os.path.join(transferability_dir, MODEL_NAME + "_transferability")
             os.mkdir(TRANSFER_FOLDER)
             for pix_count in os.listdir(os.path.join(ATTACK_FOLDER, "raw_imgs")):
+                if pix_count.find(".png") >=0:
+                    continue
                 os.mkdir(os.path.join(TRANSFER_FOLDER, pix_count))
+            if TIAGO:
+                os.mkdir(os.path.join(TRANSFER_FOLDER, "successful_adv_imgs"))
             logfile = os.path.join(TRANSFER_FOLDER, "transfer.log")
             logging.basicConfig(filename=logfile, format='%(message)s')
             logging.getLogger("attack_log").addHandler(logging.StreamHandler())
@@ -566,7 +594,8 @@ def attack_all_untargeted(model, image_folder = None, samples=100, pixels=(1, 3,
                                                                           delta=delta,
                                                                           max_iter=maxiter, nndt=nndt, gpu_id=gpu_id,
                                                                           speedup=speedup, epsilon=epsilon,
-                                                                          show_image=show_image)
+                                                                          show_image=show_image,
+                                                                          across_classifiers=across_classifiers)
                 if save and success:
                     save_tiago_im(attack_img, annotation, int(label), original_img=img, filename=img)
             if success:
@@ -703,7 +732,7 @@ def attack_all_targeted(model, random = False, image_folder = None, samples_per_
                                                                   targetclass=target_class, targeted=True, delta=delta,
                                                                   max_iter=maxiter, nndt = nndt, gpu_id=gpu_id,
                                                                   show_image=show_image, speedup=speedup,
-                                                                              epsilon=epsilon)
+                                                                  epsilon=epsilon)
                     logger.debug("IN TARGETED_ATTACK: SAVE: {},  SUCCESS: {}".format(save, success))
                     if save and success:
                         save_tiago_im(attack_img, annotation, true_class, img, target=target_class,
@@ -853,27 +882,31 @@ def run_plot_attack(targeted = True):
         plot_untargeted(r, pix, s, m, p)
 
 
-def transferability(transfer_model, nndt, img_folder, targeted, across_classifiers, save = True, save_folder = None):
+def transferability(transfer_model, nndt, img_folder, targeted, across_classifiers, save = True, save_folder = None,
+                    tiago = False):
     # parameters:
     # ------------------------------------
     # transfer_model (pytorch object or nndt object):   model that predicts images
     # nndt (boolean):   indicates if transfer_model is an nndt (True) or a pytorch model (False)
     # img_folder (string path): path to the root folder containing raw images that successfully fooled the attack model
-    #                       during the attack; this folder is organized into subfolders by pixel count
+    #                       during the attack; this folder is organized into subfolders by pixel count if tiago is false
     # save_folder (string path):    where to save successful adversarial images on the transfer model.  The path to the
     #                               root folder orgainized by subfolders by pixel count
     # targeted (bool): if the attack was targeted or not
     # across_classifiers (2d array):    if not None, then a 2d array where the first dimension are final classifiers in
     #                                   an nndt and the second dimension are the classes in that final classifier,
     #                                   restricts what is called a successful adversarial image in untargeted attacks
+    # tiago (bool): if true, this is tiago's attack, else, it is an N pixel attack
 
     logger.info("-----Attacking Parameters:-----")
     logger.info("Transfer model:        {}".format(str(transfer_model)))
     logger.info("NNDT:                  {}".format("False" if nndt is None else "True"))
     logger.info("Targeted:              {}".format(str(targeted)))
+    logger.info("Attack:                {}".format("Tiago" if tiago else "N-Pixel"))
     logger.info("Original images:       {}".format(str(img_folder[-100:])))
     logger.info("Transfer images:       {}".format(str(save_folder[-100:])))
     logger.info("Across Classifers:     {}\n\n".format(str(across_classifiers)))
+
 
     # results is a dict where the keys are the number of pixels and the values are a tuple of the form
     # (# of successful transferable adversarial images for that pixel count,
@@ -883,12 +916,17 @@ def transferability(transfer_model, nndt, img_folder, targeted, across_classifie
     total_transf = 0
 
     pixels = [x for x in os.listdir(img_folder)]
+    if tiago:
+        pixels = [img_folder]
     for pix_count in pixels:
         pix_folder = os.path.join(img_folder, pix_count)
         adv_imgs = os.listdir(pix_folder)
         adv_img_count = len(adv_imgs)
         total_imgs += adv_img_count
-        logger.info("\nTesting {} {} images:".format(str(adv_img_count), str(pix_count)))
+        if tiago:
+            logger.info("\nTesting {} images".format(str(adv_img_count)))
+        else:
+            logger.info("\nTesting {} {} images:".format(str(adv_img_count), str(pix_count)))
 
         success_count = 0
 
@@ -938,7 +976,10 @@ def transferability(transfer_model, nndt, img_folder, targeted, across_classifie
                     plt.imshow(np.array(im))
                     plt.title(annotation)
                     plt.tight_layout()
-                    fname = os.path.join(save_folder, pix_count, adv_img)
+                    if tiago:
+                        fname = os.path.join(save_folder, "successful_adv_imgs", adv_img)
+                    else:
+                        fname = os.path.join(save_folder, pix_count, adv_img)
                     plt.savefig(fname)
         results[pix_count] = (success_count, adv_img_count)
         total_transf += success_count
@@ -973,7 +1014,7 @@ def run_transfer():
 
     img_folder = os.path.join(ATTACK_FOLDER, "raw_imgs")
     transferability(transfer_model=model, nndt=nndt, img_folder=img_folder, targeted=TARGETED,
-                    across_classifiers=ACROSS_CLASSIFIERS, save=SAVE, save_folder=save_folder)
+                    across_classifiers=ACROSS_CLASSIFIERS, save=SAVE, save_folder=save_folder, tiago = TIAGO)
     return
 
 

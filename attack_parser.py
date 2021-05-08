@@ -9,7 +9,7 @@ def getParser():
 
     parser = argparse.ArgumentParser(description='attack arguments')
 
-    parser.add_argument('-model', required=True,
+    parser.add_argument('-model', required=False, default=None,
                         help='Neural net to use.  If this is a regular resnet model, this should be the filename of the'
                              ' model in the ./Models folder in string format. If this is an nndt, this should be the'
                              ' name of the nndt class in string format')
