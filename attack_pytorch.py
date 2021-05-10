@@ -8,6 +8,7 @@ import logging
 from attack_helper import *
 from attack_parser import *
 import tiago_attack
+import shutil
 
 # the GPU ID to use.  Purpose is for when you want to run multiple attacks simultaneously on different GPUs
 GPU_ID = 0
@@ -300,6 +301,8 @@ def setup_variables_cmdline(args):
             if "transferability" not in os.listdir(ATTACK_FOLDER):
                 os.mkdir(transferability_dir)
             TRANSFER_FOLDER = os.path.join(transferability_dir, MODEL_NAME + "_transferability")
+            if os.path.exists(TRANSFER_FOLDER):
+                shutil.rmtree(TRANSFER_FOLDER)
             os.mkdir(TRANSFER_FOLDER)
             for pix_count in os.listdir(os.path.join(ATTACK_FOLDER, "raw_imgs")):
                 if pix_count.find(".png") >=0:
@@ -907,7 +910,13 @@ def transferability(transfer_model, nndt, img_folder, targeted, across_classifie
     logger.info("Transfer images:       {}".format(str(save_folder[-100:])))
     logger.info("Across Classifers:     {}\n\n".format(str(across_classifiers)))
 
-
+    # used to count number of successful adversarial images that did not span across
+    # classifiers in attacks where there is no across classifiers
+    if across_classifiers is None:
+        n3_acr = nndt_depth3_unweighted.leaf_classifier_groups()
+        n4_acr = nndt_depth4_unweighted.leaf_classifier_groups()
+        total_across_classifiers3 = 0
+        total_across_classifiers4 = 0
     # results is a dict where the keys are the number of pixels and the values are a tuple of the form
     # (# of successful transferable adversarial images for that pixel count,
     #  total # of adversarial images for that pixel count)
@@ -957,7 +966,11 @@ def transferability(transfer_model, nndt, img_folder, targeted, across_classifie
                 if across_classifiers is not None and not spans_multiple_classifiers(across_classifiers,
                                                                                      true_class, predicted_class):
                     success = False
-
+                if across_classifiers is None:
+                    if spans_multiple_classifiers(n3_acr, true_class, predicted_class):
+                        total_across_classifiers3 += 1
+                    if spans_multiple_classifiers(n4_acr, true_class, predicted_class):
+                        total_across_classifiers4 += 1
             annotation = '   Model Confidence in true class   {}:     {:4f}%'.format(str(true_class),
                                                                                   true_class_confidence * 100)
             if targeted:
@@ -997,6 +1010,12 @@ def transferability(transfer_model, nndt, img_folder, targeted, across_classifie
                                                                                        100*total_transf/total_imgs))
     else:
         logger.info("No successful adversarial images on original attack.")
+
+    logger.info("{}/{} successful adversarial images spanned multiple NNDT3 classifiers, ({:.4f}%)"
+                .format(total_across_classifiers3, total_transf, 100* total_across_classifiers3/total_transf))
+
+    logger.info("{}/{} successful adversarial images spanned multiple NNDT4 classifiers, ({:.4f}%)"
+                .format(total_across_classifiers4, total_transf, 100 * total_across_classifiers4 / total_transf))
 
     return
 

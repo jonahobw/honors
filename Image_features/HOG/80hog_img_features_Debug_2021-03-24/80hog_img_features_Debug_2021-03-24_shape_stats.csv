@@ -1,0 +1,52 @@
+2 clusters
+% of total shape images in cluster
+shape/cluster,cluster 0,cluster 1
+circle,0.112,0.888
+triangle,0.13333333333333333,0.8666666666666667
+diamond,0.0,1.0
+inverted_triangle,0.4,0.6
+octagon,0.0,1.0
+
+% of cluster made up of shape
+cluster/shape,circle,triangle,diamond,inverted_triangle,octagon
+cluster 0,0.5384615384615384,0.38461538461538464,0.0,0.07692307692307693,0.0
+cluster 1,0.5873015873015873,0.3439153439153439,0.026455026455026454,0.015873015873015872,0.026455026455026454
+
+
+3 clusters
+% of total shape images in cluster
+shape/cluster,cluster 0,cluster 1,cluster 2
+circle,0.872,0.124,0.004
+triangle,0.8666666666666667,0.13333333333333333,0.0
+diamond,1.0,0.0,0.0
+inverted_triangle,0.6,0.4,0.0
+octagon,1.0,0.0,0.0
+
+% of cluster made up of shape
+cluster/shape,circle,triangle,diamond,inverted_triangle,octagon
+cluster 0,0.5828877005347594,0.34759358288770054,0.026737967914438502,0.016042780748663103,0.026737967914438502
+cluster 1,0.5636363636363636,0.36363636363636365,0.0,0.07272727272727272,0.0
+cluster 2,1.0,0.0,0.0,0.0,0.0
+
+
+4 clusters
+% of total shape images in cluster
+shape/cluster,cluster 0,cluster 1,cluster 2,cluster 3
+circle,0.872,0.124,0.004,0.0
+triangle,0.86,0.13333333333333333,0.0,0.006666666666666667
+diamond,1.0,0.0,0.0,0.0
+inverted_triangle,0.6,0.4,0.0,0.0
+octagon,1.0,0.0,0.0,0.0
+
+% of cluster made up of shape
+cluster/shape,circle,triangle,diamond,inverted_triangle,octagon
+cluster 0,0.5844504021447721,0.34584450402144773,0.02680965147453083,0.0160857908847185,0.02680965147453083
+cluster 1,0.5636363636363636,0.36363636363636365,0.0,0.07272727272727272,0.0
+cluster 2,1.0,0.0,0.0,0.0,0.0
+cluster 3,0.0,1.0,0.0,0.0,0.0
+
+
+Metrics
+2 clusters, 0.3806435555555556
+3 clusters, 0.3873315555555556
+4 clusters, 0.3891982222222223

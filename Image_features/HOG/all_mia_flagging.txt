@@ -1,0 +1,2753 @@
+C:\Users\Jonah\Desktop\Jonah\1Senior\Honors\Pycharm\GTSRB_ResNet\venv\Scripts\python.exe C:/Users/Jonah/Desktop/Jonah/1Senior/Honors/Pycharm/GTSRB_ResNet/unsupervised.py
+
+Testing 83 images
+Image trueclass_10_target_10_00485.png
+Image trueclass_10_target_10_00485.pngModel prediction was class 17
+   Flagging successful
+
+Image trueclass_10_target_10_01264.png
+Image trueclass_10_target_10_01264.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_03260.png
+Image trueclass_10_target_10_03260.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_03642.png
+Image trueclass_10_target_10_03642.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_05937.png
+Image trueclass_10_target_10_05937.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_09939.png
+Image trueclass_10_target_10_09939.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_10438.png
+Image trueclass_10_target_10_10438.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_11048.png
+Image trueclass_10_target_10_11048.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_11300.png
+Image trueclass_10_target_10_11300.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_11_target_11_02193.png
+Image trueclass_11_target_11_02193.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_11_target_11_11670.png
+Image trueclass_11_target_11_11670.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_12_target_12_11349.png
+Image trueclass_12_target_12_11349.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_00231.png
+Image trueclass_13_target_13_00231.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_13_target_13_02341.png
+Image trueclass_13_target_13_02341.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_03803.png
+Image trueclass_13_target_13_03803.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_08442.png
+Image trueclass_13_target_13_08442.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_10284.png
+Image trueclass_13_target_13_10284.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_11271.png
+Image trueclass_13_target_13_11271.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09643.png
+Image trueclass_14_target_14_09643.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_15_target_15_00797.png
+Image trueclass_15_target_15_00797.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_16_target_16_04764.png
+Image trueclass_16_target_16_04764.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_16_target_16_04952.png
+Image trueclass_16_target_16_04952.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_08801.png
+Image trueclass_17_target_17_08801.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_10375.png
+Image trueclass_17_target_17_10375.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_01606.png
+Image trueclass_18_target_18_01606.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_02782.png
+Image trueclass_18_target_18_02782.pngModel prediction was class 26
+   Flagging unsuccessful
+
+Image trueclass_1_target_1_02849.png
+Image trueclass_1_target_1_02849.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_1_target_1_11506.png
+Image trueclass_1_target_1_11506.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_20_target_20_01760.png
+Image trueclass_20_target_20_01760.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_21_target_21_08984.png
+Image trueclass_21_target_21_08984.pngModel prediction was class 26
+   Flagging unsuccessful
+
+Image trueclass_24_target_24_02396.png
+Image trueclass_24_target_24_02396.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_25_target_25_01918.png
+Image trueclass_25_target_25_01918.pngModel prediction was class 29
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_02380.png
+Image trueclass_26_target_26_02380.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_08817.png
+Image trueclass_26_target_26_08817.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_09177.png
+Image trueclass_26_target_26_09177.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_10547.png
+Image trueclass_26_target_26_10547.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_27_target_27_06038.png
+Image trueclass_27_target_27_06038.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_29_target_29_02347.png
+Image trueclass_29_target_29_02347.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_02144.png
+Image trueclass_2_target_2_02144.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_02939.png
+Image trueclass_2_target_2_02939.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_09707.png
+Image trueclass_2_target_2_09707.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_10982.png
+Image trueclass_2_target_2_10982.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_12136.png
+Image trueclass_2_target_2_12136.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_30_target_30_05851.png
+Image trueclass_30_target_30_05851.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 16
+   Flagging successful
+
+Image trueclass_31_target_31_08362.png
+Image trueclass_31_target_31_08362.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_11568.png
+Image trueclass_31_target_31_11568.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_36_target_36_10443.png
+Image trueclass_36_target_36_10443.pngModel prediction was class 37
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_07721.png
+Image trueclass_38_target_38_07721.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_08083.png
+Image trueclass_38_target_38_08083.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_08913.png
+Image trueclass_38_target_38_08913.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_10906.png
+Image trueclass_38_target_38_10906.pngModel prediction was class 39
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_11313.png
+Image trueclass_38_target_38_11313.pngModel prediction was class 40
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_00774.png
+Image trueclass_3_target_3_00774.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_03622.png
+Image trueclass_3_target_3_03622.pngModel prediction was class 25
+   Flagging successful
+
+Image trueclass_3_target_3_05060.png
+Image trueclass_3_target_3_05060.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_3_target_3_08196.png
+Image trueclass_3_target_3_08196.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_10897.png
+Image trueclass_3_target_3_10897.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_11399.png
+Image trueclass_3_target_3_11399.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_11442.png
+Image trueclass_3_target_3_11442.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_12370.png
+Image trueclass_3_target_3_12370.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_40_target_40_03103.png
+Image trueclass_40_target_40_03103.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_42_target_42_00795.png
+Image trueclass_42_target_42_00795.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_4_target_4_02497.png
+Image trueclass_4_target_4_02497.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_03169.png
+Image trueclass_4_target_4_03169.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_07371.png
+Image trueclass_4_target_4_07371.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_09865.png
+Image trueclass_4_target_4_09865.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_4_target_4_10895.png
+Image trueclass_4_target_4_10895.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_00630.png
+Image trueclass_5_target_5_00630.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_02234.png
+Image trueclass_5_target_5_02234.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_04195.png
+Image trueclass_5_target_5_04195.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_10479.png
+Image trueclass_5_target_5_10479.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_12477.png
+Image trueclass_5_target_5_12477.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_05952.png
+Image trueclass_7_target_7_05952.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_10791.png
+Image trueclass_7_target_7_10791.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_11631.png
+Image trueclass_7_target_7_11631.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_00022.png
+Image trueclass_9_target_9_00022.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_9_target_9_00342.png
+Image trueclass_9_target_9_00342.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_02876.png
+Image trueclass_9_target_9_02876.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_08950.png
+Image trueclass_9_target_9_08950.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_11903.png
+Image trueclass_9_target_9_11903.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_12052.png
+Image trueclass_9_target_9_12052.pngModel prediction was class 10
+   Flagging unsuccessful
+
+
+
+Total: 10/83 images successfully flagged (12.048193%)
+There were 14 images which should have been flagged, 5 of which were. (35.7143%).
+
+Testing 86 images
+Image trueclass_10_target_10_00485.png
+Image trueclass_10_target_10_00485.pngModel prediction was class 13
+   Flagging successful
+
+Image trueclass_10_target_10_01264.png
+Image trueclass_10_target_10_01264.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_03260.png
+Image trueclass_10_target_10_03260.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_10_target_10_03642.png
+Image trueclass_10_target_10_03642.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_05937.png
+Image trueclass_10_target_10_05937.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_09939.png
+Image trueclass_10_target_10_09939.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_10438.png
+Image trueclass_10_target_10_10438.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_11048.png
+Image trueclass_10_target_10_11048.pngModel prediction was class 9
+   Flagging successful
+
+Image trueclass_10_target_10_11300.png
+Image trueclass_10_target_10_11300.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_11_target_11_02193.png
+Image trueclass_11_target_11_02193.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_11_target_11_11670.png
+Image trueclass_11_target_11_11670.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_11_target_11_11863.png
+Image trueclass_11_target_11_11863.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_00231.png
+Image trueclass_13_target_13_00231.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_02341.png
+Image trueclass_13_target_13_02341.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_03803.png
+Image trueclass_13_target_13_03803.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_08442.png
+Image trueclass_13_target_13_08442.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_10284.png
+Image trueclass_13_target_13_10284.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09145.png
+Image trueclass_14_target_14_09145.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09643.png
+Image trueclass_14_target_14_09643.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_15_target_15_00797.png
+Image trueclass_15_target_15_00797.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_16_target_16_04764.png
+Image trueclass_16_target_16_04764.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_16_target_16_04952.png
+Image trueclass_16_target_16_04952.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_01606.png
+Image trueclass_18_target_18_01606.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_02782.png
+Image trueclass_18_target_18_02782.pngModel prediction was class 26
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_05574.png
+Image trueclass_18_target_18_05574.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_1_target_1_02849.png
+Image trueclass_1_target_1_02849.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_1_target_1_11506.png
+Image trueclass_1_target_1_11506.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_20_target_20_01760.png
+Image trueclass_20_target_20_01760.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_21_target_21_12459.png
+Image trueclass_21_target_21_12459.pngModel prediction was class 31
+   Flagging unsuccessful
+
+Image trueclass_24_target_24_02396.png
+Image trueclass_24_target_24_02396.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_25_target_25_01918.png
+Image trueclass_25_target_25_01918.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_01750.png
+Image trueclass_26_target_26_01750.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_02380.png
+Image trueclass_26_target_26_02380.pngModel prediction was class 1
+   Flagging successful
+
+Image trueclass_26_target_26_06744.png
+Image trueclass_26_target_26_06744.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_08817.png
+Image trueclass_26_target_26_08817.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_09177.png
+Image trueclass_26_target_26_09177.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_10547.png
+Image trueclass_26_target_26_10547.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_27_target_27_06038.png
+Image trueclass_27_target_27_06038.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_02144.png
+Image trueclass_2_target_2_02144.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_02939.png
+Image trueclass_2_target_2_02939.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_09707.png
+Image trueclass_2_target_2_09707.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_10982.png
+Image trueclass_2_target_2_10982.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_12136.png
+Image trueclass_2_target_2_12136.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_30_target_30_05851.png
+Image trueclass_30_target_30_05851.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_31_target_31_08362.png
+Image trueclass_31_target_31_08362.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_11568.png
+Image trueclass_31_target_31_11568.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_36_target_36_10443.png
+Image trueclass_36_target_36_10443.pngModel prediction was class 33
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_07721.png
+Image trueclass_38_target_38_07721.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_08083.png
+Image trueclass_38_target_38_08083.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_08913.png
+Image trueclass_38_target_38_08913.pngModel prediction was class 40
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_10906.png
+Image trueclass_38_target_38_10906.pngModel prediction was class 40
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_11313.png
+Image trueclass_38_target_38_11313.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_12606.png
+Image trueclass_38_target_38_12606.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_00774.png
+Image trueclass_3_target_3_00774.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_01535.png
+Image trueclass_3_target_3_01535.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_03622.png
+Image trueclass_3_target_3_03622.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_05060.png
+Image trueclass_3_target_3_05060.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_08196.png
+Image trueclass_3_target_3_08196.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_10897.png
+Image trueclass_3_target_3_10897.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_11399.png
+Image trueclass_3_target_3_11399.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_11442.png
+Image trueclass_3_target_3_11442.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_12370.png
+Image trueclass_3_target_3_12370.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_40_target_40_03103.png
+Image trueclass_40_target_40_03103.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_42_target_42_00795.png
+Image trueclass_42_target_42_00795.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_4_target_4_02497.png
+Image trueclass_4_target_4_02497.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_03169.png
+Image trueclass_4_target_4_03169.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_07371.png
+Image trueclass_4_target_4_07371.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_09865.png
+Image trueclass_4_target_4_09865.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_10895.png
+Image trueclass_4_target_4_10895.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_5_target_5_00630.png
+Image trueclass_5_target_5_00630.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_02234.png
+Image trueclass_5_target_5_02234.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_04195.png
+Image trueclass_5_target_5_04195.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_10479.png
+Image trueclass_5_target_5_10479.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_12477.png
+Image trueclass_5_target_5_12477.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_05952.png
+Image trueclass_7_target_7_05952.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_10791.png
+Image trueclass_7_target_7_10791.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_11631.png
+Image trueclass_7_target_7_11631.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_00022.png
+Image trueclass_9_target_9_00022.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_00342.png
+Image trueclass_9_target_9_00342.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_02876.png
+Image trueclass_9_target_9_02876.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_04407.png
+Image trueclass_9_target_9_04407.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_08950.png
+Image trueclass_9_target_9_08950.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_11903.png
+Image trueclass_9_target_9_11903.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_12052.png
+Image trueclass_9_target_9_12052.pngModel prediction was class 10
+   Flagging unsuccessful
+
+
+
+Total: 8/86 images successfully flagged (9.302326%)
+There were 13 images which should have been flagged, 3 of which were. (23.0769%).
+
+Testing 84 images
+Image trueclass_10_target_10_00485.png
+Image trueclass_10_target_10_00485.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_01264.png
+Image trueclass_10_target_10_01264.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_03260.png
+Image trueclass_10_target_10_03260.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_10_target_10_03642.png
+Image trueclass_10_target_10_03642.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_05937.png
+Image trueclass_10_target_10_05937.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_09939.png
+Image trueclass_10_target_10_09939.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_10438.png
+Image trueclass_10_target_10_10438.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_11048.png
+Image trueclass_10_target_10_11048.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_10_target_10_11300.png
+Image trueclass_10_target_10_11300.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_11_target_11_02193.png
+Image trueclass_11_target_11_02193.pngModel prediction was class 25
+   Flagging unsuccessful
+
+Image trueclass_11_target_11_11670.png
+Image trueclass_11_target_11_11670.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_00231.png
+Image trueclass_13_target_13_00231.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_02341.png
+Image trueclass_13_target_13_02341.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_03803.png
+Image trueclass_13_target_13_03803.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_08442.png
+Image trueclass_13_target_13_08442.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_10284.png
+Image trueclass_13_target_13_10284.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09145.png
+Image trueclass_14_target_14_09145.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09643.png
+Image trueclass_14_target_14_09643.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_15_target_15_00797.png
+Image trueclass_15_target_15_00797.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_15_target_15_00952.png
+Image trueclass_15_target_15_00952.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_16_target_16_04764.png
+Image trueclass_16_target_16_04764.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_16_target_16_04952.png
+Image trueclass_16_target_16_04952.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_08801.png
+Image trueclass_17_target_17_08801.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_10375.png
+Image trueclass_17_target_17_10375.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_01606.png
+Image trueclass_18_target_18_01606.pngModel prediction was class 26
+   Flagging unsuccessful
+
+Image trueclass_18_target_18_02782.png
+Image trueclass_18_target_18_02782.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_1_target_1_02849.png
+Image trueclass_1_target_1_02849.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_1_target_1_11506.png
+Image trueclass_1_target_1_11506.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_20_target_20_12579.png
+Image trueclass_20_target_20_12579.pngModel prediction was class 29
+   Flagging unsuccessful
+
+Image trueclass_24_target_24_02396.png
+Image trueclass_24_target_24_02396.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_25_target_25_01918.png
+Image trueclass_25_target_25_01918.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_01750.png
+Image trueclass_26_target_26_01750.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_02380.png
+Image trueclass_26_target_26_02380.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_06744.png
+Image trueclass_26_target_26_06744.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_08817.png
+Image trueclass_26_target_26_08817.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_09177.png
+Image trueclass_26_target_26_09177.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_10547.png
+Image trueclass_26_target_26_10547.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_27_target_27_06038.png
+Image trueclass_27_target_27_06038.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_02144.png
+Image trueclass_2_target_2_02144.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_02939.png
+Image trueclass_2_target_2_02939.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_09707.png
+Image trueclass_2_target_2_09707.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_10982.png
+Image trueclass_2_target_2_10982.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_12136.png
+Image trueclass_2_target_2_12136.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_30_target_30_05851.png
+Image trueclass_30_target_30_05851.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 16
+   Flagging successful
+
+Image trueclass_31_target_31_08362.png
+Image trueclass_31_target_31_08362.pngModel prediction was class 30
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_11568.png
+Image trueclass_31_target_31_11568.pngModel prediction was class 29
+   Flagging unsuccessful
+
+Image trueclass_36_target_36_10443.png
+Image trueclass_36_target_36_10443.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_08083.png
+Image trueclass_38_target_38_08083.pngModel prediction was class 40
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_10906.png
+Image trueclass_38_target_38_10906.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_11097.png
+Image trueclass_38_target_38_11097.pngModel prediction was class 34
+   Flagging unsuccessful
+
+Image trueclass_38_target_38_11313.png
+Image trueclass_38_target_38_11313.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_00774.png
+Image trueclass_3_target_3_00774.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_01535.png
+Image trueclass_3_target_3_01535.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_03622.png
+Image trueclass_3_target_3_03622.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_05060.png
+Image trueclass_3_target_3_05060.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_08196.png
+Image trueclass_3_target_3_08196.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_10897.png
+Image trueclass_3_target_3_10897.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_11399.png
+Image trueclass_3_target_3_11399.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_11442.png
+Image trueclass_3_target_3_11442.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_12370.png
+Image trueclass_3_target_3_12370.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_40_target_40_03103.png
+Image trueclass_40_target_40_03103.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_42_target_42_00795.png
+Image trueclass_42_target_42_00795.pngModel prediction was class 32
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_02497.png
+Image trueclass_4_target_4_02497.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_03169.png
+Image trueclass_4_target_4_03169.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_4_target_4_07371.png
+Image trueclass_4_target_4_07371.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_4_target_4_09865.png
+Image trueclass_4_target_4_09865.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_4_target_4_10895.png
+Image trueclass_4_target_4_10895.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_5_target_5_00630.png
+Image trueclass_5_target_5_00630.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_02234.png
+Image trueclass_5_target_5_02234.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_04195.png
+Image trueclass_5_target_5_04195.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_10479.png
+Image trueclass_5_target_5_10479.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_5_target_5_12477.png
+Image trueclass_5_target_5_12477.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_05952.png
+Image trueclass_7_target_7_05952.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_10791.png
+Image trueclass_7_target_7_10791.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_7_11631.png
+Image trueclass_7_target_7_11631.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_00022.png
+Image trueclass_9_target_9_00022.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_9_target_9_00342.png
+Image trueclass_9_target_9_00342.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_02876.png
+Image trueclass_9_target_9_02876.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_04407.png
+Image trueclass_9_target_9_04407.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_08950.png
+Image trueclass_9_target_9_08950.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_11903.png
+Image trueclass_9_target_9_11903.pngModel prediction was class 10
+   Flagging unsuccessful
+
+Image trueclass_9_target_9_12052.png
+Image trueclass_9_target_9_12052.pngModel prediction was class 10
+   Flagging unsuccessful
+
+
+
+Total: 8/84 images successfully flagged (9.523810%)
+There were 13 images which should have been flagged, 1 of which were. (7.6923%).
+
+Testing 13 images
+Image trueclass_10_target_10_11300.png
+Image trueclass_10_target_10_11300.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_12_target_12_11349.png
+Image trueclass_12_target_12_11349.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_00231.png
+Image trueclass_13_target_13_00231.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_13_target_13_02341.png
+Image trueclass_13_target_13_02341.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_03803.png
+Image trueclass_13_target_13_03803.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_08442.png
+Image trueclass_13_target_13_08442.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_11271.png
+Image trueclass_13_target_13_11271.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09643.png
+Image trueclass_14_target_14_09643.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_15_target_15_00797.png
+Image trueclass_15_target_15_00797.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_21_target_21_08984.png
+Image trueclass_21_target_21_08984.pngModel prediction was class 2
+   Flagging successful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 16
+   Flagging successful
+
+Image trueclass_3_target_3_05060.png
+Image trueclass_3_target_3_05060.pngModel prediction was class 28
+   Flagging successful
+
+
+
+Total: 5/13 images successfully flagged (38.461538%)
+There were 13 images which should have been flagged, 5 of which were. (38.4615%).
+
+Testing 7 images
+Image trueclass_10_target_10_00485.png
+Image trueclass_10_target_10_00485.pngModel prediction was class 13
+   Flagging successful
+
+Image trueclass_13_target_13_10284.png
+Image trueclass_13_target_13_10284.pngModel prediction was class 5
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_02380.png
+Image trueclass_26_target_26_02380.pngModel prediction was class 1
+   Flagging successful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_38_target_38_12606.png
+Image trueclass_38_target_38_12606.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_00774.png
+Image trueclass_3_target_3_00774.pngModel prediction was class 14
+   Flagging unsuccessful
+
+
+
+Total: 3/7 images successfully flagged (42.857143%)
+There were 7 images which should have been flagged, 3 of which were. (42.8571%).
+
+Testing 20 images
+Image trueclass_10_target_10_11300.png
+Image trueclass_10_target_10_11300.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_11_target_11_02193.png
+Image trueclass_11_target_11_02193.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_12_target_12_11349.png
+Image trueclass_12_target_12_11349.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_00231.png
+Image trueclass_13_target_13_00231.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_02341.png
+Image trueclass_13_target_13_02341.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_03803.png
+Image trueclass_13_target_13_03803.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_08442.png
+Image trueclass_13_target_13_08442.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_13_target_13_11271.png
+Image trueclass_13_target_13_11271.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_14_target_14_09643.png
+Image trueclass_14_target_14_09643.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_15_target_15_00797.png
+Image trueclass_15_target_15_00797.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_20_target_20_01760.png
+Image trueclass_20_target_20_01760.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_21_target_21_08984.png
+Image trueclass_21_target_21_08984.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_24_target_24_02396.png
+Image trueclass_24_target_24_02396.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_26_target_26_02380.png
+Image trueclass_26_target_26_02380.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_29_target_29_02347.png
+Image trueclass_29_target_29_02347.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_30_target_30_05851.png
+Image trueclass_30_target_30_05851.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 16
+   Flagging successful
+
+Image trueclass_31_target_31_08362.png
+Image trueclass_31_target_31_08362.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_11568.png
+Image trueclass_31_target_31_11568.pngModel prediction was class 20
+   Flagging unsuccessful
+
+
+
+Total: 2/20 images successfully flagged (10.000000%)
+There were 11 images which should have been flagged, 2 of which were. (18.1818%).
+
+Testing 10 images
+Image trueclass_11_target_11_02193.png
+Image trueclass_11_target_11_02193.pngModel prediction was class 25
+   Flagging unsuccessful
+
+Image trueclass_17_target_17_06561.png
+Image trueclass_17_target_17_06561.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_20_target_20_12579.png
+Image trueclass_20_target_20_12579.pngModel prediction was class 29
+   Flagging unsuccessful
+
+Image trueclass_27_target_27_06038.png
+Image trueclass_27_target_27_06038.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_2_target_2_12136.png
+Image trueclass_2_target_2_12136.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_30_target_30_05851.png
+Image trueclass_30_target_30_05851.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_31_target_31_02790.png
+Image trueclass_31_target_31_02790.pngModel prediction was class 16
+   Flagging successful
+
+Image trueclass_38_target_38_11313.png
+Image trueclass_38_target_38_11313.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_3_target_3_05060.png
+Image trueclass_3_target_3_05060.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_4_target_4_03169.png
+Image trueclass_4_target_4_03169.pngModel prediction was class 38
+   Flagging successful
+
+
+
+Total: 2/10 images successfully flagged (20.000000%)
+There were 5 images which should have been flagged, 1 of which were. (20.0000%).
+
+Testing 59 images
+Image trueclass_10_target_27_12629.png
+Image trueclass_10_target_27_12629.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_11_target_29_12611.png
+Image trueclass_11_target_29_12611.pngModel prediction was class 29
+   Flagging unsuccessful
+
+Image trueclass_13_target_16_12620.png
+Image trueclass_13_target_16_12620.pngModel prediction was class 16
+   Flagging unsuccessful
+
+Image trueclass_13_target_17_12620.png
+Image trueclass_13_target_17_12620.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_13_target_7_12620.png
+Image trueclass_13_target_7_12620.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_17_target_14_12573.png
+Image trueclass_17_target_14_12573.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_17_target_19_12573.png
+Image trueclass_17_target_19_12573.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_17_target_21_12573.png
+Image trueclass_17_target_21_12573.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_17_target_4_12573.png
+Image trueclass_17_target_4_12573.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_19_target_5_12478.png
+Image trueclass_19_target_5_12478.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_20_target_22_12579.png
+Image trueclass_20_target_22_12579.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_20_target_35_12579.png
+Image trueclass_20_target_35_12579.pngModel prediction was class 35
+   Flagging successful
+
+Image trueclass_20_target_5_12579.png
+Image trueclass_20_target_5_12579.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_21_target_38_12459.png
+Image trueclass_21_target_38_12459.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_23_target_14_12567.png
+Image trueclass_23_target_14_12567.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_24_target_19_12602.png
+Image trueclass_24_target_19_12602.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_24_target_22_12602.png
+Image trueclass_24_target_22_12602.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_24_target_23_12602.png
+Image trueclass_24_target_23_12602.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_24_target_3_12602.png
+Image trueclass_24_target_3_12602.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_24_target_7_12602.png
+Image trueclass_24_target_7_12602.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_26_target_11_12507.png
+Image trueclass_26_target_11_12507.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_26_target_22_12507.png
+Image trueclass_26_target_22_12507.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_27_target_12_10100.png
+Image trueclass_27_target_12_10100.pngModel prediction was class 12
+   Flagging successful
+
+Image trueclass_29_target_14_12470.png
+Image trueclass_29_target_14_12470.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_29_target_18_12470.png
+Image trueclass_29_target_18_12470.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_29_target_24_12470.png
+Image trueclass_29_target_24_12470.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_2_target_29_12580.png
+Image trueclass_2_target_29_12580.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_30_target_15_12563.png
+Image trueclass_30_target_15_12563.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_30_target_17_12563.png
+Image trueclass_30_target_17_12563.pngModel prediction was class 17
+   Flagging successful
+
+Image trueclass_30_target_28_12563.png
+Image trueclass_30_target_28_12563.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_31_target_19_12619.png
+Image trueclass_31_target_19_12619.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_32_target_18_12498.png
+Image trueclass_32_target_18_12498.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_32_target_41_12498.png
+Image trueclass_32_target_41_12498.pngModel prediction was class 41
+   Flagging unsuccessful
+
+Image trueclass_35_target_7_12623.png
+Image trueclass_35_target_7_12623.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_36_target_33_12320.png
+Image trueclass_36_target_33_12320.pngModel prediction was class 33
+   Flagging unsuccessful
+
+Image trueclass_37_target_31_12349.png
+Image trueclass_37_target_31_12349.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_37_target_4_12349.png
+Image trueclass_37_target_4_12349.pngModel prediction was class 4
+   Flagging successful
+
+Image trueclass_38_target_18_12606.png
+Image trueclass_38_target_18_12606.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_38_target_8_12606.png
+Image trueclass_38_target_8_12606.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_40_target_38_12475.png
+Image trueclass_40_target_38_12475.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_42_target_29_12502.png
+Image trueclass_42_target_29_12502.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_42_target_31_12502.png
+Image trueclass_42_target_31_12502.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_42_target_35_12502.png
+Image trueclass_42_target_35_12502.pngModel prediction was class 35
+   Flagging unsuccessful
+
+Image trueclass_42_target_6_12502.png
+Image trueclass_42_target_6_12502.pngModel prediction was class 6
+   Flagging unsuccessful
+
+Image trueclass_42_target_8_12502.png
+Image trueclass_42_target_8_12502.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_4_target_24_12523.png
+Image trueclass_4_target_24_12523.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_4_target_39_12523.png
+Image trueclass_4_target_39_12523.pngModel prediction was class 39
+   Flagging unsuccessful
+
+Image trueclass_4_target_6_12523.png
+Image trueclass_4_target_6_12523.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_6_target_13_12627.png
+Image trueclass_6_target_13_12627.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_6_target_18_12627.png
+Image trueclass_6_target_18_12627.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_6_target_27_12627.png
+Image trueclass_6_target_27_12627.pngModel prediction was class 27
+   Flagging successful
+
+Image trueclass_7_target_0_12628.png
+Image trueclass_7_target_0_12628.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_7_target_42_12628.png
+Image trueclass_7_target_42_12628.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_7_target_5_12628.png
+Image trueclass_7_target_5_12628.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_7_target_6_12628.png
+Image trueclass_7_target_6_12628.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_9_target_0_12581.png
+Image trueclass_9_target_0_12581.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_9_target_15_12581.png
+Image trueclass_9_target_15_12581.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_9_target_29_12581.png
+Image trueclass_9_target_29_12581.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_9_target_33_12581.png
+Image trueclass_9_target_33_12581.pngModel prediction was class 33
+   Flagging unsuccessful
+
+
+
+Total: 28/59 images successfully flagged (47.457627%)
+There were 29 images which should have been flagged, 22 of which were. (75.8621%).
+
+Testing 49 images
+Image trueclass_10_target_27_12629.png
+Image trueclass_10_target_27_12629.pngModel prediction was class 27
+   Flagging successful
+
+Image trueclass_10_target_39_12629.png
+Image trueclass_10_target_39_12629.pngModel prediction was class 39
+   Flagging unsuccessful
+
+Image trueclass_13_target_7_12620.png
+Image trueclass_13_target_7_12620.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_17_target_4_12573.png
+Image trueclass_17_target_4_12573.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_20_target_22_12579.png
+Image trueclass_20_target_22_12579.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_20_target_35_12579.png
+Image trueclass_20_target_35_12579.pngModel prediction was class 35
+   Flagging successful
+
+Image trueclass_20_target_5_12579.png
+Image trueclass_20_target_5_12579.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_23_target_14_12567.png
+Image trueclass_23_target_14_12567.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_24_target_19_12602.png
+Image trueclass_24_target_19_12602.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_24_target_22_12602.png
+Image trueclass_24_target_22_12602.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_24_target_23_12602.png
+Image trueclass_24_target_23_12602.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_24_target_3_12602.png
+Image trueclass_24_target_3_12602.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_24_target_7_12602.png
+Image trueclass_24_target_7_12602.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_26_target_11_12507.png
+Image trueclass_26_target_11_12507.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_26_target_22_12507.png
+Image trueclass_26_target_22_12507.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_27_target_12_10100.png
+Image trueclass_27_target_12_10100.pngModel prediction was class 12
+   Flagging successful
+
+Image trueclass_29_target_14_12470.png
+Image trueclass_29_target_14_12470.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_29_target_18_12470.png
+Image trueclass_29_target_18_12470.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_29_target_24_12470.png
+Image trueclass_29_target_24_12470.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_2_target_29_12580.png
+Image trueclass_2_target_29_12580.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_30_target_15_12476.png
+Image trueclass_30_target_15_12476.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_30_target_17_12476.png
+Image trueclass_30_target_17_12476.pngModel prediction was class 17
+   Flagging successful
+
+Image trueclass_30_target_28_12476.png
+Image trueclass_30_target_28_12476.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_31_target_19_12619.png
+Image trueclass_31_target_19_12619.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_32_target_14_12498.png
+Image trueclass_32_target_14_12498.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_32_target_18_12498.png
+Image trueclass_32_target_18_12498.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_32_target_41_12498.png
+Image trueclass_32_target_41_12498.pngModel prediction was class 41
+   Flagging unsuccessful
+
+Image trueclass_38_target_18_12606.png
+Image trueclass_38_target_18_12606.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_38_target_8_12606.png
+Image trueclass_38_target_8_12606.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_40_target_38_12475.png
+Image trueclass_40_target_38_12475.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_42_target_29_12502.png
+Image trueclass_42_target_29_12502.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_42_target_31_12502.png
+Image trueclass_42_target_31_12502.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_42_target_35_12502.png
+Image trueclass_42_target_35_12502.pngModel prediction was class 35
+   Flagging unsuccessful
+
+Image trueclass_42_target_6_12502.png
+Image trueclass_42_target_6_12502.pngModel prediction was class 6
+   Flagging unsuccessful
+
+Image trueclass_42_target_8_12502.png
+Image trueclass_42_target_8_12502.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_4_target_24_12523.png
+Image trueclass_4_target_24_12523.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_4_target_39_12523.png
+Image trueclass_4_target_39_12523.pngModel prediction was class 39
+   Flagging successful
+
+Image trueclass_4_target_6_12523.png
+Image trueclass_4_target_6_12523.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_5_target_9_12591.png
+Image trueclass_5_target_9_12591.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_6_target_13_12587.png
+Image trueclass_6_target_13_12587.pngModel prediction was class 13
+   Flagging successful
+
+Image trueclass_6_target_18_12587.png
+Image trueclass_6_target_18_12587.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_6_target_27_12587.png
+Image trueclass_6_target_27_12587.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_7_target_0_12628.png
+Image trueclass_7_target_0_12628.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_7_target_42_12628.png
+Image trueclass_7_target_42_12628.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_7_target_5_12628.png
+Image trueclass_7_target_5_12628.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_7_target_6_12628.png
+Image trueclass_7_target_6_12628.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_9_target_0_12581.png
+Image trueclass_9_target_0_12581.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_9_target_15_12581.png
+Image trueclass_9_target_15_12581.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_9_target_29_12581.png
+Image trueclass_9_target_29_12581.pngModel prediction was class 29
+   Flagging successful
+
+
+
+Total: 23/49 images successfully flagged (46.938776%)
+There were 22 images which should have been flagged, 17 of which were. (77.2727%).
+
+Testing 53 images
+Image trueclass_10_target_27_12629.png
+Image trueclass_10_target_27_12629.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_13_target_7_12620.png
+Image trueclass_13_target_7_12620.pngModel prediction was class 7
+   Flagging unsuccessful
+
+Image trueclass_14_target_24_12533.png
+Image trueclass_14_target_24_12533.pngModel prediction was class 24
+   Flagging successful
+
+Image trueclass_17_target_14_12573.png
+Image trueclass_17_target_14_12573.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_17_target_4_12573.png
+Image trueclass_17_target_4_12573.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_20_target_22_12579.png
+Image trueclass_20_target_22_12579.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_20_target_5_12579.png
+Image trueclass_20_target_5_12579.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_21_target_38_12459.png
+Image trueclass_21_target_38_12459.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_22_target_38_12592.png
+Image trueclass_22_target_38_12592.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_23_target_14_12567.png
+Image trueclass_23_target_14_12567.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_24_target_19_12602.png
+Image trueclass_24_target_19_12602.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_24_target_22_12602.png
+Image trueclass_24_target_22_12602.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_24_target_23_12602.png
+Image trueclass_24_target_23_12602.pngModel prediction was class 23
+   Flagging unsuccessful
+
+Image trueclass_24_target_3_12602.png
+Image trueclass_24_target_3_12602.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_24_target_7_12602.png
+Image trueclass_24_target_7_12602.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_26_target_11_12507.png
+Image trueclass_26_target_11_12507.pngModel prediction was class 11
+   Flagging unsuccessful
+
+Image trueclass_26_target_22_12507.png
+Image trueclass_26_target_22_12507.pngModel prediction was class 22
+   Flagging unsuccessful
+
+Image trueclass_27_target_12_10100.png
+Image trueclass_27_target_12_10100.pngModel prediction was class 12
+   Flagging successful
+
+Image trueclass_29_target_14_12470.png
+Image trueclass_29_target_14_12470.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_29_target_18_12470.png
+Image trueclass_29_target_18_12470.pngModel prediction was class 18
+   Flagging unsuccessful
+
+Image trueclass_29_target_24_12470.png
+Image trueclass_29_target_24_12470.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_2_target_29_12580.png
+Image trueclass_2_target_29_12580.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_30_target_15_12476.png
+Image trueclass_30_target_15_12476.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_30_target_17_12476.png
+Image trueclass_30_target_17_12476.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_30_target_28_12476.png
+Image trueclass_30_target_28_12476.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_31_target_19_12619.png
+Image trueclass_31_target_19_12619.pngModel prediction was class 19
+   Flagging unsuccessful
+
+Image trueclass_32_target_14_12498.png
+Image trueclass_32_target_14_12498.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_32_target_18_12498.png
+Image trueclass_32_target_18_12498.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_32_target_41_12498.png
+Image trueclass_32_target_41_12498.pngModel prediction was class 41
+   Flagging unsuccessful
+
+Image trueclass_33_target_2_12626.png
+Image trueclass_33_target_2_12626.pngModel prediction was class 2
+   Flagging unsuccessful
+
+Image trueclass_36_target_33_12320.png
+Image trueclass_36_target_33_12320.pngModel prediction was class 33
+   Flagging unsuccessful
+
+Image trueclass_37_target_4_12349.png
+Image trueclass_37_target_4_12349.pngModel prediction was class 4
+   Flagging successful
+
+Image trueclass_38_target_8_12606.png
+Image trueclass_38_target_8_12606.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_40_target_38_12475.png
+Image trueclass_40_target_38_12475.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_42_target_29_12502.png
+Image trueclass_42_target_29_12502.pngModel prediction was class 29
+   Flagging successful
+
+Image trueclass_42_target_31_12502.png
+Image trueclass_42_target_31_12502.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_42_target_35_12502.png
+Image trueclass_42_target_35_12502.pngModel prediction was class 35
+   Flagging unsuccessful
+
+Image trueclass_42_target_6_12502.png
+Image trueclass_42_target_6_12502.pngModel prediction was class 6
+   Flagging unsuccessful
+
+Image trueclass_42_target_8_12502.png
+Image trueclass_42_target_8_12502.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_4_target_24_12523.png
+Image trueclass_4_target_24_12523.pngModel prediction was class 24
+   Flagging unsuccessful
+
+Image trueclass_4_target_39_12523.png
+Image trueclass_4_target_39_12523.pngModel prediction was class 39
+   Flagging successful
+
+Image trueclass_4_target_6_12523.png
+Image trueclass_4_target_6_12523.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_5_target_9_12591.png
+Image trueclass_5_target_9_12591.pngModel prediction was class 9
+   Flagging unsuccessful
+
+Image trueclass_6_target_13_12627.png
+Image trueclass_6_target_13_12627.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_6_target_18_12627.png
+Image trueclass_6_target_18_12627.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_6_target_27_12627.png
+Image trueclass_6_target_27_12627.pngModel prediction was class 27
+   Flagging successful
+
+Image trueclass_7_target_0_12628.png
+Image trueclass_7_target_0_12628.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_7_target_42_12628.png
+Image trueclass_7_target_42_12628.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_7_target_5_12628.png
+Image trueclass_7_target_5_12628.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_7_target_6_12628.png
+Image trueclass_7_target_6_12628.pngModel prediction was class 6
+   Flagging successful
+
+Image trueclass_9_target_0_12581.png
+Image trueclass_9_target_0_12581.pngModel prediction was class 0
+   Flagging unsuccessful
+
+Image trueclass_9_target_15_12581.png
+Image trueclass_9_target_15_12581.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_9_target_29_12581.png
+Image trueclass_9_target_29_12581.pngModel prediction was class 29
+   Flagging successful
+
+
+
+Total: 24/53 images successfully flagged (45.283019%)
+There were 24 images which should have been flagged, 17 of which were. (70.8333%).
+
+Testing 52 images
+Image trueclass_10_target_27_12629.png
+Image trueclass_10_target_27_12629.pngModel prediction was class 27
+   Flagging unsuccessful
+
+Image trueclass_13_target_1_12620.png
+Image trueclass_13_target_1_12620.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_13_target_20_12620.png
+Image trueclass_13_target_20_12620.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_14_target_22_12533.png
+Image trueclass_14_target_22_12533.pngModel prediction was class 22
+   Flagging successful
+
+Image trueclass_14_target_30_12533.png
+Image trueclass_14_target_30_12533.pngModel prediction was class 30
+   Flagging successful
+
+Image trueclass_16_target_11_12556.png
+Image trueclass_16_target_11_12556.pngModel prediction was class 11
+   Flagging successful
+
+Image trueclass_16_target_13_12556.png
+Image trueclass_16_target_13_12556.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_16_target_30_12556.png
+Image trueclass_16_target_30_12556.pngModel prediction was class 30
+   Flagging successful
+
+Image trueclass_17_target_13_12573.png
+Image trueclass_17_target_13_12573.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_17_target_26_12573.png
+Image trueclass_17_target_26_12573.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_18_target_7_12616.png
+Image trueclass_18_target_7_12616.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_19_target_15_12478.png
+Image trueclass_19_target_15_12478.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_19_target_5_12478.png
+Image trueclass_19_target_5_12478.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_21_target_10_12459.png
+Image trueclass_21_target_10_12459.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_21_target_7_12459.png
+Image trueclass_21_target_7_12459.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_23_target_3_12567.png
+Image trueclass_23_target_3_12567.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_24_target_17_12602.png
+Image trueclass_24_target_17_12602.pngModel prediction was class 17
+   Flagging successful
+
+Image trueclass_24_target_35_12602.png
+Image trueclass_24_target_35_12602.pngModel prediction was class 35
+   Flagging successful
+
+Image trueclass_24_target_5_12602.png
+Image trueclass_24_target_5_12602.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_24_target_8_12602.png
+Image trueclass_24_target_8_12602.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_26_target_15_12507.png
+Image trueclass_26_target_15_12507.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_27_target_2_10100.png
+Image trueclass_27_target_2_10100.pngModel prediction was class 2
+   Flagging successful
+
+Image trueclass_27_target_40_10100.png
+Image trueclass_27_target_40_10100.pngModel prediction was class 40
+   Flagging successful
+
+Image trueclass_28_target_1_12447.png
+Image trueclass_28_target_1_12447.pngModel prediction was class 1
+   Flagging successful
+
+Image trueclass_29_target_36_12470.png
+Image trueclass_29_target_36_12470.pngModel prediction was class 36
+   Flagging successful
+
+Image trueclass_29_target_5_12470.png
+Image trueclass_29_target_5_12470.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_2_target_18_12580.png
+Image trueclass_2_target_18_12580.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_2_target_19_12580.png
+Image trueclass_2_target_19_12580.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_2_target_24_12580.png
+Image trueclass_2_target_24_12580.pngModel prediction was class 24
+   Flagging successful
+
+Image trueclass_2_target_26_12580.png
+Image trueclass_2_target_26_12580.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_30_target_15_12563.png
+Image trueclass_30_target_15_12563.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_30_target_37_12563.png
+Image trueclass_30_target_37_12563.pngModel prediction was class 37
+   Flagging unsuccessful
+
+Image trueclass_30_target_42_12563.png
+Image trueclass_30_target_42_12563.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_31_target_32_12619.png
+Image trueclass_31_target_32_12619.pngModel prediction was class 32
+   Flagging successful
+
+Image trueclass_32_target_19_12498.png
+Image trueclass_32_target_19_12498.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_32_target_21_12498.png
+Image trueclass_32_target_21_12498.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_32_target_23_12498.png
+Image trueclass_32_target_23_12498.pngModel prediction was class 23
+   Flagging successful
+
+Image trueclass_37_target_14_12349.png
+Image trueclass_37_target_14_12349.pngModel prediction was class 14
+   Flagging unsuccessful
+
+Image trueclass_37_target_29_12349.png
+Image trueclass_37_target_29_12349.pngModel prediction was class 29
+   Flagging unsuccessful
+
+Image trueclass_38_target_26_12606.png
+Image trueclass_38_target_26_12606.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_38_target_31_12606.png
+Image trueclass_38_target_31_12606.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_42_target_18_12502.png
+Image trueclass_42_target_18_12502.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_42_target_19_12502.png
+Image trueclass_42_target_19_12502.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_5_target_21_12591.png
+Image trueclass_5_target_21_12591.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_6_target_20_12627.png
+Image trueclass_6_target_20_12627.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_6_target_22_12627.png
+Image trueclass_6_target_22_12627.pngModel prediction was class 22
+   Flagging successful
+
+Image trueclass_6_target_26_12627.png
+Image trueclass_6_target_26_12627.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_6_target_28_12627.png
+Image trueclass_6_target_28_12627.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_7_target_18_12628.png
+Image trueclass_7_target_18_12628.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_8_target_18_12618.png
+Image trueclass_8_target_18_12618.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_9_target_12_12581.png
+Image trueclass_9_target_12_12581.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_9_target_31_12581.png
+Image trueclass_9_target_31_12581.pngModel prediction was class 31
+   Flagging successful
+
+
+
+Total: 42/52 images successfully flagged (80.769231%)
+There were 52 images which should have been flagged, 42 of which were. (80.7692%).
+
+Testing 41 images
+Image trueclass_10_target_27_12629.png
+Image trueclass_10_target_27_12629.pngModel prediction was class 27
+   Flagging successful
+
+Image trueclass_13_target_1_12620.png
+Image trueclass_13_target_1_12620.pngModel prediction was class 1
+   Flagging unsuccessful
+
+Image trueclass_13_target_20_12620.png
+Image trueclass_13_target_20_12620.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_13_target_31_12620.png
+Image trueclass_13_target_31_12620.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_17_target_13_12573.png
+Image trueclass_17_target_13_12573.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_21_target_10_12459.png
+Image trueclass_21_target_10_12459.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_21_target_34_12459.png
+Image trueclass_21_target_34_12459.pngModel prediction was class 34
+   Flagging successful
+
+Image trueclass_21_target_7_12459.png
+Image trueclass_21_target_7_12459.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_23_target_3_12567.png
+Image trueclass_23_target_3_12567.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_24_target_17_12602.png
+Image trueclass_24_target_17_12602.pngModel prediction was class 17
+   Flagging successful
+
+Image trueclass_24_target_35_12602.png
+Image trueclass_24_target_35_12602.pngModel prediction was class 35
+   Flagging successful
+
+Image trueclass_24_target_5_12602.png
+Image trueclass_24_target_5_12602.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_24_target_8_12602.png
+Image trueclass_24_target_8_12602.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_26_target_15_12507.png
+Image trueclass_26_target_15_12507.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_27_target_2_10100.png
+Image trueclass_27_target_2_10100.pngModel prediction was class 2
+   Flagging successful
+
+Image trueclass_27_target_40_10100.png
+Image trueclass_27_target_40_10100.pngModel prediction was class 40
+   Flagging successful
+
+Image trueclass_29_target_36_12470.png
+Image trueclass_29_target_36_12470.pngModel prediction was class 36
+   Flagging successful
+
+Image trueclass_29_target_5_12470.png
+Image trueclass_29_target_5_12470.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_2_target_18_12580.png
+Image trueclass_2_target_18_12580.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_2_target_19_12580.png
+Image trueclass_2_target_19_12580.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_2_target_24_12580.png
+Image trueclass_2_target_24_12580.pngModel prediction was class 24
+   Flagging successful
+
+Image trueclass_2_target_26_12580.png
+Image trueclass_2_target_26_12580.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_30_target_15_12476.png
+Image trueclass_30_target_15_12476.pngModel prediction was class 15
+   Flagging unsuccessful
+
+Image trueclass_30_target_42_12476.png
+Image trueclass_30_target_42_12476.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_31_target_32_12619.png
+Image trueclass_31_target_32_12619.pngModel prediction was class 32
+   Flagging successful
+
+Image trueclass_32_target_19_12498.png
+Image trueclass_32_target_19_12498.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_32_target_21_12498.png
+Image trueclass_32_target_21_12498.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_32_target_23_12498.png
+Image trueclass_32_target_23_12498.pngModel prediction was class 23
+   Flagging successful
+
+Image trueclass_38_target_26_12606.png
+Image trueclass_38_target_26_12606.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_38_target_31_12606.png
+Image trueclass_38_target_31_12606.pngModel prediction was class 31
+   Flagging successful
+
+Image trueclass_42_target_18_12502.png
+Image trueclass_42_target_18_12502.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_42_target_19_12502.png
+Image trueclass_42_target_19_12502.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_6_target_20_12627.png
+Image trueclass_6_target_20_12627.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_6_target_22_12627.png
+Image trueclass_6_target_22_12627.pngModel prediction was class 22
+   Flagging successful
+
+Image trueclass_6_target_26_12627.png
+Image trueclass_6_target_26_12627.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_6_target_28_12627.png
+Image trueclass_6_target_28_12627.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_7_target_18_12628.png
+Image trueclass_7_target_18_12628.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_8_target_18_12618.png
+Image trueclass_8_target_18_12618.pngModel prediction was class 18
+   Flagging successful
+
+Image trueclass_8_target_19_12618.png
+Image trueclass_8_target_19_12618.pngModel prediction was class 19
+   Flagging successful
+
+Image trueclass_9_target_12_12581.png
+Image trueclass_9_target_12_12581.pngModel prediction was class 12
+   Flagging unsuccessful
+
+Image trueclass_9_target_31_12581.png
+Image trueclass_9_target_31_12581.pngModel prediction was class 31
+   Flagging successful
+
+
+
+Total: 36/41 images successfully flagged (87.804878%)
+There were 41 images which should have been flagged, 36 of which were. (87.8049%).
+
+Testing 58 images
+Image trueclass_0_target_25_11873.png
+Image trueclass_0_target_25_11873.pngModel prediction was class 25
+   Flagging successful
+
+Image trueclass_10_target_36_12629.png
+Image trueclass_10_target_36_12629.pngModel prediction was class 36
+   Flagging unsuccessful
+
+Image trueclass_13_target_10_12620.png
+Image trueclass_13_target_10_12620.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_14_target_20_12533.png
+Image trueclass_14_target_20_12533.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_18_target_20_12616.png
+Image trueclass_18_target_20_12616.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_18_target_42_12616.png
+Image trueclass_18_target_42_12616.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_18_target_4_12616.png
+Image trueclass_18_target_4_12616.pngModel prediction was class 4
+   Flagging successful
+
+Image trueclass_19_target_15_12478.png
+Image trueclass_19_target_15_12478.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_19_target_1_12478.png
+Image trueclass_19_target_1_12478.pngModel prediction was class 1
+   Flagging successful
+
+Image trueclass_20_target_26_12579.png
+Image trueclass_20_target_26_12579.pngModel prediction was class 26
+   Flagging unsuccessful
+
+Image trueclass_20_target_3_12579.png
+Image trueclass_20_target_3_12579.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_20_target_41_12579.png
+Image trueclass_20_target_41_12579.pngModel prediction was class 41
+   Flagging successful
+
+Image trueclass_20_target_8_12579.png
+Image trueclass_20_target_8_12579.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_21_target_10_12459.png
+Image trueclass_21_target_10_12459.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_21_target_25_12459.png
+Image trueclass_21_target_25_12459.pngModel prediction was class 25
+   Flagging unsuccessful
+
+Image trueclass_21_target_30_12459.png
+Image trueclass_21_target_30_12459.pngModel prediction was class 30
+   Flagging unsuccessful
+
+Image trueclass_21_target_5_12459.png
+Image trueclass_21_target_5_12459.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_23_target_15_12567.png
+Image trueclass_23_target_15_12567.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_23_target_21_12567.png
+Image trueclass_23_target_21_12567.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_23_target_38_12567.png
+Image trueclass_23_target_38_12567.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_24_target_17_12602.png
+Image trueclass_24_target_17_12602.pngModel prediction was class 17
+   Flagging successful
+
+Image trueclass_24_target_8_12602.png
+Image trueclass_24_target_8_12602.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_26_target_5_12507.png
+Image trueclass_26_target_5_12507.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_27_target_14_10100.png
+Image trueclass_27_target_14_10100.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_27_target_33_10100.png
+Image trueclass_27_target_33_10100.pngModel prediction was class 33
+   Flagging successful
+
+Image trueclass_29_target_2_12470.png
+Image trueclass_29_target_2_12470.pngModel prediction was class 2
+   Flagging successful
+
+Image trueclass_29_target_32_12470.png
+Image trueclass_29_target_32_12470.pngModel prediction was class 32
+   Flagging successful
+
+Image trueclass_29_target_36_12470.png
+Image trueclass_29_target_36_12470.pngModel prediction was class 36
+   Flagging successful
+
+Image trueclass_29_target_40_12470.png
+Image trueclass_29_target_40_12470.pngModel prediction was class 40
+   Flagging successful
+
+Image trueclass_2_target_27_12580.png
+Image trueclass_2_target_27_12580.pngModel prediction was class 27
+   Flagging successful
+
+Image trueclass_2_target_28_12580.png
+Image trueclass_2_target_28_12580.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_2_target_38_12580.png
+Image trueclass_2_target_38_12580.pngModel prediction was class 38
+   Flagging unsuccessful
+
+Image trueclass_30_target_14_12563.png
+Image trueclass_30_target_14_12563.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_30_target_3_12563.png
+Image trueclass_30_target_3_12563.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_30_target_42_12563.png
+Image trueclass_30_target_42_12563.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_31_target_36_12619.png
+Image trueclass_31_target_36_12619.pngModel prediction was class 36
+   Flagging successful
+
+Image trueclass_31_target_7_12619.png
+Image trueclass_31_target_7_12619.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_32_target_20_12498.png
+Image trueclass_32_target_20_12498.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_32_target_25_12498.png
+Image trueclass_32_target_25_12498.pngModel prediction was class 25
+   Flagging successful
+
+Image trueclass_32_target_3_12498.png
+Image trueclass_32_target_3_12498.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_37_target_28_12349.png
+Image trueclass_37_target_28_12349.pngModel prediction was class 28
+   Flagging unsuccessful
+
+Image trueclass_38_target_17_12606.png
+Image trueclass_38_target_17_12606.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_38_target_28_12606.png
+Image trueclass_38_target_28_12606.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_41_target_20_12423.png
+Image trueclass_41_target_20_12423.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_41_target_22_12423.png
+Image trueclass_41_target_22_12423.pngModel prediction was class 22
+   Flagging successful
+
+Image trueclass_41_target_4_12423.png
+Image trueclass_41_target_4_12423.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_42_target_13_12502.png
+Image trueclass_42_target_13_12502.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_42_target_21_12502.png
+Image trueclass_42_target_21_12502.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_4_target_38_12523.png
+Image trueclass_4_target_38_12523.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_6_target_20_12627.png
+Image trueclass_6_target_20_12627.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_6_target_26_12627.png
+Image trueclass_6_target_26_12627.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_6_target_8_12627.png
+Image trueclass_6_target_8_12627.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_13_12628.png
+Image trueclass_7_target_13_12628.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_7_target_21_12628.png
+Image trueclass_7_target_21_12628.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_7_target_22_12628.png
+Image trueclass_7_target_22_12628.pngModel prediction was class 22
+   Flagging successful
+
+Image trueclass_7_target_24_12628.png
+Image trueclass_7_target_24_12628.pngModel prediction was class 24
+   Flagging successful
+
+Image trueclass_7_target_30_12628.png
+Image trueclass_7_target_30_12628.pngModel prediction was class 30
+   Flagging successful
+
+Image trueclass_9_target_11_12581.png
+Image trueclass_9_target_11_12581.pngModel prediction was class 11
+   Flagging successful
+
+
+
+Total: 43/58 images successfully flagged (74.137931%)
+There were 46 images which should have been flagged, 42 of which were. (91.3043%).
+
+Testing 51 images
+Image trueclass_10_target_36_12629.png
+Image trueclass_10_target_36_12629.pngModel prediction was class 36
+   Flagging unsuccessful
+
+Image trueclass_13_target_10_12620.png
+Image trueclass_13_target_10_12620.pngModel prediction was class 10
+   Flagging successful
+
+Image trueclass_13_target_28_12620.png
+Image trueclass_13_target_28_12620.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_14_target_20_12533.png
+Image trueclass_14_target_20_12533.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_14_target_24_12533.png
+Image trueclass_14_target_24_12533.pngModel prediction was class 24
+   Flagging successful
+
+Image trueclass_18_target_20_12616.png
+Image trueclass_18_target_20_12616.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_18_target_42_12616.png
+Image trueclass_18_target_42_12616.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_18_target_4_12616.png
+Image trueclass_18_target_4_12616.pngModel prediction was class 4
+   Flagging successful
+
+Image trueclass_19_target_1_12478.png
+Image trueclass_19_target_1_12478.pngModel prediction was class 1
+   Flagging successful
+
+Image trueclass_19_target_7_12478.png
+Image trueclass_19_target_7_12478.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_20_target_26_12579.png
+Image trueclass_20_target_26_12579.pngModel prediction was class 26
+   Flagging unsuccessful
+
+Image trueclass_20_target_3_12579.png
+Image trueclass_20_target_3_12579.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_20_target_41_12579.png
+Image trueclass_20_target_41_12579.pngModel prediction was class 41
+   Flagging successful
+
+Image trueclass_20_target_8_12579.png
+Image trueclass_20_target_8_12579.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_21_target_25_11788.png
+Image trueclass_21_target_25_11788.pngModel prediction was class 25
+   Flagging unsuccessful
+
+Image trueclass_21_target_30_11788.png
+Image trueclass_21_target_30_11788.pngModel prediction was class 30
+   Flagging unsuccessful
+
+Image trueclass_22_target_21_12592.png
+Image trueclass_22_target_21_12592.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_23_target_15_12567.png
+Image trueclass_23_target_15_12567.pngModel prediction was class 15
+   Flagging successful
+
+Image trueclass_23_target_21_12567.png
+Image trueclass_23_target_21_12567.pngModel prediction was class 21
+   Flagging unsuccessful
+
+Image trueclass_23_target_38_12567.png
+Image trueclass_23_target_38_12567.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_24_target_8_12602.png
+Image trueclass_24_target_8_12602.pngModel prediction was class 8
+   Flagging successful
+
+Image trueclass_26_target_5_12507.png
+Image trueclass_26_target_5_12507.pngModel prediction was class 5
+   Flagging successful
+
+Image trueclass_27_target_14_10100.png
+Image trueclass_27_target_14_10100.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_27_target_33_10100.png
+Image trueclass_27_target_33_10100.pngModel prediction was class 33
+   Flagging successful
+
+Image trueclass_29_target_2_12470.png
+Image trueclass_29_target_2_12470.pngModel prediction was class 2
+   Flagging successful
+
+Image trueclass_2_target_27_12580.png
+Image trueclass_2_target_27_12580.pngModel prediction was class 27
+   Flagging successful
+
+Image trueclass_2_target_28_12580.png
+Image trueclass_2_target_28_12580.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_30_target_14_12476.png
+Image trueclass_30_target_14_12476.pngModel prediction was class 14
+   Flagging successful
+
+Image trueclass_30_target_3_12476.png
+Image trueclass_30_target_3_12476.pngModel prediction was class 3
+   Flagging successful
+
+Image trueclass_30_target_42_12476.png
+Image trueclass_30_target_42_12476.pngModel prediction was class 42
+   Flagging successful
+
+Image trueclass_31_target_36_12619.png
+Image trueclass_31_target_36_12619.pngModel prediction was class 36
+   Flagging successful
+
+Image trueclass_31_target_7_12619.png
+Image trueclass_31_target_7_12619.pngModel prediction was class 7
+   Flagging successful
+
+Image trueclass_32_target_20_12498.png
+Image trueclass_32_target_20_12498.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_32_target_25_12498.png
+Image trueclass_32_target_25_12498.pngModel prediction was class 25
+   Flagging successful
+
+Image trueclass_32_target_3_12498.png
+Image trueclass_32_target_3_12498.pngModel prediction was class 3
+   Flagging unsuccessful
+
+Image trueclass_38_target_17_12606.png
+Image trueclass_38_target_17_12606.pngModel prediction was class 17
+   Flagging unsuccessful
+
+Image trueclass_38_target_28_12606.png
+Image trueclass_38_target_28_12606.pngModel prediction was class 28
+   Flagging successful
+
+Image trueclass_41_target_20_12423.png
+Image trueclass_41_target_20_12423.pngModel prediction was class 20
+   Flagging successful
+
+Image trueclass_41_target_4_12423.png
+Image trueclass_41_target_4_12423.pngModel prediction was class 4
+   Flagging unsuccessful
+
+Image trueclass_42_target_13_12502.png
+Image trueclass_42_target_13_12502.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_42_target_21_12502.png
+Image trueclass_42_target_21_12502.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_4_target_38_12523.png
+Image trueclass_4_target_38_12523.pngModel prediction was class 38
+   Flagging successful
+
+Image trueclass_6_target_20_12587.png
+Image trueclass_6_target_20_12587.pngModel prediction was class 20
+   Flagging unsuccessful
+
+Image trueclass_6_target_26_12587.png
+Image trueclass_6_target_26_12587.pngModel prediction was class 26
+   Flagging successful
+
+Image trueclass_6_target_8_12587.png
+Image trueclass_6_target_8_12587.pngModel prediction was class 8
+   Flagging unsuccessful
+
+Image trueclass_7_target_13_12628.png
+Image trueclass_7_target_13_12628.pngModel prediction was class 13
+   Flagging unsuccessful
+
+Image trueclass_7_target_21_12628.png
+Image trueclass_7_target_21_12628.pngModel prediction was class 21
+   Flagging successful
+
+Image trueclass_7_target_22_12628.png
+Image trueclass_7_target_22_12628.pngModel prediction was class 22
+   Flagging successful
+
+Image trueclass_7_target_24_12628.png
+Image trueclass_7_target_24_12628.pngModel prediction was class 24
+   Flagging successful
+
+Image trueclass_7_target_30_12628.png
+Image trueclass_7_target_30_12628.pngModel prediction was class 30
+   Flagging successful
+
+Image trueclass_9_target_11_12581.png
+Image trueclass_9_target_11_12581.pngModel prediction was class 11
+   Flagging successful
+
+
+
+Total: 37/51 images successfully flagged (72.549020%)
+There were 39 images which should have been flagged, 36 of which were. (92.3077%).
+Attribute HOG
+Total: 232 images should have been flagged and 329 were flagged. (141.8103%)
+
+Process finished with exit code 0

@@ -1,3 +1,5 @@
+import copy
+
 import torch.nn.functional as F
 import torch
 import os
@@ -5,18 +7,61 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from torch import nn
 import torch.optim as optim
+from torch.utils.data import Dataset
+from sklearn.preprocessing import StandardScaler
 import time
 import matplotlib.pyplot as plt
-from image_features import gather_image_features
+
+from general import str_date
+from image_features import gather_image_features, load_hog_df
 import numpy as np
 
 
 # input size is the length of the feature vector, see gather_image_features in image_features.py
+from tree_helper import split_all
+
 INPUT_SIZE = 22
-HIDDEN_LAYER_SIZE = 100
+HIDDEN_LAYER_SIZE = 200
 NUM_CLASSES = 43
-EPOCHS = 200
-LEARNING_RATE = 0.1
+EPOCHS = 5
+LEARNING_RATE = 0.01
+
+
+class hog_dataset(Dataset):
+    # adapted from https://medium.com/@shashikachamod4u/excel-csv-to-pytorch-dataset-def496b6bcc1
+
+    def __init__(self, filename):
+        global NUM_CLASSES
+        # read csv and load data
+        # specific to hog -----------------------------------
+        df = pd.read_csv(filename)
+        x = df.iloc[0:len(df.index), 2:82].values
+        y = df.iloc[0:len(df.index), 1].values
+        # x = df.iloc[0:256, 2:82].values
+        # y = df.iloc[0:256, 1].values
+        # array where each index represents a class, and the value at that index represents the attribute label for that
+        # class
+        class_attributes = split_all("shape")
+        y = [class_attributes[i] for i in y]
+        mapping = {"circle": 0, "triangle": 1, "diamond": 2, "inverted_triangle" : 3, "octagon" : 4}
+        y = [mapping[i] for i in y]
+        num_unique_classes = len(list(set(y)))
+        NUM_CLASSES = num_unique_classes
+
+        # Feature Scaling
+        sc = StandardScaler()
+        x_train = sc.fit_transform(x)
+        y_train = y
+
+        # converting  to torch tensors
+        self.X_train = torch.tensor(x_train, dtype=torch.float32)
+        self.y_train = torch.tensor(y_train)
+
+    def __len__(self):
+        return int(len(self.y_train))
+
+    def __getitem__(self, item):
+        return self.X_train[item], self.y_train[item]
 
 
 class Net(nn.Module):
@@ -140,17 +185,17 @@ def calculate_accuracy(y_true, y_pred):
     return c.sum().float()/len(y_true)
 
 
-def save_model(model, path="pytorch_saved"):
+def save_model(model, fname = None):
     #save a model
-    path = os.path.join(os.getcwd(), "ML", path)
-    torch.save(model, path)
-    print('Model saved as {}'.format(path))
-    return path
+    if fname == None:
+        path = os.path.join(os.getcwd(), "Image_features", fname)
+    torch.save(model, fname)
+    print('Model saved as {}'.format(fname))
+    return fname
 
 
-def load_model():
+def load_model(filename = None):
     # load a model from a file
-    filename = os.path.join(os.getcwd(), "ML", "pytorch_saved")
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model = torch.load(filename)
     model.to(device)
@@ -196,8 +241,175 @@ def plot_accuracy_and_loss(train_acc, train_loss, test_acc, test_loss):
     plt.savefig(path)
 
 
+def train_hog_model(model, dataloader, lr = LEARNING_RATE, epochs = EPOCHS):
+    criterion = nn.CrossEntropyLoss()
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    if torch.cuda.is_available():
+        model.cuda()
+
+    model.train()
+
+    optimizer = optim.SGD(model.parameters(), lr, momentum=0.9)
+
+    since = time.time()
+
+    num_samples = len(dataloader.dataset)
+    #print("Number of samples in the dataset:\t{}".format(num_samples))
+
+    training_loss_history = []
+    training_acc_history = []
+    best_model_wts = copy.deepcopy(model.state_dict())
+    best_acc = 0.0
+
+    for i in range(epochs):
+        print('Epoch {}/{}'.format(i + 1, epochs))
+        print('-' * 10)
+
+        running_loss = 0
+        running_corrects = 0
+        count = 0
+        for features, labels in dataloader:
+
+            count += 1
+            if (count % 100 == 0):
+                print("Completed batch " + str(count))
+
+
+            # forward pass
+            output = model(features)
+            loss = criterion(output, labels)
+            _, preds = torch.max(output, 1)
+
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            running_loss +=loss.item()
+            running_corrects += int(torch.sum(preds == labels.data))
+        epoch_loss = running_loss / num_samples
+        epoch_acc = running_corrects / num_samples
+
+        print('\tLoss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
+
+        training_acc_history.append(epoch_acc)
+        training_loss_history.append(epoch_loss)
+        if epoch_acc > best_acc:
+            best_acc = epoch_acc
+            best_model_wts = copy.deepcopy(model.state_dict())
+
+    time_elapsed = time.time() - since
+    print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
+    print('Best Acc: {:4f}'.format(best_acc))
+    # load best model weights
+    model.load_state_dict(best_model_wts)
+    return model, training_acc_history, training_loss_history
+
+
+def hog_predict_shape(model, dataset, original_csv, save_filename = None):
+    # takes a csv file from <root_folder> (one that has the cluster predictions) and takes
+    # information collected from a shapes_in_clusters csv to predict the shape of an image.  Creates a new
+    # csv called shape_predictions where the columns are
+    # img path, img class, img shape, shape prediction (string)
+    # dataset is a hog_dataset instance
+
+    model.eval()
+
+    if save_filename is None:
+        save_filename = "nn_shape_predictions.csv"
+
+    original_csv_df = load_hog_df(original_csv)
+
+    root_folder = os.path.split(original_csv)[0]
+    save_path = os.path.join(root_folder, save_filename)
+    f = open(save_path, 'w+')
+    f.write("img,class,model_predicted_shape,true_shape,correct")
+
+    # array where each index represents a class, and the value at that index represents the attribute label for that
+    # class
+    class_attributes = split_all("shape")
+    mapping = {"circle": 0, "triangle": 1, "diamond": 2, "inverted_triangle": 3, "octagon": 4}
+    inv_mapping = {v: k for k, v in mapping.items()}
+
+    total_correct = 0
+    shapes_correct = {"circle": 0, "triangle": 0, "diamond": 0, "inverted_triangle": 0, "octagon": 0}
+    shapes_count = {"circle": 0, "triangle": 0, "diamond": 0, "inverted_triangle": 0, "octagon": 0}
+
+    num_rows = len(dataset)
+
+    for i in range(num_rows):
+        correct = 0
+
+        # get a row of hog data
+        data, label = dataset.__getitem__(i)
+        label = int(label.item())
+
+        # get model prediction
+        pred = list(model(data))
+        pred_shape = pred.index(max(pred))
+
+        # get img file name and img class
+        data = original_csv_df.iloc[[i], [0,1]]
+        data = list(data.iloc[0])
+        img_name = data[0]
+        true_class = data[1]
+        true_shape = class_attributes[true_class]
+        if mapping[true_shape] != label:
+            print("Error, true class is not equal to the label")
+            exit(-1)
+
+        shapes_count[true_shape] +=1
+        if pred_shape == mapping[true_shape]:   # correct prediction?
+            total_correct +=1
+            shapes_correct[true_shape] += 1
+            correct = 1
+
+        f.write("\n{},{},{},{},{}".format(img_name, true_class, inv_mapping[pred_shape], true_shape, correct))
+
+    f.close()
+    print("total correct:\t\t{}/{}, {:4f}%".format(total_correct, num_rows, 100 * total_correct/num_rows))
+    for key in shapes_count:
+        print("{}:\t\t{}/{} correct, {:4f}%".format(key, shapes_correct[key],shapes_count[key],
+                                             100 * shapes_correct[key]/shapes_count[key]))
+
+
+
+def create_train_save_hog_model(filename = None, evaluate = True, save = True):
+    global INPUT_SIZE
+    INPUT_SIZE = 80
+    if filename is None:
+        filename = os.path.join(os.getcwd(), "Image_features", "HOG", "80hog_img_features_GTSRB_ResNet_2021-03-11",
+                                "80hog_img_features_GTSRB_ResNet_2021-03-11.csv")
+    hog_data = hog_dataset(filename)
+    print("Number of samples in the dataset:\t{}".format(len(hog_data)))
+    train_loader = torch.utils.data.DataLoader(hog_data, batch_size=64, shuffle=True)
+    model = Net()
+    model, train_acc, train_loss = train_hog_model(model, train_loader)
+    if evaluate:
+        hog_predict_shape(model, hog_data, original_csv=filename)
+    if save:
+        fname = os.path.join(os.path.split(filename)[0], str_date() + "hog_model")
+        save_model(model, fname)
+
+
+def load_evaluate_hog(filename = None, test_data = False):
+    if filename is None:
+        filename = os.path.join(os.getcwd(), "Image_features", "HOG",
+                                "80hog_img_features_GTSRB_ResNet_2021-03-11", "2021-04-01hog_model")
+    model = load_model(filename)
+
+    csv = os.path.join(os.getcwd(), "Image_features", "HOG", "80hog_img_features_GTSRB_ResNet_2021-03-11",
+                                "80hog_img_features_GTSRB_ResNet_2021-03-11.csv")
+    if test_data:
+        csv = os.path.join(os.getcwd(), "Image_features", "HOG", "80hog_img_features_Test_2021-03-22",
+                           "80hog_img_features_Test_2021-03-22.csv")
+    hog_data = hog_dataset(csv)
+    hog_predict_shape(model, hog_data, original_csv=csv)
+
+
 if __name__ == '__main__':
-    csv = os.path.join(os.getcwd(), "Image_features", "img_features_GTSRB_ResNet_2020-12-29_normalized.csv")
+    #csv = os.path.join(os.getcwd(), "Image_features", "img_features_GTSRB_ResNet_2020-12-29_normalized.csv")
     #csv = os.path.join(os.getcwd(), "Image_features", "img_features_small_test_dataset_2020-12-29.csv")
     #train(csv)
-    create_train_save_print_model(csv)
+    #create_train_save_print_model(csv)
+    load_evaluate_hog(test_data=True)
+    #create_train_save_hog_model(evaluate=False, save=False)

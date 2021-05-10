@@ -1,0 +1,17 @@
+----TRAIN DATASET----
+
+total correct:		36829/39209, 		93.929965%
+
+cdo:			27857/28079 correct, 	99.209374%
+triangle:		8418/8970 correct, 	93.846154%
+inverted_triangle:	554/2160 correct, 	25.648148%
+
+
+
+----TEST DATASET----
+
+total correct:		11830/12630, 		93.665875%
+
+cdo:			9080/9120 correct, 	99.561404%
+triangle:		2578/2790 correct, 	92.401434%
+inverted_triangle:	172/720 correct, 	23.888889%

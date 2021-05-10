@@ -1,0 +1,15 @@
+Top-1 accuracy:
+1903/39209 images correct, 4.8535%
+
+Top-5 accuracy:
+11341/39209 images correct, 28.9245%
+
+Top-10 accuracy:
+19807/39209 images correct, 50.5165%
+
+Top-20 accuracy:
+31891/39209 images correct, 81.3359%
+
+Top-25 accuracy:
+36680/39209 images correct, 93.5500%
+

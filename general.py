@@ -38,6 +38,7 @@ def count_folder_contents(root_folder = None, verbose = False):
 
 
 def num_images(folder = None, show_output = True):
+    total_signs = 0
     if folder ==None:
         folder = os.path.join(os.getcwd(), "Train")
     classes = os.listdir(folder)
@@ -48,8 +49,11 @@ def num_images(folder = None, show_output = True):
         sign_folder = os.path.join(folder, sign)
         num_imgs = len(os.listdir(sign_folder))
         signs_per_class.append(num_imgs)
+        total_signs += num_imgs
         if show_output:
             print("Class {}: {} images".format(sign, num_imgs))
+    if show_output:
+        print("{} images total".format(total_signs))
     return signs_per_class
 
 if __name__ == '__main__':
